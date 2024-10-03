@@ -2,12 +2,21 @@
 name = "identity"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = []
+license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
 django = "^5.1.1"
+django-environ = "^0.11.2"
+redis = "^5.1.0"
+psycopg2 = "^2.9.9"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+isort = "^5.13.2"
+pytest-django = "^4.9.0"
 
 
 [build-system]
