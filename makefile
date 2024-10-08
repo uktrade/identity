@@ -42,14 +42,14 @@ setup: # Set up the project from scratch
 	make migrate
 	make up
 
-webpack: # Run webpack
+vite: # Run vite
 	npm run dev
 
 bash: # Open up a bash in the web container
 	$(web) /bin/bash
 
 shell: # Open up a python shell in the web container
-	$(web) $(manage) shell
+	$(web) $(manage) shell_plus
 
 migrations: # Run makemigrations
 	$(web) $(manage) makemigrations
