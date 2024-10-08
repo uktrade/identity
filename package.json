@@ -10,8 +10,9 @@
     "build": "vite build"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
+    "gh-pages-generator": "^0.2.3",
     "sass": "^1.79.4",
     "vite": "^5.4.8"
   }

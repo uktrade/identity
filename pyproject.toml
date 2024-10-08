@@ -12,13 +12,26 @@ django = "^5.1.1"
 django-environ = "^0.11.2"
 psycopg = "^3.2.3"
 redis = "^5.1.0"
-django-extensions = "^3.2.3"
+daphne = "^4.1.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
 isort = "^5.13.2"
 pytest-django = "^4.9.0"
+django-extensions = "^3.2.3"
 
+[tool.pytest.ini_options]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+
+[tool.black]
+target_version = ['py312']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+skip_gitignore = true
+line_length = 88
+lines_after_imports = 2
 
 [build-system]
 requires = ["poetry-core"]

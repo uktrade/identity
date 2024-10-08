@@ -104,6 +104,10 @@ check: # Run project checks
 	make check-isort
 	make check-migrations
 
+# Tests
+test: # Run pytest, use the optional arg `tests` to run specific tests, eg: `make test tests=path/to/test.py::ClassName::test_func_name`
+	$(web) pytest $(tests)
+
 # DB
 db-reset: # Reset the database
 	docker compose stop postgres
