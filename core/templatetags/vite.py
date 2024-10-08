@@ -6,6 +6,7 @@ from django.conf import settings
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
+
 logger = logging.getLogger(__name__)
 
 register = template.Library()
