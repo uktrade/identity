@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "daphne",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "core.apps.CoreConfig",
@@ -73,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "config.asgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
@@ -114,7 +113,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-gb"
 
-TIME_ZONE = "Europe/London"
+TIME_ZONE = "UTC"
+
+LOCAL_TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 
