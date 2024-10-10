@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-import environ  # type: ignore
+import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -73,6 +75,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+
+# Sentry
+
+
+def init_sentry():
+    sentry_environment = env("SENTRY_ENVIRONMENT")
+
+    sentry_sdk.init(
+        dsn=env("SENTRY_DSN"),
+        environment=sentry_environment,
+        integrations=[
+            DjangoIntegration(),
+        ],
+        enable_tracing=env.bool("SENTRY_ENABLE_TRACING", False),
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0),
+    )
 
 
 # Database
