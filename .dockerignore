@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.pyc
+.python-version
+.Python
+build/
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Data
+*.log
+local_settings.py
+db.sqlite3
+.db
+*.sql
+.dumps/
+/logs
+/data
+
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Node
+node_modules/
+.npm
+npm-debug.log*
+
+# Vite
+dist/
+
+# Project
+.devcontainer/
+/static/
+media/
+staticfiles/
+
+# IDE
+.idea/
+.vscode
+
+# Direnv / ASDF
+.direnv
+.envrc
+.tool-versions
+
+# macOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# git
+.gitignore
