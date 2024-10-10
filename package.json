@@ -1,0 +1,19 @@
+{
+  "name": "identity",
+  "version": "1.0.0",
+  "description": "A dedicated service for staff profile and directory information",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "gh-pages-generator": "^0.2.3",
+    "sass": "^1.79.4",
+    "vite": "^5.4.8"
+  }
+}
