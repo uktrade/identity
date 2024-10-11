@@ -80,7 +80,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 def init_sentry():
-    sentry_environment = env("SENTRY_ENVIRONMENT")
+    sentry_environment = env("APP_ENV")
 
     sentry_sdk.init(
         dsn=env("SENTRY_DSN"),
