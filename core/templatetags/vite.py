@@ -30,7 +30,7 @@ def vite_css(context, filename: str) -> str:
         return ""
 
     return mark_safe(
-        f'<link rel="stylesheet" href="{static(manifest[filename]["css"])}">'
+        f'<link rel="stylesheet" href="{static(manifest[filename]["file"])}">'
     )
 
 
