@@ -77,7 +77,7 @@ dumpdata: # Run django `dumpdata` command and output to a file
 	$(web) $(manage) dumpdata $(model) --indent 4 -o $(output)
 	$(chown) $(output)
 
-django-check: # Run deployment checklist
+check-django: # Run deployment checklist
 	$(web) $(manage) check --deploy
 
 # Formatters

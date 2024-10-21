@@ -48,8 +48,8 @@ jobs:
       - name: Run check migrations
         run: make check-migrations
 
-      - name: Run django check
-        run: make django-check
+      - name: Run check django
+        run: make check-django
 
       - name: Run tests
         run: make coverage
