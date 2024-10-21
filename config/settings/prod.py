@@ -1,0 +1,21 @@
+from .base import *  # noqa
+
+
+DEBUG: bool = False
+
+AWS_S3_URL_PROTOCOL: str = "https:"
+AWS_S3_CUSTOM_DOMAIN: str = env.str("AWS_S3_CUSTOM_DOMAIN")  # noqa F405
+AWS_QUERYSTRING_AUTH: bool = False
+
+SESSION_COOKIE_AGE: int = 60 * 60
+
+SECURE_BROWSER_XSS_FILTER: bool = True
+X_FRAME_OPTIONS: str = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF: bool = True
+SECURE_HSTS_SECONDS: int = 15768000
+SECURE_HSTS_INCLUDE_SUBDOMAINS: bool = True
+SECURE_HSTS_PRELOAD: bool = True
+SECURE_SSL_REDIRECT: bool = True
+CSRF_COOKIE_SECURE: bool = True
+SESSION_COOKIE_SECURE: bool = True
+SECURE_PROXY_SSL_HEADER: tuple[str, str] = ("HTTP_X_FORWARDED_PROTO", "https")

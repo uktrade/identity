@@ -1,12 +1,8 @@
 from .base import *
 
 
-DEBUG = True
-
-ALLOWED_HOSTS = ["localhost"]
-
+DEBUG: bool = True
+ALLOWED_HOSTS: list[str] = ["localhost"]
 INSTALLED_APPS.append(
     "django_extensions",
 )
-
-init_sentry()
