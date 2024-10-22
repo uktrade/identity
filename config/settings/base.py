@@ -23,11 +23,14 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-
 env: environ.Env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
+
+# App
+#
 APP_ENV: str = env.str("APP_ENV")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
+
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
 SECRET_KEY: str = env.str("SECRET_KEY")
@@ -35,33 +38,27 @@ DEBUG: bool = False
 ALLOWED_HOSTS: list[str] = setup_allowed_hosts(env.list("ALLOWED_HOSTS", default=[]))
 ROOT_URLCONF: str = "config.urls"
 WSGI_APPLICATION: str = "config.wsgi.application"
-# Redis
-#
-IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
-IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
-# Sentry
-# https://docs.sentry.io/platforms/python/integrations/django/
-SENTRY_DSN: str = env.str("SENTRY_DSN")
-SENTRY_ENABLE_TRACING: bool = env.bool("SENTRY_ENABLE_TRACING", False)
-SENTRRY_TRACES_SAMPLE_RATE: float = env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0)
-DATABASE_URL: str = env.str("DATABASE_URL")
-# Vite
-# https://vitejs.dev/guide/backend-integration.html
-VITE_DEV: bool = env.bool("VITE_DEV")
-VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
-VITE_MANIFEST_PATH: str = BASE_DIR / "frontend" / "dist" / "manifest.json"
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL: str = "static/"
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGE_CODE: str = "en-gb"
 TIME_ZONE: str = "UTC"
 USE_I18N: bool = True
 USE_TZ: bool = True
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL: str = "static/"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
+
+# Vite
+# https://vitejs.dev/guide/backend-integration.html
+VITE_DEV: bool = env.bool("VITE_DEV")
+VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
+VITE_MANIFEST_PATH: str = BASE_DIR / "frontend" / "dist" / "manifest.json"
 
 # Application definition
 INSTALLED_APPS: list[str] = [
@@ -102,14 +99,17 @@ TEMPLATES: list[dict[str]] = [
 ]
 
 # Sentry
+# https://docs.sentry.io/platforms/python/integrations/django/
+SENTRY_DSN: str = env.str("SENTRY_DSN")
+
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         environment=APP_ENV,
         release=GIT_COMMIT,
         integrations=[DjangoIntegration(), RedisIntegration()],
-        enable_tracing=SENTRY_ENABLE_TRACING,
-        traces_sample_rate=SENTRRY_TRACES_SAMPLE_RATE,
+        enable_tracing=env.bool("SENTRY_ENABLE_TRACING", False),
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0),
         send_default_pii=True,
     )
 
@@ -124,9 +124,14 @@ if is_copilot():
         )
     }
 else:
+    DATABASE_URL: str = env.str("DATABASE_URL")
     DATABASES: dict[str] = {"default": env.db()}
 
 # Redis
+# https://docs.djangoproject.com/en/5.1/topics/cache/
+IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
+IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
+
 if is_copilot():
     IDENTITY_REDIS_URL = IDENTITY_REDIS_URL
 else:
