@@ -43,17 +43,6 @@ WSGI_APPLICATION: str = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 STATIC_URL: str = "static/"
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-LANGUAGE_CODE: str = "en-gb"
-TIME_ZONE: str = "UTC"
-USE_I18N: bool = True
-USE_TZ: bool = True
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
-
 # Vite
 # https://vitejs.dev/guide/backend-integration.html
 VITE_DEV: bool = env.bool("VITE_DEV")
@@ -144,6 +133,17 @@ CACHES: dict[str] = {
         "KEY_PREFIX": "wp_",
     }
 }
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
+LANGUAGE_CODE: str = "en-gb"
+TIME_ZONE: str = "UTC"
+USE_I18N: bool = True
+USE_TZ: bool = True
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
