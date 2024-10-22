@@ -77,7 +77,7 @@ dumpdata: # Run django `dumpdata` command and output to a file
 	$(web) $(manage) dumpdata $(model) --indent 4 -o $(output)
 	$(chown) $(output)
 
-django-check: # Run deployment checklist
+check-django: # Run deployment checklist
 	$(web) $(manage) check --deploy
 
 # Formatters
@@ -98,14 +98,29 @@ check-black: # Run black with `--check` flag
 check-isort: # Run isort with `--check` flag
 	poetry run isort --check .
 
+check-mypy: # Run mypy
+	poetry run mypy .
+
 check: # Run project checks
 	make check-black
 	make check-isort
+	make check-mypy
 	make check-migrations
 
 # Tests
 test: # Run pytest, use the optional arg `tests` to run specific tests, eg: `make test tests=path/to/test.py::ClassName::test_func_name`
 	$(web) pytest $(tests)
+
+test-fresh: # The same as `make test` but with a fresh db
+	$(web) pytest --create-db $(tests)
+
+coverage: # Run test with pytest and generate coverage report
+	$(web) coverage run -m pytest --create-db $(tests)
+	$(web) coverage report --fail-under=75
+
+coverage-html: # Generate a html report of the test coverage
+	$(web) coverage html
+	poetry run python -m webbrowser htmlcov/index.html
 
 # DB
 db-reset: # Reset the database
