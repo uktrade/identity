@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = False
 
-ALLOWED_HOSTS: list[str]
+ALLOWED_HOSTS: list[str] = []
 
 
 # Application definition
