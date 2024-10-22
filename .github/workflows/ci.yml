@@ -1,4 +1,4 @@
-name: Identity CI
+name: Build and test
 
 on:
   pull_request: 
@@ -33,20 +33,11 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Run check-black
-        run: make check-black
-
-      - name: Run check-isort
-        run: make check-isort
-      
-      - name: Run check-mypy
-        run: make check-mypy
+      - name: Run checks
+        run: make check
 
       - name: Docker compose up
         run: docker compose up -d
-
-      - name: Run check migrations
-        run: make check-migrations
 
       - name: Run check django
         run: make check-django
