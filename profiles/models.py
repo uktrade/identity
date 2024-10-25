@@ -19,18 +19,16 @@ from django.db import models
 class FieldAuthoritativenessMixin:
     is_authoritative: bool = False
 
-    def __init__(self, is_authoritative, *args, **kwargs):
-        self.is_authoritative = bool(kwargs.pop("is_authoritative", False))
-
-
-class AuthoritativeCharField(models.CharField):
-    is_authoritative: bool = False
     def __init__(self, *args, **kwargs):
         self.is_authoritative = bool(kwargs.pop("is_authoritative", False))
-        # super(FieldAuthoritativenessMixin, self).__init__(
-        #     *args, **kwargs
-        # ),
+        super().__init__(
+            *args,
+            **kwargs,
+        )
 
+
+class AuthoritativeCharField(FieldAuthoritativenessMixin, models.CharField):
+    def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
             **kwargs,
@@ -45,6 +43,9 @@ class AbstractProfile(models.Model):
         get_user_model(),
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return self.user.username
 
 
 class PeopleFinderProfile(AbstractProfile):
