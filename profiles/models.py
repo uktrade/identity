@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 # 1,
@@ -66,6 +67,7 @@ class PeopleFinderProfile(AbstractProfile):
         on_delete=models.SET_NULL,
         null=True,
     )
+    history = HistoricalRecords()
 
 
 class PeopleFinderTeam(models.Model): ...
