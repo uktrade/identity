@@ -14,10 +14,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 21
-
       - name: Create a .env file
         run: cp .env.ci .env
 
@@ -26,12 +22,6 @@ jobs:
 
       - name: Install python dependencies
         run: poetry install
-
-      - name: Install node packages
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
 
       - name: Run checks
         run: make check
