@@ -32,6 +32,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "user.User"
+AUTH_GROUP_MODEL = "user.Group"
 
 # Application definition
 
@@ -44,8 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "simple_history",
+    "django_group_model",
     "core.apps.CoreConfig",
     "profiles",
+    "user",
 ]
 
 MIDDLEWARE = [
