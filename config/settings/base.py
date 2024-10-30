@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 
 AUTH_USER_MODEL = "user.User"
 AUTH_GROUP_MODEL = "user.Group"

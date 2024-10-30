@@ -6,7 +6,7 @@ export default defineConfig({
     Outdir: "dist",
     manifest: "manifest.json",
     rollupOptions: {
-      input: "frontend/index.js",
+      input: ["frontend/index.js", "frontend/styles.scss"],
     },
   },
 });
