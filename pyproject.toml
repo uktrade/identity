@@ -12,7 +12,7 @@ django = "^5.1.2"
 django-environ = "^0.11.2"
 psycopg = "^3.2.3"
 redis = "^5.1.0"
-waitress = "^3.0.0"
+waitress = "^3.0.1"
 sentry-sdk = "^2.16.0"
 dbt-copilot-python = "^0.2.2"
 dj-database-url = "^2.2.0"
@@ -22,6 +22,8 @@ black = "^24.10.0"
 isort = "^5.13.2"
 pytest-django = "^4.9.0"
 django-extensions = "^3.2.3"
+coverage = "^7.6.4"
+mypy = "^1.12.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-awesome-pages-plugin = "^2.8.0"
@@ -43,6 +45,23 @@ skip_gitignore = true
 line_length = 88
 lines_after_imports = 2
 
+[tool.mypy]
+exclude = [
+    # TOML literal strings (single-quotes, no escaping necessary)
+    '/migrations/',
+]
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "django.*",
+    "environ.*",
+]
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = ["*/migrations/*", "*/tests/*", "config/*"]
