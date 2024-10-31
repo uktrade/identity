@@ -12,8 +12,10 @@ django = "^5.1.2"
 django-environ = "^0.11.2"
 psycopg = "^3.2.3"
 redis = "^5.1.0"
-waitress = "^3.0.1"
+waitress = "^2.1.2"
 sentry-sdk = "^2.16.0"
+dbt-copilot-python = "^0.2.2"
+dj-database-url = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -54,6 +56,7 @@ check_untyped_defs = true
 module = [
     "django.*",
     "environ.*",
+    "dbt_copilot_python.*",
 ]
 ignore_missing_imports = true
 
