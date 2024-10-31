@@ -11,31 +11,47 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from typing import Any
 
+import dj_database_url
 import environ
 import sentry_sdk
+from dbt_copilot_python.database import database_url_from_env
+from dbt_copilot_python.network import is_copilot, setup_allowed_hosts
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-
-env = environ.Env()
+BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+env: environ.Env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
 
-APP_ENV = env("APP_ENV")
+# App
+#
+APP_ENV: str = env.str("APP_ENV")
+GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 
-SECRET_KEY = env("SECRET_KEY")
+# Django
+# https://docs.djangoproject.com/en/5.1/topics/settings/
+SECRET_KEY: str = env.str("SECRET_KEY")
+DEBUG: bool = False
+ALLOWED_HOSTS: list[str] = setup_allowed_hosts(env.list("ALLOWED_HOSTS", default=[]))
+ROOT_URLCONF: str = "config.urls"
+WSGI_APPLICATION: str = "config.wsgi.application"
 
-DEBUG = False
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL: str = "static/"
 
-ALLOWED_HOSTS: list[str] = []
-
+# Vite
+# https://vitejs.dev/guide/backend-integration.html
+VITE_DEV: bool = env.bool("VITE_DEV")
+VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
+VITE_MANIFEST_PATH: Path = BASE_DIR / "frontend" / "dist" / "manifest.json"
 
 # Application definition
-
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,7 +62,7 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -56,9 +72,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
-
-TEMPLATES = [
+TEMPLATES: list[dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
@@ -74,43 +88,68 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
-
 # Sentry
+# https://docs.sentry.io/platforms/python/integrations/django/
+SENTRY_DSN: str = env.str("SENTRY_DSN")
 
-
-def init_sentry():
-    sentry_environment = env("APP_ENV")
-
+if SENTRY_DSN:
     sentry_sdk.init(
-        dsn=env("SENTRY_DSN"),
-        environment=sentry_environment,
-        integrations=[
-            DjangoIntegration(),
-        ],
+        dsn=SENTRY_DSN,
+        environment=APP_ENV,
+        release=GIT_COMMIT,
+        integrations=[DjangoIntegration(), RedisIntegration()],
         enable_tracing=env.bool("SENTRY_ENABLE_TRACING", False),
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0),
+        send_default_pii=True,
     )
 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": env.db(),
+if is_copilot():
+    DATABASES: dict[str, Any] = {
+        "default": dj_database_url.config(
+            default=database_url_from_env("DATABASE_CREDENTIALS")
+        )
+    }
+else:
+    DATABASE_URL: str = env.str("DATABASE_URL")
+    DATABASES = {"default": env.db()}
+
+# Redis
+# https://docs.djangoproject.com/en/5.1/topics/cache/
+IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
+IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
+
+if is_copilot():
+    IDENTITY_REDIS_URL = IDENTITY_REDIS_URL
+else:
+    IDENTITY_REDIS_URL = IDENTITY_REDIS
+
+CACHES: dict[str, Any] = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": IDENTITY_REDIS_URL,
+        "KEY_PREFIX": "wp_",
+    }
 }
 
-# Vite
-# https://vitejs.dev/guide/backend-integration.html
+# Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
+LANGUAGE_CODE: str = "en-gb"
+TIME_ZONE: str = "UTC"
+USE_I18N: bool = True
+USE_TZ: bool = True
 
-VITE_DEV = env.bool("VITE_DEV")
-VITE_DEV_SERVER_URL = env("VITE_DEV_SERVER_URL")
-VITE_MANIFEST_PATH = BASE_DIR / "frontend" / "dist" / "manifest.json"
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
@@ -124,26 +163,3 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-LANGUAGE_CODE = "en-gb"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
