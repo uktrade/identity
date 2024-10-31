@@ -3,8 +3,6 @@ from .base import *  # noqa
 
 DEBUG: bool = False
 
-AWS_S3_URL_PROTOCOL: str = "https:"
-AWS_S3_CUSTOM_DOMAIN: str = env.str("AWS_S3_CUSTOM_DOMAIN")  # noqa F405
 AWS_QUERYSTRING_AUTH: bool = False
 
 SESSION_COOKIE_AGE: int = 60 * 60
