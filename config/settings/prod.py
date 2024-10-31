@@ -1,7 +1,7 @@
 from .base import *  # noqa
 
 
-DEBUG: bool = False
+DEBUG = False
 
 AWS_QUERYSTRING_AUTH: bool = False
 

@@ -1,8 +1,8 @@
 from .base import *
 
 
-DEBUG: bool = True
-ALLOWED_HOSTS: list[str] = ["localhost"]
+DEBUG = True
+ALLOWED_HOSTS = ["localhost"]
 INSTALLED_APPS.append(
     "django_extensions",
 )

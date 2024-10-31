@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from typing import Any
 
 import dj_database_url
 import environ
@@ -47,7 +48,7 @@ STATIC_URL: str = "static/"
 # https://vitejs.dev/guide/backend-integration.html
 VITE_DEV: bool = env.bool("VITE_DEV")
 VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
-VITE_MANIFEST_PATH: str = BASE_DIR / "frontend" / "dist" / "manifest.json"
+VITE_MANIFEST_PATH: Path = BASE_DIR / "frontend" / "dist" / "manifest.json"
 
 # Application definition
 INSTALLED_APPS: list[str] = [
@@ -71,7 +72,7 @@ MIDDLEWARE: list[str] = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-TEMPLATES: list[dict[str]] = [
+TEMPLATES: list[dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
@@ -107,14 +108,14 @@ if SENTRY_DSN:
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 if is_copilot():
-    DATABASES: dict[str] = {
+    DATABASES: dict[str, Any] = {
         "default": dj_database_url.config(
             default=database_url_from_env("DATABASE_CREDENTIALS")
         )
     }
 else:
     DATABASE_URL: str = env.str("DATABASE_URL")
-    DATABASES: dict[str] = {"default": env.db()}
+    DATABASES = {"default": env.db()}
 
 # Redis
 # https://docs.djangoproject.com/en/5.1/topics/cache/
@@ -126,7 +127,7 @@ if is_copilot():
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
 
-CACHES: dict[str] = {
+CACHES: dict[str, Any] = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": IDENTITY_REDIS_URL,
@@ -148,7 +149,7 @@ DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS: dict[str, str] = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
