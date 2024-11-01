@@ -1,1 +1,1 @@
-web: python manage.py check --deploy && python manage.py migrate --noinput && python manage.py collectstatic --noinput && waitress-serve --port=$PORT config.wsgi:application
+web: python manage.py check --deploy && python manage.py migrate --noinput && python manage.py clearcache && python manage.py collectstatic --noinput && granian --interface wsgi config.wsgi:application --workers 4 --host 0.0.0.0 --port $PORT
