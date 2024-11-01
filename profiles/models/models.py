@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models as django_models
 from simple_history.models import HistoricalRecords
 
 
@@ -14,7 +14,7 @@ class FieldAuthoritativenessMixin:
         )
 
 
-class AuthoritativeCharField(FieldAuthoritativenessMixin, models.CharField):
+class AuthoritativeCharField(FieldAuthoritativenessMixin, django_models.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
@@ -22,7 +22,7 @@ class AuthoritativeCharField(FieldAuthoritativenessMixin, models.CharField):
         ),
 
 
-class AbstractHistoricalModel(models.Model):
+class AbstractHistoricalModel(django_models.Model):
     class Meta:
         abstract = True
 
@@ -35,9 +35,9 @@ class AbstractProfile(AbstractHistoricalModel):
     class Meta:
         abstract = True
 
-    user = models.OneToOneField(
+    user = django_models.OneToOneField(
         get_user_model(),
-        on_delete=models.CASCADE,
+        on_delete=django_models.CASCADE,
     )
 
     def __str__(self):

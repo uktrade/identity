@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models as django_models
 from simple_history.models import HistoricForeignKey
 
 from profiles.models import (
@@ -23,13 +23,13 @@ class PeopleFinderProfile(AbstractProfile):
     )
     team = HistoricForeignKey(
         "PeopleFinderTeam",
-        on_delete=models.SET_NULL,
+        on_delete=django_models.SET_NULL,
         null=True,
     )
 
 
 class PeopleFinderTeam(AbstractHistoricalModel):
-    name = models.CharField(
+    name = django_models.CharField(
         null=True,
     )
 
