@@ -49,6 +49,8 @@ STATIC_URL: str = "static/"
 VITE_DEV: bool = env.bool("VITE_DEV")
 VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
 VITE_MANIFEST_PATH: Path = BASE_DIR / "frontend" / "dist" / "manifest.json"
+AUTH_USER_MODEL = "user.User"
+AUTH_GROUP_MODEL = "user.Group"
 
 # Application definition
 INSTALLED_APPS: list[str] = [
@@ -59,7 +61,10 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+    "simple_history",
     "core.apps.CoreConfig",
+    "profiles",
+    "user",
 ]
 
 MIDDLEWARE: list[str] = [
@@ -70,6 +75,7 @@ MIDDLEWARE: list[str] = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 TEMPLATES: list[dict[str, Any]] = [
