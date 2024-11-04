@@ -8,4 +8,5 @@ app_name = "core"
 urlpatterns = [
     path("", views.index, name="index"),
     path("sentry-debug/", views.trigger_error),
+    path('hello/', views.HelloWorldView.as_view(), name='hello_world'),
 ]

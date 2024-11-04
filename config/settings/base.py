@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "simple_history",
     "core.apps.CoreConfig",
+    "rest_framework",
     "profiles",
     "user",
 ]
