@@ -1,44 +1,53 @@
+from typing import List
+
+from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import HttpBearer, django_auth
 
 import profiles.models.people_finder as pf
 from user.models.models import User
 
+from .schema import PeopleProfileIn, PeopleProfileOut
+
 
 router = Router()
 
 
-@router.post("add-user/")
-def add_user(request, username: str):
-    user = User.objects.create_user(username=username)
-    return {"user": user.username}
-
-
-class AuthBearer(HttpBearer):
+class AuthProfile(HttpBearer):
     def authenticate(self, request, token):
-        if token == "supersecret":
+        if token == "profilesecret":
             return token
 
 
-@router.get("/show-users", auth=AuthBearer())
-def show_users(request):
-    users = User.objects.all()
-    return {"users": [{"id": user.id, "username": user.username} for user in users]}
-
-
-@router.post("add-profile")
-def add_profile(request, username: str):
+@router.post("/add", response=PeopleProfileOut)
+def add_profile(request, data: PeopleProfileIn):
     profile = pf.PeopleFinderProfile.objects.create(
-        user=User.objects.filter(username=username).first()
+        user=User.objects.filter(username=data.username).first(),
+        fav_program=data.fav_program,
+        super_important=data.super_important,
     )
-    return {"profile": profile.user.username}
+    return profile
 
 
-@router.get("/show-profiles")
+@router.get("/{id}", response=PeopleProfileOut)
+def get_employee(request, id: int):
+    profile = get_object_or_404(pf.PeopleFinderProfile, id=id)
+    return profile
+
+
+@router.get("/add", response=List[PeopleProfileOut])  # auth=AuthProfile()
 def show_profiles(request):
-    profiles = list(pf.PeopleFinderProfile.objects.all())
-    return {
-        "profiles": [
-            {"id": profile.id, "profile": profile.user.username} for profile in profiles
-        ]
-    }
+    profiles = pf.PeopleFinderProfile.objects.all()
+    return profiles
+    # profiles = list(pf.PeopleFinderProfile.objects.all())
+    # return {
+    #     "profiles": [
+    #         {
+    #             "id": profile.id,
+    #             "profile": profile.user.username,
+    #             "fav_program": profile.fav_program,
+    #             "super_important": profile.super_important
+    #         }
+    #         for profile in profiles
+    #     ]
+    # }

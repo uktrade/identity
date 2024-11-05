@@ -1,6 +1,7 @@
 from ninja import NinjaAPI
 
 from profiles.api import router as profiles_router
+from user.api import router as user_router
 
 
 api = NinjaAPI()
@@ -12,3 +13,4 @@ def add(request, a: int, b: int):
 
 
 api.add_router("/profiles/", profiles_router)
+api.add_router("/users/", user_router)
