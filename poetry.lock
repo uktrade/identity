@@ -396,6 +396,20 @@ files = [
 django = ">=4.2"
 
 [[package]]
+name = "djangorestframework-api-key"
+version = "3.0.0"
+description = "API key permissions for the Django REST Framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "djangorestframework-api-key-3.0.0.tar.gz", hash = "sha256:f18cdfa45aaea10fd4daaebffa60481ce4002c9b9ef6c551ef1fc21dadf28845"},
+    {file = "djangorestframework_api_key-3.0.0-py3-none-any.whl", hash = "sha256:b9443cd864e43caebdd330224f9309957b38128267fbc9dc1ba2f3fa1c8414d0"},
+]
+
+[package.dependencies]
+packaging = "*"
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 description = "Copy your docs directly to the gh-pages branch."
@@ -1451,4 +1465,4 @@ bracex = ">=2.1.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "5d3d54b52d318981052e5894e24724f54b0a704c8c5184fd9edf4c227f6a1667"
+content-hash = "0a674a9de29054d3b288ee61234573a5f88882a09dbb345b0ccd5a57258bbefa"
