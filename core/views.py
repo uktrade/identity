@@ -17,5 +17,5 @@ def trigger_error(request):
 class HelloWorldView(APIView):
     permission_classes = [HasAPIKey]
     def get(self, request):
-        return Response({"message": "Hello, from Identity Server"}, status=status.HTTP_200_OK)
+        return Response({"message": "Hello, from Identity Server app"}, status=status.HTTP_200_OK)
 
