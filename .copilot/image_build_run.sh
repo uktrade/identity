@@ -10,9 +10,6 @@ mv ".env.ci" ".env"
 
 cd src
 
-echo "Running collectstatic"
-python manage.py collectstatic --settings=config.settings.build --noinput
-
 echo "Renaming .env to .env.ci"
 cd ../
 mv ".env" ".env.ci"
