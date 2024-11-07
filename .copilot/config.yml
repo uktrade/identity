@@ -1,4 +1,4 @@
 repository: identity
 builder:
-  name: paketobuildpacks/builder-jammy-full
+  name: paketobuildpacks/builder-jammy-base
   version: 0.4.240
