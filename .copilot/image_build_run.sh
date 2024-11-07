@@ -4,12 +4,4 @@
 set -e
 
 echo "Running post build script"
-
-echo "Renaming .env.ci to .env"
-mv ".env.ci" ".env"
-
-cd src
-
-echo "Renaming .env to .env.ci"
-cd ../
-mv ".env" ".env.ci"
+export $(grep -v '^#' .env.ci | xargs)
