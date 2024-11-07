@@ -1,5 +1,5 @@
 from ninja import Router
-from ninja.security import HttpBearer
+from ninja.security import HttpBearer, SessionAuth
 
 from .models.models import User
 
