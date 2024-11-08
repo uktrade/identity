@@ -26,6 +26,8 @@ def add_profile(request, data: PeopleProfileIn):
         fav_program=data.fav_program,
         super_important=data.super_important,
     )
+    # data_dict = data.dict()
+    # profile = pf.PeopleFinderProfile(**data_dict)
     return profile
 
 
