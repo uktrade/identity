@@ -15,6 +15,10 @@ down: # Bring down the docker containers
 # Run a command in a new container
 run = docker compose run --rm
 
+run-prod: # Bring up the docker containers in a "like prod" setup
+	docker compose stop web
+	$(run) --service-ports web granian --interface wsgi config.wsgi:application --workers 1 --host 0.0.0.0 --port 8000
+
 # Run a command in a new container without starting linked services
 run-no-deps = $(run) --no-deps
 
