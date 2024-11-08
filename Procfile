@@ -1,1 +1,1 @@
-web: python manage.py check --deploy && python manage.py migrate --noinput && python manage.py clearcache && granian --interface wsgi config.wsgi:application --workers 4 --host 0.0.0.0 --port $PORT
+web: python manage.py check --deploy && python manage.py migrate --noinput && python manage.py clearcache && granian --interface wsgi config.wsgi:application --host 0.0.0.0 --port $PORT
