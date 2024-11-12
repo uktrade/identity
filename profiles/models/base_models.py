@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from simple_history.models import HistoricalRecords
 
@@ -30,6 +31,14 @@ class AuthoritativeEmailField(FieldAuthoritativenessMixin, models.EmailField):
 
 
 class AuthoritativeUUIDField(FieldAuthoritativenessMixin, models.UUIDField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            **kwargs,
+        ),
+
+
+class AuthoritativeArrayField(FieldAuthoritativenessMixin, ArrayField):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,

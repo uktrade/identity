@@ -7,6 +7,7 @@ __all__ = [
     "AuthoritativeCharField",
     "AuthoritativeEmailField",
     "AuthoritativeUUIDField",
+    "AuthoritativeArrayField",
     "AbstractHistoricalModel",
     "StaffSSOProfile",
 ]

@@ -1,10 +1,10 @@
 import uuid
 
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from profiles.models.base_models import (
     AbstractHistoricalModel,
+    AuthoritativeArrayField,
     AuthoritativeCharField,
     AuthoritativeEmailField,
     AuthoritativeUUIDField,
@@ -14,10 +14,10 @@ from profiles.models.base_models import (
 class StaffSSOProfile(AbstractHistoricalModel):
     email = AuthoritativeEmailField(
         unique=True,
+        is_authoritative=True,
     )
     contact_email = AuthoritativeEmailField(
         unique=True,
-        is_authoritative=True,
     )
     email_user_id = AuthoritativeEmailField(
         unique=True,
@@ -30,13 +30,12 @@ class StaffSSOProfile(AbstractHistoricalModel):
     first_name = AuthoritativeCharField(
         max_length=50,
         blank=True,
-        is_authoritative=True,
     )
     last_name = AuthoritativeCharField(
         max_length=50,
         blank=True,
     )
-    other_emails = ArrayField(
+    other_emails = AuthoritativeArrayField(
         models.EmailField(
             unique=True,
         ),
