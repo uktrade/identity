@@ -58,6 +58,7 @@ module = [
     "django.*",
     "environ.*",
     "dbt_copilot_python.*",
+    "simple_history.*",
 ]
 ignore_missing_imports = true
 
