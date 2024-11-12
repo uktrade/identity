@@ -16,6 +16,7 @@ sentry-sdk = "^2.16.0"
 dbt-copilot-python = "^0.2.2"
 dj-database-url = "^2.2.0"
 granian = "^1.6.3"
+django-simple-history = "^3.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
