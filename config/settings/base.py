@@ -60,6 +60,7 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "core.apps.CoreConfig",
+    "pingdom.apps.PingdomConfig",
 ]
 
 MIDDLEWARE: list[str] = [
