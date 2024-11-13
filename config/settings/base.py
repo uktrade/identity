@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,7 @@ import environ
 import sentry_sdk
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import is_copilot, setup_allowed_hosts
+from django_log_formatter_asim import ASIMFormatter
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
@@ -88,6 +91,59 @@ TEMPLATES: list[dict[str, Any]] = [
         },
     },
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "asim_formatter": {
+            "()": ASIMFormatter,
+        },
+    },
+    "handlers": {
+        "asim": {
+            "class": "logging.StreamHandler",
+            "formatter": "asim_formatter",
+            "filters": ["request_id_context"],
+        },
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+        },
+    },
+    "root": {
+        "handlers": ["stdout"],
+        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
+    },
+    "loggers": {
+        "django": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+        "requestlogs": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
+    "filters": {
+        "request_id_context": {
+            "()": "requestlogs.logging.RequestIdContext",
+        },
+    },
+}
 
 # Sentry
 # https://docs.sentry.io/platforms/python/integrations/django/

@@ -1,6 +1,5 @@
-from django.db import DatabaseError
-
 from django.contrib.auth import get_user_model
+from django.db import DatabaseError
 
 
 class CheckDatabase:
