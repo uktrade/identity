@@ -95,17 +95,17 @@ TEMPLATES: list[dict[str, Any]] = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "asim_formatter": {
-            "()": ASIMFormatter,
-        },
-    },
+    # "formatters": {
+    #     "asim_formatter": {
+    #         "()": ASIMFormatter,
+    #     },
+    # },
     "handlers": {
-        "asim": {
-            "class": "logging.StreamHandler",
-            "formatter": "asim_formatter",
-            "filters": ["request_id_context"],
-        },
+        # "asim": {
+        #     "class": "logging.StreamHandler",
+        #     "formatter": "asim_formatter",
+        #     # "filters": ["request_id_context"],
+        # },
         "stdout": {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
@@ -118,31 +118,31 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": [
-                "asim",
+                "stdout",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
         "django.request": {
             "handlers": [
-                "asim",
+                "stdout",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
         "requestlogs": {
             "handlers": [
-                "asim",
+                "stdout",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
     },
-    "filters": {
-        "request_id_context": {
-            "()": "requestlogs.logging.RequestIdContext",
-        },
-    },
+    # "filters": {
+    #     "request_id_context": {
+    #         "()": "requestlogs.logging.RequestIdContext",
+    #     },
+    # },
 }
 
 # Sentry
