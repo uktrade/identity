@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -60,6 +62,7 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "core.apps.CoreConfig",
+    "pingdom.apps.PingdomConfig",
 ]
 
 MIDDLEWARE: list[str] = [
@@ -87,6 +90,44 @@ TEMPLATES: list[dict[str, Any]] = [
         },
     },
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+        },
+    },
+    "root": {
+        "handlers": ["stdout"],
+        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
+    },
+    "loggers": {
+        "django": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+        "requestlogs": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
+}
 
 # Sentry
 # https://docs.sentry.io/platforms/python/integrations/django/
