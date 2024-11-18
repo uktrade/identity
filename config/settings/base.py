@@ -120,6 +120,8 @@ AUTHBROKER_ANONYMOUS_URL_NAMES = (
     "profile-get-card",
 )
 
+AUTHBROKER_INTROSPECTION_TOKEN = env("AUTHBROKER_INTROSPECTION_TOKEN", default="XXX")
+
 
 LOGGING = {
     "version": 1,
