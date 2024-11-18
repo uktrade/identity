@@ -20,6 +20,7 @@ import environ
 import sentry_sdk
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import is_copilot, setup_allowed_hosts
+from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
@@ -62,6 +63,7 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "core.apps.CoreConfig",
+    "authbroker_client",
     "pingdom.apps.PingdomConfig",
 ]
 
@@ -73,6 +75,7 @@ MIDDLEWARE: list[str] = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "authbroker_client.middleware.ProtectAllViewsMiddleware",
 ]
 
 TEMPLATES: list[dict[str, Any]] = [
@@ -90,6 +93,31 @@ TEMPLATES: list[dict[str, Any]] = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "authbroker_client.backends.AuthbrokerBackend",
+]
+
+
+LOGIN_URL = reverse_lazy("authbroker_client:login")
+LOGIN_REDIRECT_URL = "/"
+
+
+# authbroker config
+AUTHBROKER_URL = env("AUTHBROKER_URL")
+AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
+AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
+AUTHBROKER_STAFF_SSO_SCOPE = env("AUTHBROKER_STAFF_SSO_SCOPE")
+
+AUTHBROKER_ANONYMOUS_PATHS = ("/pingdom/ping.xml",)
+AUTHBROKER_ANONYMOUS_URL_NAMES = (
+    "person-api-people-list",
+    "person-api-people-detail",
+    "team-api-teams-list",
+    "profile-get-card",
+)
+
 
 LOGGING = {
     "version": 1,
