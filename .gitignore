@@ -4,6 +4,7 @@ __pycache__/
 .python-version
 .Python
 build/
+.pii-secret-hook
 
 # Unit test / coverage reports
 htmlcov/
