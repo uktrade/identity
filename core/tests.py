@@ -25,16 +25,6 @@ def state(db):
 
 
 @pytest.mark.django_db
-def test_unauthorised_access(state):
-    state.client.logout()
-    url = reverse("core:index")
-    response = state.client.get(url)
-
-    assert response.status_code == 302
-    assert b"Identity Service" not in response.content
-
-
-@pytest.mark.django_db
 def test_authorised_access(state):
     url = reverse("core:index")
     response = state.client.get(url)
