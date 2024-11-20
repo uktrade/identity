@@ -3,7 +3,7 @@ import logging
 from .base import *  # noqa
 
 
-APP_ENV = "ci"
+APP_ENV = "test"
 DEBUG = True
 TEMPLATE_DEBUG = True
 
