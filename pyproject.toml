@@ -35,6 +35,8 @@ mkdocstrings-python = "^0.9.0"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "*_test.py", "tests.py"]
+addopts = "--disable-warnings --ds=config.settings.test"
+DJANGO_SETTINGS_MODULE = "config.settings.test"
 
 [tool.black]
 target_version = ['py312']

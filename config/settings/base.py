@@ -111,12 +111,6 @@ AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 AUTHBROKER_STAFF_SSO_SCOPE = env("AUTHBROKER_STAFF_SSO_SCOPE")
 
 AUTHBROKER_ANONYMOUS_PATHS = ("/pingdom/ping.xml",)
-AUTHBROKER_ANONYMOUS_URL_NAMES = (
-    "person-api-people-list",
-    "person-api-people-detail",
-    "team-api-teams-list",
-    "profile-get-card",
-)
 
 
 LOGGING = {
