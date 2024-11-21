@@ -12,7 +12,7 @@ services:
       - postgres
       - redis
     environment:
-      - DJANGO_SETTINGS_MODULE
+      - DJANGO_SETTINGS_MODULE=config.settings.developer
     stdin_open: true
     tty: true
 
