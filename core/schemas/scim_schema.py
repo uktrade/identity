@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 from django.contrib.auth import get_user_model
 from ninja import Field, Schema
@@ -12,10 +12,10 @@ user = get_user_model()
 class Name:
     givenName: str
     familyName: str
-    formatted: str = None
-    middleName: str = None
-    honorificPrefix: str = None
-    honorificSuffix: str = None
+    formatted: str | None = None
+    middleName: str | None = None
+    honorificPrefix: str | None = None
+    honorificSuffix: str | None = None
 
     def __init__(self, first_name, last_name):
         self.givenName = first_name
@@ -24,8 +24,8 @@ class Name:
 
 @dataclass
 class Email:
-    value: str = None
-    type: str = None
+    value: str | None = None
+    type: str | None = None
     primary: bool = False
 
     def __init__(self, value, type, primary):
@@ -41,21 +41,21 @@ class SCIMUser(Schema):
     schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
     userName: str = Field(alias="username")
     name: Name
-    displayName: str = None
-    nickName: str = None
-    profileUrl: str = None
-    title: str = None
-    userType: str = None
+    displayName: str | None = None
+    nickName: str | None = None
+    profileUrl: str | None = None
+    title: str | None = None
+    userType: str | None = None
     preferredLanguage: str = None
-    locale: str = None
-    timezone: str = None
+    locale: str | None = None
+    timezone: str | None = None
     active: bool = Field(alias="is_active")
-    emails: list[Email] = None
-    ims: str = None
-    photos: str = None
+    emails: list[Email] | None = None
+    ims: str | None = None
+    photos: str | None = None
 
     @staticmethod
-    def resolve_emails(obj):
+    def resolve_emails(obj: Dict[any, any] | get_user_model):
         if type(obj) is get_user_model():
             if obj.email:
                 return [Email(obj.email, "work", True)]
@@ -66,7 +66,7 @@ class SCIMUser(Schema):
                 return None
 
     @staticmethod
-    def resolve_name(obj):
+    def resolve_name(obj: Dict[any, any] | get_user_model):
         if type(obj) is get_user_model():
             return Name(obj.first_name, obj.last_name)
         else:

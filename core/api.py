@@ -15,7 +15,10 @@ def get_users(request):
     return users
 
 
-@router.post("scim/v2/Users", response=SCIMUser)
+responsecodes = frozenset({200, 201})
+
+
+@router.post("scim/v2/Users", response={responsecodes: SCIMUser})
 def create_user(request, scim_request: SCIMUser):
     user, created = UserService.createUser(scim_request)
 
