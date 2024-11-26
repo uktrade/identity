@@ -5,4 +5,4 @@ from core.api import router as core_router
 
 api = NinjaAPI()
 
-api.add_router("/scim/", core_router)
+api.add_router("", core_router)
