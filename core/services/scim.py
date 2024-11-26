@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
 
-from core.schemas.scim_schema import SCIMRequest
+from core.schemas.scim_schema import SCIMUser
 
 
 class SCIMService:
     def __init__():
         super()
 
-    def transform_user(scim_request: SCIMRequest) -> get_user_model:
+    def transform_user(scim_request: SCIMUser) -> get_user_model:
         user_model = get_user_model()
         user = {
             "username": scim_request.userName,
@@ -31,7 +31,7 @@ class SCIMService:
 
         return user
 
-    def to_scim(user: get_user_model) -> SCIMRequest:
+    def to_scim(user: get_user_model) -> SCIMUser:
         # print(user)
         return {
             "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
