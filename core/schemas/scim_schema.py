@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 from django.contrib.auth import get_user_model
 from ninja import Field, Schema
