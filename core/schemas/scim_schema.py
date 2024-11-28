@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from django.contrib.auth import get_user_model
 from ninja import Field, Schema
@@ -49,7 +49,7 @@ class SCIMUser(Schema):
     profileUrl: str | None = None
     title: str | None = None
     userType: str | None = None
-    preferredLanguage: str = None
+    preferredLanguage: str | None = None
     locale: str | None = None
     timezone: str | None = None
     active: bool = Field(alias="is_active")
@@ -60,7 +60,7 @@ class SCIMUser(Schema):
     addresses: list[Address] | None = None
 
     @staticmethod
-    def resolve_emails(obj: Dict[any, any] | get_user_model):
+    def resolve_emails(obj: Dict[Any, Any] | get_user_model):
         if type(obj) is get_user_model():
             if obj.email:
                 return [Email(obj.email, "work", True)]
@@ -71,14 +71,14 @@ class SCIMUser(Schema):
                 return None
 
     @staticmethod
-    def resolve_name(obj: Dict[any, any] | get_user_model):
+    def resolve_name(obj: Dict[Any, Any] | get_user_model):
         if type(obj) is get_user_model():
             return Name(obj.first_name, obj.last_name)
         else:
             return obj["name"]
 
     @staticmethod
-    def resolve_phoneNumbers(obj: Dict[any, any] | get_user_model):
+    def resolve_phoneNumbers(obj: Dict[Any, Any] | get_user_model):
         if type(obj) is get_user_model():
             return [PhoneNumber("0123456789", "work", True)]
         else:
@@ -88,7 +88,7 @@ class SCIMUser(Schema):
                 return None
 
     @staticmethod
-    def resolve_addresses(obj: Dict[any, any] | get_user_model):
+    def resolve_addresses(obj: Dict[Any, Any] | get_user_model):
         if type(obj) is get_user_model():
             return [Address("work")]
         else:
