@@ -17,21 +17,12 @@ class Name:
     honorificPrefix: str | None = None
     honorificSuffix: str | None = None
 
-    def __init__(self, first_name, last_name):
-        self.givenName = first_name
-        self.familyName = last_name
-
 
 @dataclass
 class Email:
     value: str | None = None
     type: str | None = None
     primary: bool = False
-
-    def __init__(self, value, type, primary):
-        self.value = value
-        self.type = type
-        self.primary = primary
 
 
 class SCIMUser(Schema):
