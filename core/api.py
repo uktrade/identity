@@ -1,34 +1,26 @@
 from typing import List
 
+from django.contrib.auth import get_user_model
 from ninja import Router
 
-from core.services.scim import SCIMService
+from .schemas.scim_schema import SCIMUser, SCIMUserOut
 
-from .schemas.scim_schema import Name, SCIMRequest, user
 
+user_model = get_user_model()
 
 router = Router()
 
 
-@router.get("scim/v2/Users", response=List[SCIMRequest])
+@router.get("scim/v2/Users", response=List[SCIMUserOut])
 def get_users(request):
-    users = user.objects.all()
-    # SCIMService.transform_user()
+    users = user_model.objects.all()
     return users
-
-    # for u in users:
-    #     names = {"familyName": u.last_name,"givenName": u.first_name}
-    #     return {
-    #         # "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-    #         "userName": u.username,
-    #         "name": names,
-    #         "emails": u.email,
-    #         "active": u.is_active,
-    #     }
 
 
 @router.post("scim/v2/Users")
-def create_user(request, scim_request: SCIMRequest):
-    user = SCIMService.transform_user(scim_request)
-    response = SCIMService.to_scim(user)
-    return response
+def create_user(request, scim_request: SCIMUser):
+    user, created = user_model.objects.get_or_create(scim_request)
+    if created:
+        return 201, user
+    else:
+        return 200, user

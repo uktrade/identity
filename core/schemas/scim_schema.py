@@ -1,32 +1,102 @@
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Dict, List
 
 from django.contrib.auth import get_user_model
 from ninja import Field, Schema
-from pydantic import AliasChoices, ConfigDict, create_model
 
 
-user = get_user_model()
-
-
-class Name(Schema):
-    model_config = ConfigDict(from_attributes=True)
+@dataclass
+class Name:
     givenName: str
     familyName: str
+    formatted: str | None = None
+    middleName: str | None = None
+    honorificPrefix: str | None = None
+    honorificSuffix: str | None = None
 
-    def __init__(self, first_name, last_name):
-        self.givenName = first_name
-        self.familyName = last_name
+
+@dataclass
+class Email:
+    value: str | None = None
+    type: str | None = None
+    primary: bool = False
 
 
-class SCIMRequest(Schema):
+@dataclass
+class PhoneNumber:
+    value: str | None = None
+    type: str | None = None
+    primary: bool = False
+
+
+@dataclass
+class Address:
+    type: str | None = None
+    formatted: str | None = None
+    streetAddress: str | None = None
+    locality: str | None = None
+    region: str | None = None
+    postalCode: str | None = None
+    country: str | None = None
+
+
+class SCIMUser(Schema):
     schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
     userName: str = Field(alias="username")
-    name: Name = {
-        "givenName": Field(alias="first_name"),
-        "familyName": Field(alias="last_name"),
-    }
-    emails: str = Field(alias="email")
+    name: Name
+    displayName: str | None = None
+    nickName: str | None = None
+    profileUrl: str | None = None
+    title: str | None = None
+    userType: str | None = None
+    preferredLanguage: str = None
+    locale: str | None = None
+    timezone: str | None = None
     active: bool = Field(alias="is_active")
+    emails: list[Email] | None = None
+    phoneNumbers: list[PhoneNumber] | None = None
+    ims: str | None = None
+    photos: str | None = None
+    addresses: list[Address] | None = None
 
-    # name: Name = create_model('SCIMRequest', type=(str, ...), attributes=(Name(givenName=Field(alias="first_name"), familyName=Field(alias="last_name")), ...))
+    @staticmethod
+    def resolve_emails(obj: Dict[any, any] | get_user_model):
+        if type(obj) is get_user_model():
+            if obj.email:
+                return [Email(obj.email, "work", True)]
+        else:
+            if "emails" in obj:
+                return obj["emails"]
+            else:
+                return None
+
+    @staticmethod
+    def resolve_name(obj: Dict[any, any] | get_user_model):
+        if type(obj) is get_user_model():
+            return Name(obj.first_name, obj.last_name)
+        else:
+            return obj["name"]
+
+    @staticmethod
+    def resolve_phoneNumbers(obj: Dict[any, any] | get_user_model):
+        if type(obj) is get_user_model():
+            return [PhoneNumber("0123456789", "work", True)]
+        else:
+            if "phoneNumbers" in obj:
+                return obj["phoneNumbers"]
+            else:
+                return None
+
+    @staticmethod
+    def resolve_addresses(obj: Dict[any, any] | get_user_model):
+        if type(obj) is get_user_model():
+            return [Address("work")]
+        else:
+            if "addresses" in obj:
+                return obj["addresses"]
+            else:
+                return None
+
+
+class SCIMUserOut(SCIMUser):
+    id: int = Field(alias="id")
