@@ -14,10 +14,7 @@ class UserService:
         user_model = get_user_model()
 
         user, created = user_model.objects.get_or_create(
-            username=scim_user.userName,
-            first_name=scim_user.name.givenName,
-            last_name=scim_user.name.familyName,
-            email=UserService.get_primary_email(scim_user),
+            username=scim_user.externalId,
             is_active=scim_user.active,
             is_staff=False,
             is_superuser=False,

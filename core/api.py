@@ -1,7 +1,8 @@
 from typing import List
 
-from identity.core.models import Proifle, StaffSSOProfile
 from ninja import Router
+
+from identity.core.models import PeopleFinderProfile, Proifle, StaffSSOProfile
 
 from .schemas.scim_schema import SCIMUser, user
 from .services.user import UserService
@@ -24,6 +25,7 @@ def get_emails(request):
     emails = CoreService.get_user_emails(request)
     return emails
 
+
 @router.post("scim/v2/Users", response={responsecodes: SCIMUser})
 def create_user(request, scim_request: SCIMUser):
     user, created = CoreService.createUser(scim_request)
@@ -36,29 +38,22 @@ def create_user(request, scim_request: SCIMUser):
 
 
 class CoreService:
-   def create_user(scim_request):
+    def create_user(scim_request):
         user = UserService.createUser(scim_request)
 
+        sso_profile_request = {"user": user, "sso_id": scim_request.external_id}
 
-        request = {
+        profile = ProfileService.createProfile(sso_profile_request, StaffSSOProfile)
 
-        }
+        pf_profile_request = {"user": user, "first_name": scim_request.name.givenName}
 
+        profile = ProfileService.create_profile(pf_profile_request, PeopleFinderProfile)
 
-        profile = ProfileService.createProfile(request, StaffSSOProfile)
-
-   def create_profile(request):
-       
-        request = {
-
-        }
+    def create_profile(request):
+        request = {}
         ProfileService.createProfile(request)
 
-class ProfileService:
-    def get_profile(str) -> Proifle:
-        return StaffSSOProfile
 
-    def create_profile(self,request, type):
-        profileType = self.get_profile(type)
-        
-        profile, created =  profileType.objects.get_or_create(request)
+class ProfileService:
+    def create_profile(self, request, type):
+        profile, created = type.objects.get_or_create(request)
