@@ -22,9 +22,9 @@ from .api import api
 
 
 urlpatterns = [
-    path("api/", api.urls),
     path("", include("core.urls")),
-    path("pingdom/", include("pingdom.urls")),
+    path("", api.urls),
     path("admin/", admin.site.urls),
     path("auth/", include("authbroker_client.urls")),
+    path("pingdom/", include("pingdom.urls")),
 ]

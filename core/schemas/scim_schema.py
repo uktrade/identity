@@ -42,6 +42,8 @@ class Address:
 
 class SCIMUser(Schema):
     schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
+    id: Any | None = None
+    externalId: Any | None = None
     userName: str = Field(alias="username")
     name: Name
     displayName: str | None = None
@@ -96,7 +98,3 @@ class SCIMUser(Schema):
                 return obj["addresses"]
             else:
                 return None
-
-
-class SCIMUserOut(SCIMUser):
-    id: int = Field(alias="id")

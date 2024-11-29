@@ -3,7 +3,7 @@ from typing import List
 from django.contrib.auth import get_user_model
 from ninja import Router
 
-from .schemas.scim_schema import SCIMUser, SCIMUserOut
+from .schemas.scim_schema import SCIMUser
 
 
 user_model = get_user_model()
@@ -11,7 +11,7 @@ user_model = get_user_model()
 router = Router()
 
 
-@router.get("scim/v2/Users", response=List[SCIMUserOut])
+@router.get("scim/v2/Users", response=List[SCIMUser])
 def get_users(request):
     users = user_model.objects.all()
     return users
