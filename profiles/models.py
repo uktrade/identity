@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
-
+from django.db.models import EmailField
 
 User = get_user_model()
 
@@ -10,17 +11,15 @@ class Profile(models.Model):
 
 
 class StaffSSOProfile(Profile):
-    user: User
     sso_id: int
     given_name: str
     family_name: str
-    prefered_email: str
-    emails: list[str]
+    preferred_email: EmailField
+    emails: ArrayField(EmailField)
 
 
 class PeopleFinderProfile(Profile):
-    user: User
     first_name: str
     last_name: str
-    prefered_email: str
-    emails: list[str]
+    preferred_email: EmailField
+    emails: ArrayField(EmailField)
