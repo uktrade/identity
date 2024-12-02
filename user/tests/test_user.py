@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from core.schemas.scim_schema import Name, SCIMUser
-from core.services.user_service import UserService
+from user.services.user import UserService
 
 
 User = get_user_model()
