@@ -82,9 +82,11 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.postgres",
     "core.apps.CoreConfig",
     "authbroker_client",
+    "simple_history",
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
     "scim.apps.ScimConfig",
+    "profiles.apps.ProfileConfig",
 ]
 
 MIDDLEWARE: list[str] = [
@@ -97,6 +99,7 @@ MIDDLEWARE: list[str] = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "authbroker_client.middleware.ProtectAllViewsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 TEMPLATES: list[dict[str, Any]] = [
