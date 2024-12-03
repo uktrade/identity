@@ -1,25 +1,33 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
+from django.core.validators import EmailValidator
 from django.db import models
-from django.db.models import EmailField
+
 
 User = get_user_model()
 
 
 class Profile(models.Model):
-    user: User
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
+    )
 
 
 class StaffSSOProfile(Profile):
-    sso_id: int
-    given_name: str
-    family_name: str
-    preferred_email: EmailField
-    emails: ArrayField(EmailField)
+    sso_id = models.IntegerField(unique=True)
+    given_name = models.CharField(max_length=100)
+    family_name = models.CharField(max_length=100)
+    preferred_email = models.EmailField(validators=[EmailValidator()])
+    emails = ArrayField(
+        models.EmailField(validators=[EmailValidator()]), blank=True, default=list
+    )
 
 
 class PeopleFinderProfile(Profile):
-    first_name: str
-    last_name: str
-    preferred_email: EmailField
-    emails: ArrayField(EmailField)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    preferred_email = models.EmailField(validators=[EmailValidator()])
+    emails = ArrayField(
+        models.EmailField(validators=[EmailValidator()]), blank=True, default=list
+    )
