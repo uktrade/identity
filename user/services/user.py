@@ -1,63 +1,69 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 
-from core.schemas.scim_schema import SCIMUser
+from user.exceptions import UserIsDeleted
 
 
-User = get_user_model()
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
 
 
 class UserService:
 
-    def create_user(self, scim_user: SCIMUser) -> tuple[get_user_model, bool]:
+    def get_or_create_user(self, sso_email_id, *args, **kwargs) -> tuple[User, bool]:
         """
         Create a new user with the specified username.
         """
-        user, created = User.objects.get_or_create(
-            username=scim_user.externalId,
-            is_active=scim_user.active,
-            is_staff=False,
-            is_superuser=False,
-        )
-        return user, created
+        return User.objects.get_or_create(sso_email_id=sso_email_id, *args, **kwargs)
 
-    def get_user(self, id: int) -> get_user_model:
+    def get_user_by_sso_id(self, sso_email_id: str) -> User:
         """
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
         try:
-            user = User.objects.get(id=id, is_active=True)
-            return user
+            user = User.objects.get(sso_email_id=sso_email_id)
+            if user.is_active:
+                return user
+            else:
+                raise UserIsDeleted("User has been previously deleted")
+
         except User.DoesNotExist:
-            return None
+            raise User.DoesNotExist("User does not exist")
 
-    def search_users(self, args: dict) -> list[get_user_model]:
+    def update_user(self, user: User, **kwargs) -> User:
         """
-        Search users by dynamic filter args
+        Update a given Django user instance with the provided keyword arguments.
         """
-        users = User.objects.filter(**args)
-        return users
+        # Validate that only valid fields are being updated
+        valid_fields = [
+            "sso_email_id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_staff",
+        ]
+        for field in kwargs.keys():
+            if field not in valid_fields:
+                raise ValueError(f"{field} is not a valid field for User model")
 
-    def update_user(self, user_id: int, scim_user: SCIMUser) -> get_user_model:
-        """
-        Update an existing user. At least one field must be provided.
-        """
-        try:
-            user = User.objects.get(id=user_id)
-            user.username = scim_user.externalId
-            user.is_active = scim_user.active
-            user.save()
-            return user
-        except User.DoesNotExist:
-            return None
+        # Update user attributes with provided keyword arguments
+        for field, value in kwargs.items():
+            if hasattr(user, field):
+                setattr(user, field, value)
 
-    def delete_user(self, user_id: int) -> get_user_model:
+        user.save()
+        return user
+
+    def delete_user(self, sso_email_id: str) -> User:
         """
         Soft delete a user by setting the 'is_active' flag to False.
         """
-        try:
-            user = User.objects.get(id=user_id, is_active=True)
-            user.is_active = False
-            user.save()
-            return user
-        except User.DoesNotExist:
-            return None
+        user = self.get_user_by_sso_id(sso_email_id)
+        user.is_active = False
+        user.save()
+        return user

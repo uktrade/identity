@@ -65,6 +65,7 @@ INSTALLED_APPS: list[str] = [
     "core.apps.CoreConfig",
     "authbroker_client",
     "pingdom.apps.PingdomConfig",
+    "user.apps.UserConfig",
 ]
 
 MIDDLEWARE: list[str] = [
@@ -111,6 +112,8 @@ AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 AUTHBROKER_STAFF_SSO_SCOPE = env("AUTHBROKER_STAFF_SSO_SCOPE")
 
 AUTHBROKER_ANONYMOUS_PATHS = ("/pingdom/ping.xml",)
+
+AUTH_USER_MODEL = "user.User"
 
 
 LOGGING = {
