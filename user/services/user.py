@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 class UserService:
-
     def create_user(self, scim_user: SCIMUser) -> tuple[get_user_model, bool]:
         """
         Create a new user with the specified username.
