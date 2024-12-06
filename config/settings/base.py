@@ -31,6 +31,9 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 env: environ.Env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
 
+
+ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
+
 # App
 #
 APP_ENV: str = env.str("APP_ENV")
