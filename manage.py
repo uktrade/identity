@@ -4,6 +4,20 @@ import os
 import sys
 
 
+def initialize_debugpy():
+    try:
+        import debugpy
+    except ImportError:
+        sys.stdout.write(
+            "debugpy is not installed, please install it with: pip install debugpy\n"
+        )
+        return
+
+    if not os.getenv("RUN_MAIN"):
+        debugpy.listen(("0.0.0.0", 5678))
+        sys.stdout.write("debugpy listening on port 5678...\n")
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.prod")
@@ -19,4 +33,7 @@ def main():
 
 
 if __name__ == "__main__":
+    ENABLE_DEBUGPY = os.getenv("ENABLE_DEBUGPY")
+    if ENABLE_DEBUGPY and ENABLE_DEBUGPY.lower() == "true":
+        initialize_debugpy()
     main()
