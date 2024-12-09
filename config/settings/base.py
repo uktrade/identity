@@ -66,6 +66,7 @@ INSTALLED_APPS: list[str] = [
     "authbroker_client",
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
+    "scim.apps.ScimConfig",
 ]
 
 MIDDLEWARE: list[str] = [
