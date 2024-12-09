@@ -1,8 +1,8 @@
 from ninja import NinjaAPI
 
-from core.api import router as core_router
+from scim.api import router as scim_router
 
 
 api = NinjaAPI()
 
-api.add_router("", core_router)
+api.add_router("", scim_router)
