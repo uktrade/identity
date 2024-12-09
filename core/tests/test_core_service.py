@@ -2,7 +2,6 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from core.schemas.scim_schema import Name, SCIMUser
 from core.service import CoreService
 
 
@@ -12,7 +11,11 @@ class TestCoreService(TestCase):
 
     @pytest.mark.django_db
     def test_core_get_or_create_user(self):
-        user_details = {"is_active": True, "first_name": "John", "last_name": "Smith"}
+        user_details = {
+            "is_active": True,
+            "first_name": "John",
+            "last_name": "Smith",
+        }
         # User is created
         user, created = self.core_service.get_or_create_user(
             id="john.sso.email.id@gov.uk",
@@ -30,7 +33,7 @@ class TestCoreService(TestCase):
         self.assertFalse(is_created)
 
     @pytest.mark.django_db
-    def test_get_user(self):
+    def test_core_get_user_by_id(self):
 
         test_user = self.User.objects.create_user(
             username="test_user",
