@@ -1,7 +1,8 @@
 # from typing import List
 
 # from django.contrib.auth import get_user_model
-# from ninja import Router
+from ninja import Router
+
 
 # from core.service import CoreService
 # from user.services.user import UserService
@@ -10,7 +11,7 @@
 
 
 # User = get_user_model()
-# router = Router()
+router = Router()
 # core_service = CoreService()
 
 
