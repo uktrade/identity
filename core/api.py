@@ -15,8 +15,8 @@ core_service = CoreService()
 
 
 @router.get("scim/v2/User/{id}", response=SCIMUser)
-def get_user(request, id: int):
-    return core_service.get_user(id)
+def get_user(request, id: str):
+    return core_service.get_user_by_id(id)
 
 
 response_codes = frozenset({200, 201})
@@ -24,7 +24,7 @@ response_codes = frozenset({200, 201})
 
 @router.post("scim/v2/Users", response={response_codes: SCIMUser})
 def create_user(request, scim_user: SCIMUser):
-    user, created = core_service.create_user(scim_user)
+    user, created = core_service.get_or_create_user(scim_user)
     if created:
         return 201, user
     else:

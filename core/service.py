@@ -1,18 +1,24 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 
-from core.schemas.scim_schema import SCIMUser
-from user.services.user import User, UserService
+from user.services.user import UserService
+
+
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
 
 
 class CoreService:
     user_service = UserService()
 
-    def get_user(self, id: int) -> get_user_model:
-        return self.user_service.get_user(id)
+    def get_or_create_user(self, id, *args, **kwargs) -> tuple[User, bool]:
+        return self.user_service.get_or_create_user(id, *args, **kwargs)
 
-    def create_user(self, scim_user: SCIMUser) -> tuple[get_user_model, bool]:
-        user, created = self.user_service.create_user(scim_user)
-        return user, created
+    def get_user_by_id(self, id: str) -> User:
+        return self.user_service.get_user_by_sso_id(id)
 
     # def create_profile, get_profile etc. in this service
     # SCIM service (in SCIM app) will call the functions from CoreService
