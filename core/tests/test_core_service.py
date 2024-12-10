@@ -13,8 +13,6 @@ class TestCoreService(TestCase):
     def test_core_get_or_create_user(self):
         user_details = {
             "is_active": True,
-            "first_name": "John",
-            "last_name": "Smith",
         }
         # User is created
         user, created = self.core_service.get_or_create_user(
@@ -36,10 +34,10 @@ class TestCoreService(TestCase):
     def test_core_get_user_by_id(self):
 
         test_user = self.User.objects.create_user(
-            username="test_user",
+            sso_email_id="test_user",
             is_active=True,
         )
 
         user = self.core_service.get_user_by_id(test_user.sso_email_id)
-        self.assertEqual(user.username, "test_user")
+        self.assertEqual(user.sso_email_id, "test_user")
         self.assertEqual(user.is_active, True)
