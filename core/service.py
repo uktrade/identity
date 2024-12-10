@@ -14,7 +14,7 @@ else:
 class CoreService:
     user_service = UserService()
 
-    def get_or_create_user(self, id, *args, **kwargs) -> tuple[User, bool]:
+    def get_or_create_user(self, id: str, *args, **kwargs) -> tuple[User, bool]:
         return self.user_service.get_or_create_user(id, *args, **kwargs)
 
     def get_user_by_id(self, id: str) -> User:
