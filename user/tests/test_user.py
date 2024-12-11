@@ -17,7 +17,6 @@ class UserServiceTest(TestCase):
         # Create a user for use in the tests
         self.user = User.objects.create_user(
             sso_email_id="sso_email_id@email.com",
-            username="username",
             is_active=True,
             is_staff=False,
             is_superuser=False,
@@ -27,8 +26,6 @@ class UserServiceTest(TestCase):
     def test_create_user(self):
         kwargs = {
             "is_active": True,
-            "first_name": "givenname",
-            "last_name": "familyname",
         }
 
         user, created = self.user_service.get_or_create_user(
@@ -54,12 +51,12 @@ class UserServiceTest(TestCase):
     def test_update_user(self):
         kwargs = {
             "is_active": True,
-            "username": "updateduser",
+            "is_superuser": True,
         }
         updated_user = self.user_service.update_user(self.user, **kwargs)
         self.assertEqual(updated_user.sso_email_id, "sso_email_id@email.com")
-        self.assertEqual(updated_user.username, "updateduser")
         self.assertEqual(updated_user.is_active, True)
+        self.assertEqual(updated_user.is_superuser, True)
 
     @pytest.mark.django_db
     def test_update_user_user_error(self):
@@ -74,7 +71,7 @@ class UserServiceTest(TestCase):
     @pytest.mark.django_db
     def test_delete_user(self):
         user_for_deletion = User.objects.create_user(
-            username="userfordeletion",
+            sso_email_id="userfordeletion",
             is_active=True,
             is_staff=False,
             is_superuser=False,

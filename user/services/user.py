@@ -40,12 +40,9 @@ class UserService:
         # Validate that only valid fields are being updated
         valid_fields = [
             "sso_email_id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
             "is_active",
             "is_staff",
+            "is_superuser",
         ]
         for field in kwargs.keys():
             if field not in valid_fields:

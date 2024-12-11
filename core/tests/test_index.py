@@ -16,7 +16,7 @@ class State:
 @pytest.fixture()
 def state(db):
     user, _ = get_user_model().objects.get_or_create(
-        username="test_user", email="test_user"
+        sso_email_id="test_user",
     )
     user.save()
     client = Client()
