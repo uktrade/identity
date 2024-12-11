@@ -1,4 +1,4 @@
-from authbroker_client.backends import AuthbrokerBackend
+from authbroker_client.backends import AuthbrokerBackend # type: ignore
 
 
 class IdentityAuthbrokerBackend(AuthbrokerBackend):
