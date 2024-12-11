@@ -7,8 +7,8 @@ from ninja import Field, Schema
 
 @dataclass
 class Name:
-    givenName: str
-    familyName: str
+    givenName: str | None = None
+    familyName: str | None = None
     formatted: str | None = None
     middleName: str | None = None
     honorificPrefix: str | None = None
@@ -40,12 +40,34 @@ class Address:
     country: str | None = None
 
 
-class SCIMUser(Schema):
+class SCIMUserIn(Schema):
     schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
-    id: Any | None = None
-    externalId: Any | None = None
-    userName: str = Field(alias="username")
-    name: Name
+    id: str | None = None
+    externalId: str
+    userName: str | None = None
+    name: Name | None = None
+    displayName: str | None = None
+    nickName: str | None = None
+    profileUrl: str | None = None
+    title: str | None = None
+    userType: str | None = None
+    preferredLanguage: str | None = None
+    locale: str | None = None
+    timezone: str | None = None
+    active: bool | None = None
+    emails: list[Email] | None = None
+    phoneNumbers: list[PhoneNumber] | None = None
+    ims: str | None = None
+    photos: str | None = None
+    addresses: list[Address] | None = None
+
+
+class SCIMUserOut(Schema):
+    schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
+    id: str = Field(alias="sso_email_id")
+    externalId: str = Field(alias="sso_email_id")
+    userName: str | None = None
+    name: Name | None = None
     displayName: str | None = None
     nickName: str | None = None
     profileUrl: str | None = None
@@ -75,9 +97,13 @@ class SCIMUser(Schema):
     @staticmethod
     def resolve_name(obj: Dict[Any, Any] | get_user_model):
         if type(obj) is get_user_model():
-            return Name(obj.first_name, obj.last_name)
+            if obj.name:
+                return Name(obj.first_name, obj.last_name)
         else:
-            return obj["name"]
+            if "name" in obj:
+                return obj["name"]
+            else:
+                return None
 
     @staticmethod
     def resolve_phoneNumbers(obj: Dict[Any, Any] | get_user_model):

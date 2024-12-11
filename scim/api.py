@@ -1,12 +1,10 @@
-from typing import List
-
 from django.contrib.auth import get_user_model
 from ninja import Router
 
-from core.service import CoreService
-from scim.service import SCIMService
+from core.services import CoreService
+from scim.services import SCIMService
 
-from .schema import SCIMUser
+from .schemas import SCIMUserIn, SCIMUserOut
 
 
 User = get_user_model()
@@ -14,7 +12,7 @@ router = Router()
 scim_service = SCIMService()
 
 
-@router.get("scim/v2/Users/{id}", response=SCIMUser)
+@router.get("scim/v2/Users/{id}", response=SCIMUserOut)
 def get_user(request, id: str):
     return scim_service.get_user_by_id(id)
 
@@ -22,8 +20,8 @@ def get_user(request, id: str):
 response_codes = frozenset({200, 201})
 
 
-@router.post("scim/v2/Users", response={response_codes: SCIMUser})
-def create_user(request, scim_user: SCIMUser):
+@router.post("scim/v2/Users", response={response_codes: SCIMUserOut})
+def create_user(request, scim_user: SCIMUserIn):
     user, created = scim_service.get_or_create_user(scim_user)
     if created:
         return 201, user

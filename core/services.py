@@ -20,5 +20,5 @@ class CoreService:
     def get_user_by_id(self, id: str) -> User:
         return self.user_service.get_user_by_sso_id(id)
 
-    # def create_profile, get_profile etc. in this service
-    # SCIM service (in SCIM app) will call the functions from CoreService
+    # TODO:
+    # - Add create_profile, get_profile etc. in this service

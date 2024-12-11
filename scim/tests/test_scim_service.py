@@ -2,8 +2,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from scim.schema import Name, SCIMUser
-from scim.service import SCIMService
+from scim.schemas import SCIMUserIn, SCIMUserOut
+from scim.services import SCIMService
 
 
 class TestSCIMService(TestCase):
@@ -12,20 +12,15 @@ class TestSCIMService(TestCase):
 
     @pytest.mark.django_db
     def test_scim_get_or_create_user(self):
-        scim_user = SCIMUser(
+        scim_user = SCIMUserIn(
             externalId="john.sso.email.id@gov.uk",
-            is_active=True,
-            username="john_smith",
-            name=Name(
-                givenName="John",
-                familyName="Smith",
-            ),
+            active=True,
         )
 
         user, created = self.scim_service.get_or_create_user(scim_user)
         self.assertTrue(created)
-        self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
-        self.assertEqual(user.is_active, True)
+        self.assertEqual(user["sso_email_id"], "john.sso.email.id@gov.uk")
+        self.assertEqual(user["is_active"], True)
 
         # User already exists
         existing_user, is_created = self.scim_service.get_or_create_user(scim_user)
@@ -35,10 +30,10 @@ class TestSCIMService(TestCase):
     def test_scim_get_user_by_id(self):
 
         test_user = self.User.objects.create_user(
-            sso_email_id="test_user",
+            sso_email_id="test_user.email.id@gov.uk",
             is_active=True,
         )
 
         user = self.scim_service.get_user_by_id(test_user.sso_email_id)
-        self.assertEqual(user.username, "test_user")
-        self.assertEqual(user.is_active, True)
+        self.assertEqual(user["sso_email_id"], "test_user.email.id@gov.uk")
+        self.assertEqual(user["is_active"], True)
