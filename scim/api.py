@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from ninja import Router
 
 from core.services import CoreService
@@ -7,7 +6,6 @@ from scim.services import SCIMService
 from .schemas import SCIMUserIn, SCIMUserOut
 
 
-User = get_user_model()
 router = Router()
 scim_service = SCIMService()
 
