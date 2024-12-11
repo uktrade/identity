@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from core.service import CoreService
+from core.services import CoreService
 
 
 class TestCoreService(TestCase):
