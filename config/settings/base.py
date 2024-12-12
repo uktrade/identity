@@ -98,7 +98,7 @@ TEMPLATES: list[dict[str, Any]] = [
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "authbroker_client.backends.AuthbrokerBackend",
+    "user.backends.IdentityAuthbrokerBackend",
 ]
 
 
