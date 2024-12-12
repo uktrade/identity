@@ -7,9 +7,9 @@ class ProfileService:
     def __init__(self):
         self.user_manager = BaseUserManager()
 
-    def create_staff_sso_profile(
+    def get_or_create_staff_sso_profile(
         self, profile_request: dict
-    ) -> tuple[CombinedProfile, bool]:
+    ) -> tuple[StaffSSOProfile, bool]:
         """
         Create a new staff sso profile for the specified request.
         profile_request = {
@@ -47,22 +47,11 @@ class ProfileService:
                 "type": email["type"],
                 "preferred": email["preferred"],
             }
-            self.create_staff_sso_email(staff_sso_email_request)
+            self.get_or_create_staff_sso_email(staff_sso_email_request)
 
-        # create combined profile
-        combined_profile_request = {
-            "sso_email_id": staff_sso_profile.user.sso_email_id,
-            "first_name": staff_sso_profile.first_name,
-            "last_name": staff_sso_profile.last_name,
-            "emails": staff_sso_profile.emails.all(),
-        }
-        combined_profile, combined_profile_created = self.create_combined_profile(
-            combined_profile_request
-        )
+        return staff_sso_profile, profile_created
 
-        return combined_profile, combined_profile_created
-
-    def create_staff_sso_email(
+    def get_or_create_staff_sso_email(
         self, staff_sso_email_request: dict
     ) -> tuple[StaffSSOEmail, bool]:
         """
@@ -76,11 +65,12 @@ class ProfileService:
         )
         return staff_sso_email, created
 
-    def create_combined_profile(
-        self, combined_profile_request: dict
+    def get_or_create_combined_profile(
+        self, staff_sso_profile: StaffSSOProfile
     ) -> tuple[CombinedProfile, bool]:
         # create combined profile
-        emails = combined_profile_request["emails"]
+
+        emails = staff_sso_profile.emails.all()
         preferred_email = emails[0].email.__str__()
         email_addresses = list()
         for email in emails:
@@ -91,9 +81,9 @@ class ProfileService:
                 preferred_email = email.email.__str__()
 
         combined_profile, created = CombinedProfile.objects.get_or_create(
-            sso_email_id=combined_profile_request["sso_email_id"],
-            first_name=combined_profile_request["first_name"],
-            last_name=combined_profile_request["last_name"],
+            sso_email_id=staff_sso_profile.user.sso_email_id,
+            first_name=staff_sso_profile.first_name,
+            last_name=staff_sso_profile.last_name,
             preferred_email=preferred_email,
             emails=email_addresses,
         )
@@ -106,3 +96,9 @@ class ProfileService:
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
         return CombinedProfile.objects.get(sso_email_id=sso_email_id)
+
+    def get_staff_sso_profile_by_id(self, id: str) -> CombinedProfile:
+        """
+        Retrieve a user by their ID, only if the user is not soft-deleted.
+        """
+        return StaffSSOProfile.objects.get(id=id)
