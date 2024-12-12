@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator
 from django.db import models
-from simple_history.models import HistoricalRecords
+from simple_history.models import HistoricalRecords  # type: ignore
 
 from user.models import User
 
@@ -18,7 +18,7 @@ class AbstractHistoricalModel(models.Model):
     )
 
 
-class Email(models.Model):
+class Email(AbstractHistoricalModel):
     address = models.EmailField(validators=[EmailValidator()], unique=True)
 
     def __str__(self):
@@ -29,6 +29,9 @@ class Profile(models.Model):
     class Meta:
         abstract = True
 
+    history = HistoricalRecords(
+        inherit=True,
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
 
 
@@ -58,7 +61,7 @@ class StaffSSOEmail(AbstractHistoricalModel):
         return f"Profile: {self.profile.__str__()} - Email: {self.email.__str__()} - Email Type: {self.type} Preferred: {self.preferred}"
 
 
-class StaffSSOProfile(Profile, AbstractHistoricalModel):
+class StaffSSOProfile(Profile):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
