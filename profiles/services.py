@@ -1,6 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 
-from profiles.models import CombinedProfile, Email, StaffSSOEmail, StaffSSOProfile
+from profiles.models import CombinedProfile, Email, StaffSSOProfileEmail, StaffSSOProfile
 
 
 class ProfileService:
@@ -51,11 +51,11 @@ class ProfileService:
 
     def get_or_create_staff_sso_email(
         self, staff_sso_email_request: dict
-    ) -> tuple[StaffSSOEmail, bool]:
+    ) -> tuple[StaffSSOProfileEmail, bool]:
         """
         Create a new staff sso email
         """
-        staff_sso_email, created = StaffSSOEmail.objects.get_or_create(
+        staff_sso_email, created = StaffSSOProfileEmail.objects.get_or_create(
             profile=staff_sso_email_request["profile"],
             email=staff_sso_email_request["email"],
             type=staff_sso_email_request["type"],

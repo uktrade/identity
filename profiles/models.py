@@ -46,7 +46,15 @@ class CombinedProfile(AbstractHistoricalModel):
         return f"SSO Email ID: {self.sso_email_id}, First Name: {self.first_name}, Last name: {self.last_name}, Preferred Email: {self.preferred_email}, Emails: {self.emails}"
 
 
-class StaffSSOEmail(AbstractHistoricalModel):
+class StaffSSOProfile(Profile):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"First Name: {self.first_name}, Last Name: {self.last_name}"
+
+
+class StaffSSOProfileEmail(AbstractHistoricalModel):
     profile = models.ForeignKey(
         "StaffSSOProfile", on_delete=models.CASCADE, related_name="emails"
     )
@@ -59,11 +67,3 @@ class StaffSSOEmail(AbstractHistoricalModel):
 
     def __str__(self):
         return f"Profile: {self.profile.__str__()} - Email: {self.email.__str__()} - Email Type: {self.type} Preferred: {self.preferred}"
-
-
-class StaffSSOProfile(Profile):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"First Name: {self.first_name}, Last Name: {self.last_name}"
