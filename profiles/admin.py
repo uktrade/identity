@@ -1,11 +1,11 @@
-from django.contrib import admin
-
 from profiles.models import (
     CombinedProfile,
     Email,
-    StaffSSOProfileEmail,
     StaffSSOProfile,
+    StaffSSOProfileEmail
 )
+
+from django.contrib import admin
 
 
 # Register your models here.
