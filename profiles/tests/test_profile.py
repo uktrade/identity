@@ -73,8 +73,8 @@ class ProfileServiceTest(TestCase):
         staff_sso_profile, sso_profile_created = (
             self.profile_service.get_or_create_staff_sso_profile(self.profile_request)
         )
-        combined_profile, combined_profile_created = self.profile_service.get_or_create_combined_profile(
-            staff_sso_profile
+        combined_profile, combined_profile_created = (
+            self.profile_service.get_or_create_combined_profile(staff_sso_profile)
         )
         self.assertTrue(sso_profile_created)
         self.assertTrue(combined_profile_created)
