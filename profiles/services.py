@@ -1,6 +1,11 @@
 from django.contrib.auth.base_user import BaseUserManager
 
-from profiles.models import CombinedProfile, Email, StaffSSOProfileEmail, StaffSSOProfile
+from profiles.models import (
+    CombinedProfile,
+    Email,
+    StaffSSOProfileEmail,
+    StaffSSOProfile,
+)
 
 
 class ProfileService:

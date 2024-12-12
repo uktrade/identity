@@ -61,10 +61,14 @@ class ProfileServiceTest(TestCase):
         )
         self.assertEqual(StaffSSOProfileEmail.objects.first().type, "work")
         self.assertEqual(StaffSSOProfileEmail.objects.first().preferred, False)
-        self.assertEqual(StaffSSOProfileEmail.objects.last().email.address, "email2@email.com")
+        self.assertEqual(
+            StaffSSOProfileEmail.objects.last().email.address, "email2@email.com"
+        )
         self.assertEqual(StaffSSOProfileEmail.objects.last().type, "contact")
         self.assertEqual(StaffSSOProfileEmail.objects.last().preferred, True)
-        self.assertEqual(StaffSSOProfileEmail.objects.first().profile.first_name, "John")
+        self.assertEqual(
+            StaffSSOProfileEmail.objects.first().profile.first_name, "John"
+        )
         self.assertEqual(StaffSSOProfileEmail.objects.first().profile.last_name, "Doe")
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.first_name, "John")
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.last_name, "Doe")
