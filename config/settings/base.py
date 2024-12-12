@@ -45,7 +45,25 @@ WSGI_APPLICATION: str = "config.wsgi.application"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
 STATIC_URL: str = "static/"
+STATIC_ROOT: Path = BASE_DIR / "staticfiles"
+STATICFILES_DIRS: list[Path] = [
+    BASE_DIR / "frontend" / "dist",
+]
+
+# Storage
+# https://docs.djangoproject.com/en/5.1/ref/settings/#storages
+
+STORAGES: dict[str, Any] = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    # WhiteNoise
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Vite
 # https://vitejs.dev/guide/backend-integration.html
@@ -71,6 +89,7 @@ INSTALLED_APPS: list[str] = [
 
 MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
