@@ -4,8 +4,6 @@ from profiles.models import CombinedProfile, Email, StaffSSOEmail, StaffSSOProfi
 
 
 class ProfileService:
-    def __init__(self):
-        self.user_manager = BaseUserManager()
 
     def get_or_create_staff_sso_profile(
         self, profile_request: dict
@@ -75,7 +73,7 @@ class ProfileService:
         email_addresses = list()
         for email in emails:
             email_addresses.append(
-                self.user_manager.normalize_email(email.email.__str__())
+                BaseUserManager.normalize_email(email.email.__str__())
             )
             if email.preferred:
                 preferred_email = email.email.__str__()
