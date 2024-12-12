@@ -2,7 +2,7 @@ from profiles.models import (
     CombinedProfile,
     Email,
     StaffSSOProfile,
-    StaffSSOProfileEmail
+    StaffSSOProfileEmail,
 )
 
 from django.contrib import admin
