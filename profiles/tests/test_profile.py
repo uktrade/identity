@@ -20,25 +20,28 @@ class ProfileServiceTest(TestCase):
             is_superuser=False,
         )
 
-        self.profile_request = {
+        self.kwargs = {
             "user": self.user,
             "first_name": "John",
             "last_name": "Doe",
-            "emails": [
-                {
-                    "address": "email1@email.com",
-                    "type": TYPES[0][0],
-                    "preferred": False,
-                },
-                {"address": "email2@email.com", "type": TYPES[1][0], "preferred": True},
-            ],
         }
+        self.emails = [
+            {
+                "address": "email1@email.com",
+                "type": TYPES[0][0],
+                "preferred": False,
+            },
+            {"address": "email2@email.com", "type": TYPES[1][0], "preferred": True},
+        ]
 
     @pytest.mark.django_db
     def test_get_or_create_staff_sso_profile(self):
 
         staff_sso_profile, created = (
-            self.profile_service.get_or_create_staff_sso_profile(self.profile_request)
+            self.profile_service.get_or_create_staff_sso_profile(
+                emails=self.emails,
+                **self.kwargs,
+            )
         )
 
         self.assertTrue(created)
@@ -76,7 +79,10 @@ class ProfileServiceTest(TestCase):
 
     def test_get_or_create_combined_profile(self):
         staff_sso_profile, sso_profile_created = (
-            self.profile_service.get_or_create_staff_sso_profile(self.profile_request)
+            self.profile_service.get_or_create_staff_sso_profile(
+                emails=self.emails,
+                **self.kwargs,
+            )
         )
         combined_profile, combined_profile_created = (
             self.profile_service.get_or_create_combined_profile(staff_sso_profile)
@@ -93,7 +99,10 @@ class ProfileServiceTest(TestCase):
 
     def test_get_staff_sso_profile_by_id(self):
         staff_sso_profile, created = (
-            self.profile_service.get_or_create_staff_sso_profile(self.profile_request)
+            self.profile_service.get_or_create_staff_sso_profile(
+                emails=self.emails,
+                **self.kwargs,
+            )
         )
         actual = self.profile_service.get_staff_sso_profile_by_id(
             str(staff_sso_profile.id)
@@ -106,7 +115,10 @@ class ProfileServiceTest(TestCase):
     def test_get_combined_profile_by_sso_email_id(self):
 
         staff_sso_profile, sso_profile_created = (
-            self.profile_service.get_or_create_staff_sso_profile(self.profile_request)
+            self.profile_service.get_or_create_staff_sso_profile(
+                emails=self.emails,
+                **self.kwargs,
+            )
         )
         combined_profile, combined_profile_created = (
             self.profile_service.get_or_create_combined_profile(staff_sso_profile)

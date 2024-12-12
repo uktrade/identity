@@ -7,40 +7,38 @@ from profiles.models import (
 
 from django.contrib.auth.base_user import BaseUserManager
 
+from user.models import User
+
 
 class ProfileService:
 
     def get_or_create_staff_sso_profile(
-        self, profile_request: dict
+        self, emails: list[dict], *args, **kwargs
     ) -> tuple[StaffSSOProfile, bool]:
         """
         Create a new staff sso profile for the specified request.
-        profile_request = {
-            "user": user_id,
-            "first_name": "first name",
-            "last_name": "last name",
-            "emails": [
-                {
-                    "address": "email1@email.com",
-                    "type": "work",
-                    "preferred": False
-                },
-                {
-                    "address": "email2@email.com",
-                    "type": "contact",
-                    "preferred": True
-                }
-            ],
-        }
+        "emails": [
+            {
+                "address": "email1@email.com",
+                "type": "work",
+                "preferred": False
+            },
+            {
+                "address": "email2@email.com",
+                "type": "contact",
+                "preferred": True
+            }
+        ],
+        "user": user_id,
+        "first_name": "first name",
+        "last_name": "last name",
         """
         staff_sso_profile, profile_created = StaffSSOProfile.objects.get_or_create(
-            user=profile_request["user"],
-            first_name=profile_request["first_name"],
-            last_name=profile_request["last_name"],
+            *args, **kwargs
         )
 
         # create staff sso email
-        for email in profile_request["emails"]:
+        for email in emails:
             email_object, email_created = Email.objects.get_or_create(
                 address=email["address"],
             )
