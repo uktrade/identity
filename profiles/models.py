@@ -18,14 +18,7 @@ class AbstractHistoricalModel(models.Model):
     )
 
 
-class Email(AbstractHistoricalModel):
-    address = models.EmailField(validators=[EmailValidator()], unique=True)
-
-    def __str__(self):
-        return self.address
-
-
-class Profile(models.Model):
+class AbstractProfile(models.Model):
     class Meta:
         abstract = True
 
@@ -33,6 +26,13 @@ class Profile(models.Model):
         inherit=True,
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+
+
+class Email(AbstractHistoricalModel):
+    address = models.EmailField(validators=[EmailValidator()], unique=True)
+
+    def __str__(self):
+        return self.address
 
 
 class CombinedProfile(AbstractHistoricalModel):
@@ -46,7 +46,7 @@ class CombinedProfile(AbstractHistoricalModel):
         return f"SSO Email ID: {self.sso_email_id}, First Name: {self.first_name}, Last name: {self.last_name}, Preferred Email: {self.preferred_email}, Emails: {self.emails}"
 
 
-class StaffSSOProfile(Profile):
+class StaffSSOProfile(AbstractProfile):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
