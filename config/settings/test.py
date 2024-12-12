@@ -7,6 +7,10 @@ APP_ENV = "test"
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+STORAGES["staticfiles"][
+    "BACKEND"
+] = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 # Required for tests to bypass SSO.
 MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")  # noqa
 
