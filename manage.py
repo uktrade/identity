@@ -5,22 +5,18 @@ import sys
 
 
 def initialize_debugpy():
-    try:
-        import debugpy
-    except ImportError:
-        sys.stdout.write(
-            "debugpy is not installed, please install it with: pip install debugpy\n"
-        )
-        return
+    import debugpy
 
-    if not os.getenv("RUN_MAIN"):
+    try:
         debugpy.listen(("0.0.0.0", 5678))
         sys.stdout.write("debugpy listening on port 5678...\n")
+    except Exception as exc:
+        sys.stderr.write(f"Failed to initialize debugpy: {exc}\n")
 
 
 def main():
-    """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.prod")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
