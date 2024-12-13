@@ -35,7 +35,7 @@ class Email(AbstractHistoricalModel):
         return self.address
 
 
-class CombinedProfile(AbstractHistoricalModel):
+class Profile(AbstractHistoricalModel):
     sso_email_id = models.CharField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

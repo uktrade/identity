@@ -1,11 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 
-from profiles.models import (
-    CombinedProfile,
-    Email,
-    StaffSSOProfile,
-    StaffSSOProfileEmail,
-)
+from profiles.models import Email, Profile, StaffSSOProfile, StaffSSOProfileEmail
 from user.models import User
 
 
@@ -67,7 +62,7 @@ class ProfileService:
 
     def get_or_create_combined_profile(
         self, staff_sso_profile: StaffSSOProfile
-    ) -> tuple[CombinedProfile, bool]:
+    ) -> tuple[Profile, bool]:
         # create combined profile
 
         emails = staff_sso_profile.emails.all()
@@ -80,7 +75,7 @@ class ProfileService:
             if email.preferred:
                 preferred_email = email.email.__str__()
 
-        combined_profile, created = CombinedProfile.objects.get_or_create(
+        combined_profile, created = Profile.objects.get_or_create(
             sso_email_id=staff_sso_profile.user.sso_email_id,
             first_name=staff_sso_profile.first_name,
             last_name=staff_sso_profile.last_name,
@@ -89,15 +84,13 @@ class ProfileService:
         )
         return combined_profile, created
 
-    def get_combined_profile_by_sso_email_id(
-        self, sso_email_id: str
-    ) -> CombinedProfile:
+    def get_combined_profile_by_sso_email_id(self, sso_email_id: str) -> Profile:
         """
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
-        return CombinedProfile.objects.get(sso_email_id=sso_email_id)
+        return Profile.objects.get(sso_email_id=sso_email_id)
 
-    def get_staff_sso_profile_by_id(self, id: str) -> CombinedProfile:
+    def get_staff_sso_profile_by_id(self, id: str) -> Profile:
         """
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
