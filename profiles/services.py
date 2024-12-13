@@ -1,12 +1,11 @@
+from django.contrib.auth.base_user import BaseUserManager
+
 from profiles.models import (
     CombinedProfile,
     Email,
     StaffSSOProfile,
     StaffSSOProfileEmail,
 )
-
-from django.contrib.auth.base_user import BaseUserManager
-
 from user.models import User
 
 

@@ -1,9 +1,8 @@
-from profiles.models import TYPES, Email, StaffSSOProfile, StaffSSOProfileEmail
-from profiles.services import ProfileService
-
 import pytest
 from django.test import TestCase
 
+from profiles.models import TYPES, Email, StaffSSOProfile, StaffSSOProfileEmail
+from profiles.services import ProfileService
 from user.models import User
 
 
