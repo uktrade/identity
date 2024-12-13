@@ -76,25 +76,23 @@ class ProfileServiceTest(TestCase):
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.first_name, "John")
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.last_name, "Doe")
 
-    def test_get_or_create_combined_profile(self):
+    def test_get_or_create_profile(self):
         staff_sso_profile, sso_profile_created = (
             self.profile_service.get_or_create_staff_sso_profile(
                 emails=self.emails,
                 **self.kwargs,
             )
         )
-        combined_profile, combined_profile_created = (
-            self.profile_service.get_or_create_combined_profile(staff_sso_profile)
+        profile, profile_created = self.profile_service.get_or_create_profile(
+            staff_sso_profile
         )
         self.assertTrue(sso_profile_created)
-        self.assertTrue(combined_profile_created)
-        self.assertEqual(combined_profile.sso_email_id, "email@email.com")
-        self.assertEqual(combined_profile.first_name, "John")
-        self.assertEqual(combined_profile.last_name, "Doe")
-        self.assertEqual(combined_profile.preferred_email, "email2@email.com")
-        self.assertEqual(
-            combined_profile.emails, ["email1@email.com", "email2@email.com"]
-        )
+        self.assertTrue(profile_created)
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+        self.assertEqual(profile.first_name, "John")
+        self.assertEqual(profile.last_name, "Doe")
+        self.assertEqual(profile.preferred_email, "email2@email.com")
+        self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
     def test_get_staff_sso_profile_by_id(self):
         staff_sso_profile, created = (
@@ -111,7 +109,7 @@ class ProfileServiceTest(TestCase):
         self.assertEqual(actual.first_name, "John")
         self.assertEqual(actual.last_name, "Doe")
 
-    def test_get_combined_profile_by_sso_email_id(self):
+    def test_get_profile_by_sso_email_id(self):
 
         staff_sso_profile, sso_profile_created = (
             self.profile_service.get_or_create_staff_sso_profile(
@@ -119,15 +117,13 @@ class ProfileServiceTest(TestCase):
                 **self.kwargs,
             )
         )
-        combined_profile, combined_profile_created = (
-            self.profile_service.get_or_create_combined_profile(staff_sso_profile)
+        profile, profile_created = self.profile_service.get_or_create_profile(
+            staff_sso_profile
         )
-        actual = self.profile_service.get_combined_profile_by_sso_email_id(
-            "email@email.com"
-        )
+        actual = self.profile_service.get_profile_by_sso_email_id("email@email.com")
 
         self.assertTrue(sso_profile_created)
-        self.assertTrue(combined_profile_created)
+        self.assertTrue(profile_created)
         self.assertEqual(actual.sso_email_id, "email@email.com")
         self.assertEqual(actual.first_name, "John")
         self.assertEqual(actual.last_name, "Doe")
