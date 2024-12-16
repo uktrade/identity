@@ -84,7 +84,7 @@ class StaffSSOServiceTest(TestCase):
             )
         )
         actual = self.staff_sso_service.get_staff_sso_profile_by_id(
-            str(staff_sso_profile.id)
+            staff_sso_profile.id
         )
         self.assertTrue(created)
         self.assertEqual(actual.user.sso_email_id, "email@email.com")

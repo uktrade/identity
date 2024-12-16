@@ -33,31 +33,27 @@ class StaffSSOService:
             email_object, email_created = Email.objects.get_or_create(
                 address=email["address"],
             )
-            staff_sso_email_request = {
-                "profile": staff_sso_profile,
-                "email": email_object,
-                "type": email["type"],
-                "preferred": email["preferred"],
-            }
-            self.get_or_create_staff_sso_email(staff_sso_email_request)
+            self.get_or_create_staff_sso_email(
+                profile=staff_sso_profile,
+                email=email_object,
+                type=email["type"],
+                preferred=email["preferred"],
+            )
 
         return staff_sso_profile, profile_created
 
     def get_or_create_staff_sso_email(
-        self, staff_sso_email_request: dict
+        self, *args, **kwargs
     ) -> tuple[StaffSSOProfileEmail, bool]:
         """
         Create a new staff sso email
         """
         staff_sso_email, created = StaffSSOProfileEmail.objects.get_or_create(
-            profile=staff_sso_email_request["profile"],
-            email=staff_sso_email_request["email"],
-            type=staff_sso_email_request["type"],
-            preferred=staff_sso_email_request["preferred"],
+            *args, **kwargs
         )
         return staff_sso_email, created
 
-    def get_staff_sso_profile_by_id(self, id: str) -> Profile:
+    def get_staff_sso_profile_by_id(self, id: int) -> Profile:
         """
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
