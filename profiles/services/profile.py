@@ -1,30 +1,26 @@
-from django.contrib.auth.base_user import BaseUserManager
-
-from profiles.models import Profile, StaffSSOProfile
+from profiles.models import Profile
 
 
 class ProfileService:
     def get_or_create_profile(
-        self, staff_sso_profile: StaffSSOProfile
+        self,
+        sso_email_id: str,
+        first_name: str,
+        last_name: str,
+        preferred_email: str,
+        email_addresses: list[str],
+        *args,
+        **kwargs,
     ) -> tuple[Profile, bool]:
-        # create combined profile
-
-        emails = staff_sso_profile.emails.all()
-        preferred_email = emails[0].email.__str__()
-        email_addresses = list()
-        for email in emails:
-            email_addresses.append(
-                BaseUserManager.normalize_email(email.email.__str__())
-            )
-            if email.preferred:
-                preferred_email = email.email.__str__()
 
         profile, created = Profile.objects.get_or_create(
-            sso_email_id=staff_sso_profile.user.sso_email_id,
-            first_name=staff_sso_profile.first_name,
-            last_name=staff_sso_profile.last_name,
+            sso_email_id=sso_email_id,
+            first_name=first_name,
+            last_name=last_name,
             preferred_email=preferred_email,
             emails=email_addresses,
+            *args,
+            **kwargs,
         )
         return profile, created
 

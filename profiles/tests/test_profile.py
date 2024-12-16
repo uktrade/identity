@@ -22,11 +22,9 @@ class ProfileServiceTest(TestCase):
             is_superuser=False,
         )
 
-        self.kwargs = {
-            "user": self.user,
-            "first_name": "John",
-            "last_name": "Doe",
-        }
+        self.first_name = "John"
+        self.last_name = "Doe"
+
         self.emails = [
             {
                 "address": "email1@email.com",
@@ -39,12 +37,20 @@ class ProfileServiceTest(TestCase):
     def test_get_or_create_profile(self):
         staff_sso_profile, sso_profile_created = (
             self.staff_sso_service.get_or_create_staff_sso_profile(
+                user=self.user,
+                first_name=self.first_name,
+                last_name=self.last_name,
                 emails=self.emails,
-                **self.kwargs,
             )
         )
+        preferred_email = "email2@email.com"
+        email_addresses = [email["address"] for email in self.emails]
         profile, profile_created = self.profile_service.get_or_create_profile(
-            staff_sso_profile
+            sso_email_id=staff_sso_profile.user.sso_email_id,
+            first_name=staff_sso_profile.first_name,
+            last_name=staff_sso_profile.last_name,
+            preferred_email=preferred_email,
+            email_addresses=email_addresses,
         )
         self.assertTrue(sso_profile_created)
         self.assertTrue(profile_created)
@@ -58,12 +64,20 @@ class ProfileServiceTest(TestCase):
 
         staff_sso_profile, sso_profile_created = (
             self.staff_sso_service.get_or_create_staff_sso_profile(
+                user=self.user,
+                first_name=self.first_name,
+                last_name=self.last_name,
                 emails=self.emails,
-                **self.kwargs,
             )
         )
+        preferred_email = "email2@email.com"
+        email_addresses = [email["address"] for email in self.emails]
         profile, profile_created = self.profile_service.get_or_create_profile(
-            staff_sso_profile
+            sso_email_id=staff_sso_profile.user.sso_email_id,
+            first_name=staff_sso_profile.first_name,
+            last_name=staff_sso_profile.last_name,
+            preferred_email=preferred_email,
+            email_addresses=email_addresses,
         )
         actual = self.profile_service.get_profile_by_sso_email_id("email@email.com")
 

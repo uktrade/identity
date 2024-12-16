@@ -19,11 +19,8 @@ class StaffSSOServiceTest(TestCase):
             is_superuser=False,
         )
 
-        self.kwargs = {
-            "user": self.user,
-            "first_name": "John",
-            "last_name": "Doe",
-        }
+        self.first_name = "John"
+        self.last_name = "Doe"
         self.emails = [
             {
                 "address": "email1@email.com",
@@ -38,8 +35,10 @@ class StaffSSOServiceTest(TestCase):
 
         staff_sso_profile, created = (
             self.staff_sso_service.get_or_create_staff_sso_profile(
+                user=self.user,
+                first_name=self.first_name,
+                last_name=self.last_name,
                 emails=self.emails,
-                **self.kwargs,
             )
         )
 
@@ -79,8 +78,10 @@ class StaffSSOServiceTest(TestCase):
     def test_get_staff_sso_profile_by_id(self):
         staff_sso_profile, created = (
             self.staff_sso_service.get_or_create_staff_sso_profile(
+                user=self.user,
+                first_name=self.first_name,
+                last_name=self.last_name,
                 emails=self.emails,
-                **self.kwargs,
             )
         )
         actual = self.staff_sso_service.get_staff_sso_profile_by_id(
