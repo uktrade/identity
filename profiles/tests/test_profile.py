@@ -44,7 +44,7 @@ class ProfileServiceTest(TestCase):
             )
         )
         preferred_email = "email2@email.com"
-        email_addresses = [email["address"] for email in self.emails]
+        email_addresses = [str(email["address"]) for email in self.emails]
         profile, profile_created = self.profile_service.get_or_create_profile(
             sso_email_id=staff_sso_profile.user.sso_email_id,
             first_name=staff_sso_profile.first_name,
@@ -71,7 +71,7 @@ class ProfileServiceTest(TestCase):
             )
         )
         preferred_email = "email2@email.com"
-        email_addresses = [email["address"] for email in self.emails]
+        email_addresses = [str(email["address"]) for email in self.emails]
         profile, profile_created = self.profile_service.get_or_create_profile(
             sso_email_id=staff_sso_profile.user.sso_email_id,
             first_name=staff_sso_profile.first_name,
