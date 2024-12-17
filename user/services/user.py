@@ -33,26 +33,19 @@ class UserService:
         except User.DoesNotExist:
             raise User.DoesNotExist("User does not exist")
 
-    def update_user(self, user: User, **kwargs) -> User:
+    def update_user(
+        self,
+        user: User,
+        is_active: bool = True,
+        is_staff: bool = True,
+        is_superuser: bool = True,
+    ) -> User:
         """
         Update a given Django user instance with the provided keyword arguments.
         """
-        # Validate that only valid fields are being updated
-        valid_fields = [
-            "sso_email_id",
-            "is_active",
-            "is_staff",
-            "is_superuser",
-        ]
-        for field in kwargs.keys():
-            if field not in valid_fields:
-                raise ValueError(f"{field} is not a valid field for User model")
-
-        # Update user attributes with provided keyword arguments
-        for field, value in kwargs.items():
-            if hasattr(user, field):
-                setattr(user, field, value)
-
+        user.is_active = is_active
+        user.is_staff = is_staff
+        user.is_superuser = is_superuser
         user.save()
         return user
 
