@@ -65,7 +65,8 @@ class UserServiceTest(TestCase):
             kwargs = {"unrecognised_field": "value"}
             self.user_service.update_user(self.user, **kwargs)
         self.assertEqual(
-            str(te.exception), "unrecognised_field is not a valid field for User model"
+            str(te.exception),
+            "unrecognised_field is not a valid field for model User - sso_email_id@email.com",
         )
 
     @pytest.mark.django_db
