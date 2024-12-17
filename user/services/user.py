@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
+from core.utils import update_model_fields
 from user.exceptions import UserIsDeleted
 
 
@@ -44,17 +45,8 @@ class UserService:
             "is_staff",
             "is_superuser",
         ]
-        for field in kwargs.keys():
-            if field not in valid_fields:
-                raise ValueError(f"{field} is not a valid field for User model")
 
-        # Update user attributes with provided keyword arguments
-        for field, value in kwargs.items():
-            if hasattr(user, field):
-                setattr(user, field, value)
-
-        user.save()
-        return user
+        return update_model_fields(kwargs, user, valid_fields)
 
     def delete_user(self, sso_email_id: str) -> User:
         """
