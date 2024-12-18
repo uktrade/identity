@@ -9,7 +9,7 @@ class ProfileService:
         first_name: str,
         last_name: str,
         preferred_email: str,
-        email_addresses: list[str],
+        emails: list[str],
         *args,
         **kwargs,
     ) -> tuple[Profile, bool]:
@@ -19,7 +19,7 @@ class ProfileService:
             first_name=first_name,
             last_name=last_name,
             preferred_email=preferred_email,
-            emails=email_addresses,
+            emails=emails,
             *args,
             **kwargs,
         )
@@ -45,6 +45,6 @@ class ProfileService:
             "first_name",
             "last_name",
             "preferred_email",
-            "email_addresses",
+            "emails",
         ]
         return update_model_fields(kwargs, profile, valid_fields)
