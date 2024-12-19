@@ -1,3 +1,4 @@
+from core.utils import update_model_fields
 from profiles.models import Email, Profile, StaffSSOProfile, StaffSSOProfileEmail
 from user.models import User
 
@@ -56,8 +57,57 @@ class StaffSSOService:
         )
         return staff_sso_email, created
 
+    def update_staff_sso_email(
+        self,
+        *args,
+        **kwargs,
+    ) -> StaffSSOProfileEmail:
+        """
+        Create a new staff sso email
+        """
+
+        valid_fields = [
+            "profile",
+            "email",
+            "type",
+            "preferred",
+        ]
+        import pdb
+
+        pdb.set_trace()
+        staff_sso_profile_email = StaffSSOProfileEmail.objects.filter(
+            email=kwargs["email"]
+        )[0]
+        return update_model_fields(kwargs, staff_sso_profile_email, valid_fields)
+
     def get_staff_sso_profile_by_id(self, id: int) -> Profile:
         """
         Retrieve a user by their ID, only if the user is not soft-deleted.
         """
         return StaffSSOProfile.objects.get(id=id)
+
+    def update_staff_sso_profile(
+        self,
+        id: int,
+        *args,
+        **kwargs,
+    ) -> Profile:
+        staff_sso_profile = self.get_staff_sso_profile_by_id(id)
+
+        if "emails" in kwargs:
+            # create staff sso email records
+            for email in kwargs["emails"]:
+                self.update_staff_sso_email(
+                    profile=email.profile,
+                    email=email.email,
+                    type=email.type,
+                    preferred=email.preferred,
+                )
+
+        if "first_name" in kwargs:
+            staff_sso_profile.first_name = kwargs["first_name"]
+        if "last_name" in kwargs:
+            staff_sso_profile.last_name = kwargs["last_name"]
+
+        staff_sso_profile.save()
+        return staff_sso_profile

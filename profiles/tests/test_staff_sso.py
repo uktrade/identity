@@ -91,3 +91,26 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(actual.user.sso_email_id, "email@email.com")
         self.assertEqual(actual.first_name, "John")
         self.assertEqual(actual.last_name, "Doe")
+
+    @pytest.mark.django_db
+    def test_update_staff_sso_profile(self):
+        staff_sso_profile, created = (
+            self.staff_sso_service.get_or_create_staff_sso_profile(
+                user=self.user,
+                first_name=self.first_name,
+                last_name=self.last_name,
+                emails=self.emails,
+            )
+        )
+        kwargs = {
+            "first_name": "newTom",
+            "last_name": "newJones",
+            "emails": self.emails[1],
+        }
+        updated_profile = self.staff_sso_service.update_staff_sso_profile(
+            staff_sso_profile.id, **kwargs
+        )
+
+        self.assertEqual(updated_profile.first_name, "newTom")
+        self.assertEqual(updated_profile.last_name, "newJones")
+        self.assertEqual(len(updated_profile.emails), 1)

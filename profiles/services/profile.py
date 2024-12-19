@@ -48,3 +48,12 @@ class ProfileService:
             "emails",
         ]
         return update_model_fields(kwargs, profile, valid_fields)
+
+    def delete_profile(self, sso_email_id: str) -> Profile:
+        """
+        Retrieve a user by their ID, only if the user is not soft-deleted.
+        """
+        profile = Profile.objects.get(sso_email_id=sso_email_id)
+        profile.is_active = False
+        profile.save()
+        return profile
