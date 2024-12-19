@@ -21,6 +21,7 @@ import sentry_sdk
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import is_copilot, setup_allowed_hosts
 from django.urls import reverse_lazy
+from sentry_sdk import set_tag
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
@@ -33,6 +34,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 # App
 #
 APP_ENV: str = env.str("APP_ENV")
+SERVICE: str = env.str("SERVICE")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 
 # Django
@@ -128,16 +130,20 @@ LOGIN_URL = reverse_lazy("authbroker_client:login")
 LOGIN_REDIRECT_URL = "/"
 
 
-# authbroker config
+# authbroker config for SSO user oAuth
 AUTHBROKER_URL = env("AUTHBROKER_URL")
 AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID")
 AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET")
 AUTHBROKER_STAFF_SSO_SCOPE = env("AUTHBROKER_STAFF_SSO_SCOPE")
-
-AUTHBROKER_ANONYMOUS_PATHS = ("/pingdom/ping.xml",)
-
+AUTHBROKER_ANONYMOUS_PATHS = (
+    "/pingdom/ping.xml",
+    "/api",
+)
 AUTH_USER_MODEL = "user.User"
 
+# Hawk API auth setup
+HAWK_ID = env(f"{SERVICE}_HAWK_ID", None)
+HAWK_KEY = env(f"{SERVICE}_HAWK_KEY", None)
 
 LOGGING = {
     "version": 1,
@@ -191,6 +197,7 @@ if SENTRY_DSN:
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0),
         send_default_pii=True,
     )
+    set_tag("service", SERVICE)
 
 
 # Database
