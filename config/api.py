@@ -1,8 +1,15 @@
+from django.conf import settings
 from ninja import NinjaAPI
+from requests_hawk import HawkAuth
 
-from scim.api import router as scim_router
+hawk_auth = HawkAuth(
+    id=settings.HAWK_ID,
+    key=settings.HAWK_KEY,
+)
 
 
-api = NinjaAPI()
+def GlobalHawkAuth(request):
+    return True
 
-api.add_router("", scim_router)
+
+ninja_apis = NinjaAPI(auth=GlobalHawkAuth)
