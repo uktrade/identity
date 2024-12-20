@@ -42,8 +42,17 @@ class Address:
     country: str | None = None
 
 
-# class SCIMUserMinimal(ModelSchema):
-#     ...
+class SCIMUserMinimal(ModelSchema):
+    id: str = Field(alias="sso_email_id")
+
+    class Meta:
+        model = Profile
+        fields = [
+            # "sso_email_id",
+            "first_name",
+            "last_name",
+            "preferred_email",
+        ]
 
 
 class SCIMUserIn(Schema):
