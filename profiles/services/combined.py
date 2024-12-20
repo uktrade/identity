@@ -1,6 +1,6 @@
 from typing import Optional
 
-from profiles.models import Profile
+from profiles.models.generic import Profile
 
 
 ###############################################################
