@@ -2,7 +2,7 @@ import pytest
 from django.test import TestCase
 
 from profiles.models import EMAIL_TYPE_WORK, EMAIL_TYPE_CONTACT
-from profiles.services import profile as profile_service
+from profiles.services import combined as profile_service
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
@@ -33,7 +33,7 @@ class ProfileServiceTest(TestCase):
             {"address": "email2@email.com", "type": EMAIL_TYPE_CONTACT, "preferred": True},
         ]
 
-    def test_get_or_create_profile(self):
+    def test_create(self):
         staff_sso_profile, profile = (
             self.create_staff_sso_profile_and_profile()
         )
@@ -44,11 +44,11 @@ class ProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
-    def test_get_profile_by_sso_email_id(self):
+    def test_get_by_id(self):
         staff_sso_profile, profile = (
             self.create_staff_sso_profile_and_profile()
         )
-        get_profile_result = profile_service.get_profile_by_sso_email_id(
+        get_profile_result = profile_service.get_by_id(
             "email@email.com"
         )
 
@@ -61,7 +61,7 @@ class ProfileServiceTest(TestCase):
         )
 
     @pytest.mark.django_db
-    def test_update_profile(self):
+    def test_update(self):
         self.create_staff_sso_profile_and_profile()
         kwargs = {
             "first_name": "Tom",
@@ -69,7 +69,7 @@ class ProfileServiceTest(TestCase):
             "preferred_email": "newpref@email.com",
         }
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        updated_profile = profile_service.update_profile(
+        updated_profile = profile_service.update(
             sso_email_id="email@email.com", emails=emails, **kwargs
         )
 
@@ -81,9 +81,9 @@ class ProfileServiceTest(TestCase):
             updated_profile.emails, ["newemail1@email.com", "newemail2@email.com"]
         )
 
-    def test_delete_profile(self):
+    def test_delete(self):
         self.create_staff_sso_profile_and_profile()
-        deleted_profile = profile_service.delete_profile("email@email.com")
+        deleted_profile = profile_service.delete("email@email.com")
 
         self.assertEqual(deleted_profile.is_active, False)
         self.assertEqual(deleted_profile.sso_email_id, "email@email.com")
@@ -104,7 +104,7 @@ class ProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         emails = [str(email["address"]) for email in self.emails]
-        profile, profile_created = profile_service.get_or_create_profile(
+        profile = profile_service.create(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
