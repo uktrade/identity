@@ -18,11 +18,18 @@ else:
     User = get_user_model()
 
 
-def get_by_user_id(id: int) -> StaffSSOProfile:
+
+###############################################################
+# SSO Profile data methods
+###############################################################
+
+
+def get_by_user_id(id: str) -> StaffSSOProfile:
     """
     Retrieve a profile by its User ID, only if the user is not soft-deleted.
     """
-    return StaffSSOProfile.objects.get(user_id=id)
+    # @TODO update the below query (inc the model) to stop it requiring a JOIN
+    return StaffSSOProfile.objects.get(user_id=id, user__is_active=True)
 
 
 def create(
@@ -56,8 +63,7 @@ def update(
     first_name: Optional[str],
     last_name: Optional[str],
     emails: list[dict],
-) -> Profile:
-
+) -> StaffSSOProfile:
     staff_sso_profile = get_by_user_id(id)
     staff_sso_profile.first_name = first_name
     staff_sso_profile.last_name = last_name
@@ -77,6 +83,11 @@ def update(
     staff_sso_profile.save()
     return staff_sso_profile
 
+
+
+###############################################################
+# Email data methods
+###############################################################
 
 def create_email(
     profile: StaffSSOProfile,
