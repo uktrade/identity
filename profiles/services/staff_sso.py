@@ -58,7 +58,7 @@ def create(
 
 
 def update(
-    id: int,
+    id: str,
     first_name: Optional[str],
     last_name: Optional[str],
     emails: list[dict],
