@@ -2,8 +2,8 @@ import pytest
 from django.test import TestCase
 
 from profiles.models import TYPES
-from profiles.services.profile import ProfileService
-from profiles.services.staff_sso import StaffSSOService
+from profiles.services import profile as profile_services
+from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
@@ -11,8 +11,6 @@ class ProfileServiceTest(TestCase):
 
     @pytest.mark.django_db
     def setUp(self):
-        self.profile_service = ProfileService()
-        self.staff_sso_service = StaffSSOService()
 
         self.sso_email_id = "email@email.com"
         self.first_name = "John"
@@ -52,7 +50,7 @@ class ProfileServiceTest(TestCase):
         staff_sso_profile, sso_profile_created, profile, profile_created = (
             self.create_staff_sso_profile_and_profile()
         )
-        get_profile_result = self.profile_service.get_profile_by_sso_email_id(
+        get_profile_result = profile_services.get_profile_by_sso_email_id(
             "email@email.com"
         )
 
@@ -75,7 +73,7 @@ class ProfileServiceTest(TestCase):
             "preferred_email": "newpref@email.com",
         }
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        updated_profile = self.profile_service.update_profile(
+        updated_profile = profile_services.update_profile(
             sso_email_id="email@email.com", emails=emails, **kwargs
         )
 
@@ -89,7 +87,7 @@ class ProfileServiceTest(TestCase):
 
     def test_delete_profile(self):
         self.create_staff_sso_profile_and_profile()
-        deleted_profile = self.profile_service.delete_profile("email@email.com")
+        deleted_profile = profile_services.delete_profile("email@email.com")
 
         self.assertEqual(deleted_profile.is_active, False)
         self.assertEqual(deleted_profile.sso_email_id, "email@email.com")
@@ -101,7 +99,7 @@ class ProfileServiceTest(TestCase):
 
     def create_staff_sso_profile_and_profile(self):
         staff_sso_profile, sso_profile_created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
@@ -110,7 +108,7 @@ class ProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         emails = [str(email["address"]) for email in self.emails]
-        profile, profile_created = self.profile_service.get_or_create_profile(
+        profile, profile_created = profile_services.get_or_create_profile(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
