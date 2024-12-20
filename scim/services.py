@@ -1,4 +1,4 @@
-from core import services as core_service
+from core import services as core_services
 
 from .schemas import SCIMUserIn
 
@@ -16,7 +16,7 @@ def get_or_create_user(scim_user: SCIMUserIn) -> tuple[dict, bool]:
         "is_active": scim_user.active,
     }
 
-    user, created = core_service.get_or_create_user(
+    user, created = core_services.get_or_create_user(
         id=scim_user.externalId,
         **scim_user_details,
     )
@@ -29,7 +29,7 @@ def get_or_create_user(scim_user: SCIMUserIn) -> tuple[dict, bool]:
 
 
 def get_user_by_id(id: str) -> dict:
-    user = core_service.get_user_by_id(id)
+    user = core_services.get_user_by_id(id)
     user_dict = {
         "sso_email_id": user.sso_email_id,
         "is_active": user.is_active,

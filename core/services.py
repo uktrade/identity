@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
-from user import services as user_service
+from user import services as user_services
 
 
 if TYPE_CHECKING:
@@ -12,11 +12,11 @@ else:
 
 
 def get_or_create_user(id: str, *args, **kwargs) -> tuple[User, bool]:
-    return user_service.get_or_create_user(id, *args, **kwargs)
+    return user_services.get_or_create_user(id, *args, **kwargs)
 
 
 def get_user_by_id(id: str) -> User:
-    return user_service.get_user_by_sso_id(id)
+    return user_services.get_user_by_sso_id(id)
 
 
 # TODO:
