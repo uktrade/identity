@@ -15,15 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from django_hawk.utils import authenticate_request
+from ninja import NinjaAPI
 
-from .api import ninja_apis
+from scim.api import router as scim_router
 
+
+protected_apis = NinjaAPI(auth=authenticate_request)
+protected_apis.add_router("/scim/v2/Users", scim_router)
 
 urlpatterns = [
     path("", include("core.urls")),
-    path("", ninja_apis.urls),
+    path("", protected_apis.urls),
     path("admin/", admin.site.urls),
     path("auth/", include("authbroker_client.urls")),
     path("pingdom/", include("pingdom.urls")),

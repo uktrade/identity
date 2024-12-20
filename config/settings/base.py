@@ -34,7 +34,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 # App
 #
 APP_ENV: str = env.str("APP_ENV")
-SERVICE: str = env.str("SERVICE")
+SERVICE: str = env.str("SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 
 # Django
@@ -142,8 +142,10 @@ AUTHBROKER_ANONYMOUS_PATHS = (
 AUTH_USER_MODEL = "user.User"
 
 # Hawk API auth setup
-HAWK_ID = env(f"{SERVICE}_HAWK_ID", None)
-HAWK_KEY = env(f"{SERVICE}_HAWK_KEY", None)
+DJANGO_HAWK = {
+    "HAWK_INCOMING_ACCESS_KEY": env(f"{SERVICE}_HAWK_ID", None),
+    "HAWK_INCOMING_SECRET_KEY": env(f"{SERVICE}_HAWK_KEY", None),
+}
 
 LOGGING = {
     "version": 1,
