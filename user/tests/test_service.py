@@ -118,17 +118,20 @@ class UserServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_update_by_id(self):
-        mock_get_by_id = self.mocker.patch("user.services.get_by_id", return_value=self.user)
+        mock_get_by_id = self.mocker.patch(
+            "user.services.get_by_id", return_value=self.user
+        )
         mock_update = self.mocker.patch("user.services.update")
         self.assertFalse(self.user.is_staff)
         user_service.update_by_id(self.user.sso_email_id, is_staff=True)
         mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
         mock_update.assert_called_once_with(self.user, True, False)
 
-
     @pytest.mark.django_db
     def test_archive_by_id(self):
-        mock_get_by_id = self.mocker.patch("user.services.get_by_id", return_value=self.user)
+        mock_get_by_id = self.mocker.patch(
+            "user.services.get_by_id", return_value=self.user
+        )
         mock_archive = self.mocker.patch("user.services.archive")
         self.assertTrue(self.user.is_active)
         user_service.archive_by_id(self.user.sso_email_id)
@@ -137,7 +140,9 @@ class UserServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_unarchive_by_id(self):
-        mock_get_by_id = self.mocker.patch("user.services.get_by_id", return_value=self.user)
+        mock_get_by_id = self.mocker.patch(
+            "user.services.get_by_id", return_value=self.user
+        )
         mock_unarchive = self.mocker.patch("user.services.unarchive")
         self.user.is_active = False
         self.user.save()
@@ -148,8 +153,12 @@ class UserServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_delete_from_database_by_id(self):
-        mock_get_by_id = self.mocker.patch("user.services.get_by_id", return_value=self.user)
-        mock_delete_from_database = self.mocker.patch("user.services.delete_from_database")
+        mock_get_by_id = self.mocker.patch(
+            "user.services.get_by_id", return_value=self.user
+        )
+        mock_delete_from_database = self.mocker.patch(
+            "user.services.delete_from_database"
+        )
         self.assertFalse(self.user.is_staff)
         user_service.delete_from_database_by_id(self.user.sso_email_id)
         mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
