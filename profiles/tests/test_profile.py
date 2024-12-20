@@ -2,8 +2,8 @@ import pytest
 from django.test import TestCase
 
 from profiles.models import TYPES, StaffSSOProfile
-from profiles.services.profile import ProfileService
-from profiles.services.staff_sso import StaffSSOService
+from profiles.services import profile as profile_service
+from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
@@ -11,8 +11,6 @@ class ProfileServiceTest(TestCase):
 
     @pytest.mark.django_db
     def setUp(self):
-        self.profile_service = ProfileService()
-        self.staff_sso_service = StaffSSOService()
 
         # Create a user for use in the tests
         self.user, _ = User.objects.get_or_create(
@@ -36,7 +34,7 @@ class ProfileServiceTest(TestCase):
 
     def test_get_or_create_profile(self):
         staff_sso_profile, sso_profile_created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
@@ -45,7 +43,7 @@ class ProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         email_addresses = [str(email["address"]) for email in self.emails]
-        profile, profile_created = self.profile_service.get_or_create_profile(
+        profile, profile_created = profile_service.get_or_create_profile(
             sso_email_id=staff_sso_profile.user.sso_email_id,
             first_name=staff_sso_profile.first_name,
             last_name=staff_sso_profile.last_name,
@@ -63,7 +61,7 @@ class ProfileServiceTest(TestCase):
     def test_get_profile_by_sso_email_id(self):
 
         staff_sso_profile, sso_profile_created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
@@ -72,14 +70,14 @@ class ProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         email_addresses = [str(email["address"]) for email in self.emails]
-        profile, profile_created = self.profile_service.get_or_create_profile(
+        profile, profile_created = profile_service.get_or_create_profile(
             sso_email_id=staff_sso_profile.user.sso_email_id,
             first_name=staff_sso_profile.first_name,
             last_name=staff_sso_profile.last_name,
             preferred_email=preferred_email,
             email_addresses=email_addresses,
         )
-        actual = self.profile_service.get_profile_by_sso_email_id("email@email.com")
+        actual = profile_service.get_profile_by_sso_email_id("email@email.com")
 
         self.assertTrue(sso_profile_created)
         self.assertTrue(profile_created)

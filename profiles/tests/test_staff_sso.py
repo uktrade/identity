@@ -2,7 +2,7 @@ import pytest
 from django.test import TestCase
 
 from profiles.models import TYPES, Email, StaffSSOProfile, StaffSSOProfileEmail
-from profiles.services.staff_sso import StaffSSOService
+from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
@@ -10,7 +10,6 @@ class StaffSSOServiceTest(TestCase):
 
     @pytest.mark.django_db
     def setUp(self):
-        self.staff_sso_service = StaffSSOService()
         # Create a user for use in the tests
         self.user, _ = User.objects.get_or_create(
             sso_email_id="email@email.com",
@@ -34,7 +33,7 @@ class StaffSSOServiceTest(TestCase):
     def test_get_or_create_staff_sso_profile(self):
 
         staff_sso_profile, created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
@@ -77,14 +76,14 @@ class StaffSSOServiceTest(TestCase):
 
     def test_get_staff_sso_profile_by_id(self):
         staff_sso_profile, created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
                 emails=self.emails,
             )
         )
-        actual = self.staff_sso_service.get_staff_sso_profile_by_id(
+        actual = staff_sso_service.get_staff_sso_profile_by_id(
             staff_sso_profile.id
         )
         self.assertTrue(created)

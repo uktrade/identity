@@ -1,13 +1,11 @@
 from ninja import Router
 
-from core.services import CoreService
-from scim.services import SCIMService
+from scim import services as scim_service
 
 from .schemas import SCIMUserIn, SCIMUserOut
 
 
 router = Router()
-scim_service = SCIMService()
 
 
 @router.get("scim/v2/Users/{id}", response=SCIMUserOut)

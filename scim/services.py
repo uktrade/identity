@@ -1,4 +1,4 @@
-from core.services import CoreService
+from core import services as core_service
 
 from .schemas import SCIMUserIn
 
@@ -10,30 +10,28 @@ from .schemas import SCIMUserIn
 # with profile name (first_name, last_name ?)
 
 
-class SCIMService:
-    core_service = CoreService()
+def get_or_create_user(scim_user: SCIMUserIn) -> tuple[dict, bool]:
 
-    def get_or_create_user(self, scim_user: SCIMUserIn) -> tuple[dict, bool]:
+    scim_user_details = {
+        "is_active": scim_user.active,
+    }
 
-        scim_user_details = {
-            "is_active": scim_user.active,
-        }
+    user, created = core_service.get_or_create_user(
+        id=scim_user.externalId,
+        **scim_user_details,
+    )
+    user_dict = {
+        "sso_email_id": user.sso_email_id,
+        "is_active": user.is_active,
+    }
 
-        user, created = self.core_service.get_or_create_user(
-            id=scim_user.externalId,
-            **scim_user_details,
-        )
-        user_dict = {
-            "sso_email_id": user.sso_email_id,
-            "is_active": user.is_active,
-        }
+    return user_dict, created
 
-        return user_dict, created
 
-    def get_user_by_id(self, id: str) -> dict:
-        user = self.core_service.get_user_by_id(id)
-        user_dict = {
-            "sso_email_id": user.sso_email_id,
-            "is_active": user.is_active,
-        }
-        return user_dict
+def get_user_by_id(id: str) -> dict:
+    user = core_service.get_user_by_id(id)
+    user_dict = {
+        "sso_email_id": user.sso_email_id,
+        "is_active": user.is_active,
+    }
+    return user_dict
