@@ -6,7 +6,9 @@ from simple_history.models import HistoricalRecords  # type: ignore
 from user.models import User
 
 
-TYPES = (("work", "Work"), ("contact", "Contact"))
+EMAIL_TYPE_WORK = "work"
+EMAIL_TYPE_CONTACT = "contact"
+EMAIL_TYPES = ((EMAIL_TYPE_WORK, "Work"), (EMAIL_TYPE_CONTACT, "Contact"))
 
 
 class AbstractHistoricalModel(models.Model):
@@ -62,7 +64,7 @@ class StaffSSOProfileEmail(AbstractHistoricalModel):
         "StaffSSOProfile", on_delete=models.CASCADE, related_name="emails"
     )
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
-    type = models.CharField(max_length=50, choices=TYPES)
+    type = models.CharField(max_length=50, choices=EMAIL_TYPES)
     preferred = models.BooleanField(default=False)
 
     class Meta:
