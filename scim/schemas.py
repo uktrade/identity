@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from django.contrib.auth import get_user_model
-from ninja import Field, Schema
+from ninja import Field, ModelSchema, Schema
+
+from profiles.models.generic import Profile
 
 
 @dataclass
@@ -38,6 +40,10 @@ class Address:
     region: str | None = None
     postalCode: str | None = None
     country: str | None = None
+
+
+# class SCIMUserMinimal(ModelSchema):
+#     ...
 
 
 class SCIMUserIn(Schema):
