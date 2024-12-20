@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from core import services as core_service
+from core import services as core_services
 from user.exceptions import UserAlreadyExists
 
 
@@ -16,7 +16,7 @@ class TestCoreService(TestCase):
             "first_name": "Billy",
         }
         # User is created
-        user, created = core_service.create_user(
+        user, created = core_services.create_user(
             id="john.sso.email.id@gov.uk",
             **user_details,
         )
@@ -26,7 +26,7 @@ class TestCoreService(TestCase):
 
         # User already exists
         with self.assertRaises(UserAlreadyExists) as ex:
-            existing_user, is_created = core_service.create_user(
+            existing_user = core_services.create_user(
                 id="john.sso.email.id@gov.uk",
                 **user_details,
             )
