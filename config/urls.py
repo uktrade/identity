@@ -18,18 +18,16 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from django_hawk.utils import authenticate_request
-from ninja import NinjaAPI
 
 from scim.api import router as scim_router
+from .api import protected_apis
 
 
-protected_apis = NinjaAPI(auth=authenticate_request)
 protected_apis.add_router("/scim/v2/Users", scim_router)
 
 urlpatterns = [
     path("", include("core.urls")),
-    path("", protected_apis.urls),
+    path("api/", protected_apis.urls),
     path("admin/", admin.site.urls),
     path("auth/", include("authbroker_client.urls")),
     path("pingdom/", include("pingdom.urls")),
