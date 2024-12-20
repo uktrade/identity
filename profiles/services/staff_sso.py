@@ -51,6 +51,7 @@ def get_or_create_staff_sso_email(
     )
     return staff_sso_email, created
 
+
 def update_staff_sso_email(
     profile: StaffSSOProfile,
     email: StaffSSOProfileEmail,
@@ -70,11 +71,13 @@ def update_staff_sso_email(
     staff_sso_profile_email.save()
     return staff_sso_profile_email
 
+
 def get_staff_sso_profile_by_id(id: int) -> StaffSSOProfile:
     """
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
     return StaffSSOProfile.objects.get(id=id)
+
 
 def update_staff_sso_profile(
     id: int,

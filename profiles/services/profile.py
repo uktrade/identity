@@ -24,11 +24,13 @@ def get_or_create_profile(
     )
     return profile, created
 
+
 def get_profile_by_sso_email_id(sso_email_id: str) -> Profile:
     """
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
     return Profile.objects.get(sso_email_id=sso_email_id)
+
 
 def update_profile(
     sso_email_id: str,
@@ -45,6 +47,7 @@ def update_profile(
     profile.emails = emails
     profile.save()
     return profile
+
 
 def delete_profile(sso_email_id: str) -> Profile:
     """

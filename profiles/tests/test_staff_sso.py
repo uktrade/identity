@@ -87,13 +87,11 @@ class StaffSSOServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_update_staff_sso_profile(self):
-        staff_sso_profile, created = (
-            staff_sso_service.get_or_create_staff_sso_profile(
-                user=self.user,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                emails=self.emails,
-            )
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
         )
         kwargs = {
             "first_name": "newTom",
