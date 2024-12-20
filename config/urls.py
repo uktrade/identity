@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from scim.api import router as scim_router
+
 from .api import protected_apis
 
 
