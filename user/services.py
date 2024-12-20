@@ -48,7 +48,7 @@ def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
         )
 
 
-#### Standard user object methods ####
+#### Standard user-object methods ####
 
 
 def update(user: User, is_staff: bool = False, is_superuser: bool = False):
