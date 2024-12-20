@@ -19,9 +19,10 @@ response_codes = frozenset({200, 201})
 
 @router.post("scim/v2/Users", response={response_codes: SCIMUserOut})
 def create_user(request, scim_user: SCIMUserIn):
-    user = core_service.create_user(
-        scim_user.id, "SSO", **scim_user
-    )  #  type: ignore @TODO
+    # @TODO fix mypy stuff properly
+    user = core_service.create_user(  # type: ignore
+        scim_user.id, "SSO", **scim_user  # type: ignore
+    )  # type: ignore
     # if created:
     return 201, user
     # else:
