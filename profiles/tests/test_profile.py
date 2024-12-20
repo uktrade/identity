@@ -99,7 +99,7 @@ class ProfileServiceTest(TestCase):
 
     def create_staff_sso_profile_and_profile(self):
         staff_sso_profile, sso_profile_created = (
-            staff_sso_service.get_or_create_staff_sso_profile(
+            staff_sso_service.create(
                 user=self.user,
                 first_name=self.first_name,
                 last_name=self.last_name,
