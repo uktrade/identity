@@ -7,7 +7,7 @@ from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
-class ProfileServiceTest(TestCase):
+class CombinedProfileServiceTest(TestCase):
 
     @pytest.mark.django_db
     def setUp(self):
