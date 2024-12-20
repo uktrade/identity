@@ -12,11 +12,11 @@ else:
 
 
 def get_or_create_user(id: str, *args, **kwargs) -> tuple[User, bool]:
-    return user_service.get_or_create_user(id, *args, **kwargs)
+    return user_service.create(sso_email_id=id), True
 
 
 def get_user_by_id(id: str) -> User:
-    return user_service.get_user_by_sso_id(id)
+    return user_service.get_by_id(id)
 
 
 # TODO:

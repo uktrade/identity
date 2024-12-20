@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
-from user.exceptions import UserIsDeleted
+from user.exceptions import UserAlreadyExists, UserIsArchived
 
 
 if TYPE_CHECKING:
@@ -11,14 +11,15 @@ else:
     User = get_user_model()
 
 
-def get_or_create_user(sso_email_id, *args, **kwargs) -> tuple[User, bool]:
-    """
-    Create a new user with the specified username.
-    """
-    return User.objects.get_or_create(sso_email_id=sso_email_id, *args, **kwargs)
+###############################################################
+# Base data methods
+###############################################################
 
 
-def get_user_by_sso_id(sso_email_id: str) -> User:
+#### ID is required - no getting around it ####
+
+
+def get_by_id(sso_email_id: str):
     """
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
@@ -27,41 +28,76 @@ def get_user_by_sso_id(sso_email_id: str) -> User:
         if user.is_active:
             return user
         else:
-            raise UserIsDeleted("User has been previously deleted")
+            raise UserIsArchived("User has been previously deleted")
 
     except User.DoesNotExist:
         raise User.DoesNotExist("User does not exist")
 
 
-def update_user(user: User, **kwargs) -> User:
-    """
-    Update a given Django user instance with the provided keyword arguments.
-    """
-    # Validate that only valid fields are being updated
-    valid_fields = [
-        "sso_email_id",
-        "is_active",
-        "is_staff",
-        "is_superuser",
-    ]
-    for field in kwargs.keys():
-        if field not in valid_fields:
-            raise ValueError(f"{field} is not a valid field for User model")
-
-    # Update user attributes with provided keyword arguments
-    for field, value in kwargs.items():
-        if hasattr(user, field):
-            setattr(user, field, value)
-
-    user.save()
-    return user
+def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False):
+    """Simplest and most common version of user creation"""
+    try:
+        get_by_id(sso_email_id)
+        raise UserAlreadyExists("User has been previously created")
+    except User.DoesNotExist:
+        return User.objects.create_user(
+            sso_email_id=sso_email_id,
+            is_active=True,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+        )
 
 
-def delete_user(sso_email_id: str) -> User:
+#### Standard user object methods ####
+
+
+def update(user: User, is_staff: bool = False, is_superuser: bool = False):
     """
-    Soft delete a user by setting the 'is_active' flag to False.
+    Update method allowing only the right fields to be set in this way.
+    To change is_active use the dedicated method. ID may not be updated.
     """
-    user = get_user_by_sso_id(sso_email_id)
+    user.is_staff = is_staff
+    user.is_superuser = is_superuser
+    return user.save(update_fields=("is_staff", "is_superuser"))
+
+
+def archive(user: User):
+    """Simplest and most common version of user soft deletion"""
     user.is_active = False
-    user.save()
-    return user
+    return user.save(update_fields=("is_active",))
+
+
+def unarchive(user: User):
+    """Simplest and most common version of user reactivation"""
+    user.is_active = True
+    return user.save(update_fields=("is_active",))
+
+
+def delete_from_database(user: User):
+    """Only to be used in data cleaning (i.e. non-standard) operations"""
+    return user.delete()
+
+
+###############################################################
+# Utility methods
+###############################################################
+
+
+def update_by_id(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False):
+    user = get_by_id(sso_email_id)
+    return update(user, is_staff, is_superuser)
+
+
+def archive_by_id(sso_email_id: str):
+    user = get_by_id(sso_email_id)
+    return archive(user)
+
+
+def unarchive_by_id(sso_email_id: str):
+    user = get_by_id(sso_email_id)
+    return unarchive(user)
+
+
+def delete_from_database_by_id(sso_email_id: str):
+    user = get_by_id(sso_email_id)
+    return delete_from_database(user)

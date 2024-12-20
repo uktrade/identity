@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from scim import services as scim_service
 from scim.schemas import SCIMUserIn, SCIMUserOut
+from user.exceptions import UserAlreadyExists
 
 
 class TestSCIMService(TestCase):
@@ -22,8 +23,8 @@ class TestSCIMService(TestCase):
         self.assertEqual(user["is_active"], True)
 
         # User already exists
-        existing_user, is_created = scim_service.get_or_create_user(scim_user)
-        self.assertFalse(is_created)
+        with self.assertRaises(UserAlreadyExists) as ex:
+            existing_user, is_created = scim_service.get_or_create_user(scim_user)
 
     @pytest.mark.django_db
     def test_scim_get_user_by_id(self):
