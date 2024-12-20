@@ -41,9 +41,12 @@ class Profile(AbstractHistoricalModel):
     last_name = models.CharField(max_length=100)
     preferred_email = models.CharField(max_length=100)
     emails = ArrayField(models.CharField(max_length=100), default=list)
+    is_active = models.BooleanField(
+        default=True,
+    )
 
     def __str__(self):
-        return f"SSO Email ID: {self.sso_email_id}, First Name: {self.first_name}, Last name: {self.last_name}, Preferred Email: {self.preferred_email}, Emails: {self.emails}"
+        return f"Profile: SSO Email ID: {self.sso_email_id}, First Name: {self.first_name}, Last name: {self.last_name}, Preferred Email: {self.preferred_email}, Emails: {self.emails}"
 
 
 class StaffSSOProfile(AbstractProfile):

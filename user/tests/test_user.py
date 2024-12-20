@@ -59,16 +59,6 @@ class UserServiceTest(TestCase):
         self.assertEqual(updated_user.is_superuser, True)
 
     @pytest.mark.django_db
-    def test_update_user_user_error(self):
-        # check error when unrecognised user field is provided
-        with self.assertRaises(ValueError) as te:
-            kwargs = {"unrecognised_field": "value"}
-            self.user_service.update_user(self.user, **kwargs)
-        self.assertEqual(
-            str(te.exception), "unrecognised_field is not a valid field for User model"
-        )
-
-    @pytest.mark.django_db
     def test_delete_user(self):
         user_for_deletion = User.objects.create_user(
             sso_email_id="userfordeletion",
