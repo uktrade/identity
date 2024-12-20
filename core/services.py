@@ -22,5 +22,10 @@ def create_user(id: str, initiator: str = "SSO", **kwargs) -> User:
         first_name = kwargs.get("first_name", None)
         last_name = kwargs.get("last_name", None)
         emails = kwargs.get("emails", None)
-        profile_service.create_from_sso(user, first_name, last_name, emails, )
+        profile_service.create_from_sso(
+            user,
+            first_name,
+            last_name,
+            emails,
+        )
     return user

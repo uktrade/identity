@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model
 
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from user.models import User
 else:
     User = get_user_model()
-
 
 
 ###############################################################
@@ -84,10 +83,10 @@ def update(
     return staff_sso_profile
 
 
-
 ###############################################################
 # Email data methods
 ###############################################################
+
 
 def create_email(
     profile: StaffSSOProfile,
@@ -136,14 +135,23 @@ def update_email_details(
     """
     Update a staff sso email
     """
-    staff_sso_profile_email = StaffSSOProfileEmail.objects.get(email=email, profile=profile)
+    staff_sso_profile_email = StaffSSOProfileEmail.objects.get(
+        email=email, profile=profile
+    )
 
-    update_fields = ["profile", "email", ]
+    update_fields = [
+        "profile",
+        "email",
+    ]
     if type is not None:
         staff_sso_profile_email.type = type
-        update_fields += ["type", ]
+        update_fields += [
+            "type",
+        ]
     if preferred is not None:
         staff_sso_profile_email.preferred = preferred
-        update_fields += ["preferred", ]
+        update_fields += [
+            "preferred",
+        ]
 
     return staff_sso_profile_email.save(update_fields=update_fields)

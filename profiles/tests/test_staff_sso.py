@@ -1,7 +1,13 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models import EMAIL_TYPE_WORK, EMAIL_TYPE_CONTACT, Email, StaffSSOProfile, StaffSSOProfileEmail
+from profiles.models import (
+    EMAIL_TYPE_CONTACT,
+    EMAIL_TYPE_WORK,
+    Email,
+    StaffSSOProfile,
+    StaffSSOProfileEmail,
+)
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
@@ -26,7 +32,11 @@ class StaffSSOServiceTest(TestCase):
                 "type": EMAIL_TYPE_WORK,
                 "preferred": False,
             },
-            {"address": "email2@email.com", "type": EMAIL_TYPE_CONTACT, "preferred": True},
+            {
+                "address": "email2@email.com",
+                "type": EMAIL_TYPE_CONTACT,
+                "preferred": True,
+            },
         ]
 
     @pytest.mark.django_db
@@ -96,7 +106,11 @@ class StaffSSOServiceTest(TestCase):
             "last_name": "newJones",
         }
         emails = [
-            {"address": "email2@email.com", "type": EMAIL_TYPE_CONTACT, "preferred": False}
+            {
+                "address": "email2@email.com",
+                "type": EMAIL_TYPE_CONTACT,
+                "preferred": False,
+            }
         ]
 
         # check values before update
