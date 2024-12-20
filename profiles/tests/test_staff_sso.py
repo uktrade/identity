@@ -32,13 +32,11 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_get_or_create_staff_sso_profile(self):
 
-        staff_sso_profile, created = (
-            staff_sso_service.get_or_create_staff_sso_profile(
-                user=self.user,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                emails=self.emails,
-            )
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
         )
 
         self.assertTrue(created)
@@ -75,6 +73,20 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.last_name, "Doe")
 
     def test_get_staff_sso_profile_by_id(self):
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
+        )
+        actual = staff_sso_service.get_staff_sso_profile_by_id(staff_sso_profile.id)
+        self.assertTrue(created)
+        self.assertEqual(actual.user.sso_email_id, "email@email.com")
+        self.assertEqual(actual.first_name, "John")
+        self.assertEqual(actual.last_name, "Doe")
+
+    @pytest.mark.django_db
+    def test_update_staff_sso_profile(self):
         staff_sso_profile, created = (
             staff_sso_service.get_or_create_staff_sso_profile(
                 user=self.user,
@@ -83,10 +95,29 @@ class StaffSSOServiceTest(TestCase):
                 emails=self.emails,
             )
         )
-        actual = staff_sso_service.get_staff_sso_profile_by_id(
-            staff_sso_profile.id
+        kwargs = {
+            "first_name": "newTom",
+            "last_name": "newJones",
+        }
+        emails = [
+            {"address": "email2@email.com", "type": TYPES[1][0], "preferred": False}
+        ]
+
+        # check values before update
+        staff_sso_email = StaffSSOProfileEmail.objects.filter(
+            email=Email.objects.get(address="email2@email.com")
+        )[0]
+        self.assertTrue(staff_sso_email.preferred)
+        self.assertEqual(staff_sso_profile.first_name, self.first_name)
+        self.assertEqual(staff_sso_profile.last_name, self.last_name)
+
+        updated_staff_sso_profile = staff_sso_service.update_staff_sso_profile(
+            id=staff_sso_profile.id, emails=emails, **kwargs
         )
-        self.assertTrue(created)
-        self.assertEqual(actual.user.sso_email_id, "email@email.com")
-        self.assertEqual(actual.first_name, "John")
-        self.assertEqual(actual.last_name, "Doe")
+
+        self.assertEqual(updated_staff_sso_profile.first_name, "newTom")
+        self.assertEqual(updated_staff_sso_profile.last_name, "newJones")
+        staff_sso_email = StaffSSOProfileEmail.objects.filter(
+            email=Email.objects.get(address="email2@email.com")
+        )[0]
+        self.assertFalse(staff_sso_email.preferred)

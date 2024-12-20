@@ -59,4 +59,4 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS: list[str]
 
     def __str__(self):
-        return self.sso_email_id
+        return f"User - {self.sso_email_id}"
