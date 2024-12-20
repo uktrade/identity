@@ -62,35 +62,37 @@ class ProfileServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_update(self):
-        self.create_staff_sso_profile_and_profile()
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
         kwargs = {
             "first_name": "Tom",
             "last_name": "Jones",
             "preferred_email": "newpref@email.com",
         }
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        updated_profile = profile_service.update(
-            sso_email_id="email@email.com", emails=emails, **kwargs
+        profile_service.update(
+            profile, emails=emails, **kwargs
         )
 
-        self.assertEqual(updated_profile.sso_email_id, "email@email.com")
-        self.assertEqual(updated_profile.first_name, "Tom")
-        self.assertEqual(updated_profile.last_name, "Jones")
-        self.assertEqual(updated_profile.preferred_email, "newpref@email.com")
+        profile.refresh_from_db()
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+        self.assertEqual(profile.first_name, "Tom")
+        self.assertEqual(profile.last_name, "Jones")
+        self.assertEqual(profile.preferred_email, "newpref@email.com")
         self.assertEqual(
-            updated_profile.emails, ["newemail1@email.com", "newemail2@email.com"]
+            profile.emails, ["newemail1@email.com", "newemail2@email.com"]
         )
 
     def test_delete(self):
-        self.create_staff_sso_profile_and_profile()
-        deleted_profile = profile_service.delete("email@email.com")
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        deleted_profile = profile_service.delete(profile)
 
-        self.assertEqual(deleted_profile.is_active, False)
-        self.assertEqual(deleted_profile.sso_email_id, "email@email.com")
-        self.assertEqual(deleted_profile.last_name, "Doe")
-        self.assertEqual(deleted_profile.preferred_email, "email2@email.com")
+        profile.refresh_from_db()
+        self.assertEqual(profile.is_active, False)
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+        self.assertEqual(profile.last_name, "Doe")
+        self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(
-            deleted_profile.emails, ["email1@email.com", "email2@email.com"]
+            profile.emails, ["email1@email.com", "email2@email.com"]
         )
 
     def create_staff_sso_profile_and_profile(self):
