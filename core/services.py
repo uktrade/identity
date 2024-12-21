@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
-from user.services.user import UserService
+from profiles import services as profile_services
+from profiles.models import PROFILE_TYPE_STAFF_SSO
+from user import services as user_services
 
 
 if TYPE_CHECKING:
@@ -11,14 +13,24 @@ else:
     User = get_user_model()
 
 
-class CoreService:
-    user_service = UserService()
-
-    def get_or_create_user(self, id: str, *args, **kwargs) -> tuple[User, bool]:
-        return self.user_service.get_or_create_user(id, *args, **kwargs)
-
-    def get_user_by_id(self, id: str) -> User:
-        return self.user_service.get_user_by_sso_id(id)
-
-    # TODO:
-    # - Add create_profile, get_profile etc. in this service
+def create_user(
+    id: str,
+    initiator: str = PROFILE_TYPE_STAFF_SSO,
+    **kwargs,
+) -> User:
+    """
+    Entrypoint for new user creation. Triggers the creation of User record,
+    then the relevant Profile record as well as a combined Profile.
+    """
+    user = user_services.create(sso_email_id=id)
+    if initiator == PROFILE_TYPE_STAFF_SSO:
+        first_name = kwargs.get("first_name", None)
+        last_name = kwargs.get("last_name", None)
+        emails = kwargs.get("emails", None)
+        profile_services.create_from_sso(
+            user,
+            first_name,
+            last_name,
+            emails,
+        )
+    return user
