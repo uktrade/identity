@@ -20,7 +20,7 @@ def create(
     first_name: str,
     last_name: str,
     emails: list[str],
-    preferred_email: Optional[str],
+    preferred_email: Optional[str] = None,
 ) -> Profile:
     return Profile.objects.create(
         sso_email_id=sso_email_id,
