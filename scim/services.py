@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from core.services import CoreService
 
 from .schemas import SCIMUserIn
@@ -13,15 +15,19 @@ from .schemas import SCIMUserIn
 class SCIMService:
     core_service = CoreService()
 
-    def get_or_create_user(self, scim_user: SCIMUserIn) -> tuple[dict, bool]:
+    def create_user(self, scim_user: SCIMUserIn) -> tuple[dict, bool]:
 
-        scim_user_details = {
-            "is_active": scim_user.active,
-        }
+        preferred_email: str
+        for email in scim_user.emails:
+            if email.primary:
+                preferred_email = email
 
-        user, created = self.core_service.get_or_create_user(
+        user, created = self.core_service.create_user(
             id=scim_user.externalId,
-            **scim_user_details,
+            first_name=scim_user.name.givenName,
+            last_name=scim_user.name.familyName,
+            preferred_email=preferred_email,
+            emails=scim_user.emails,
         )
         user_dict = {
             "sso_email_id": user.sso_email_id,

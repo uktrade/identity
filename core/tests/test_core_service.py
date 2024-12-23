@@ -15,7 +15,7 @@ class TestCoreService(TestCase):
             "is_active": True,
         }
         # User is created
-        user, created = self.core_service.get_or_create_user(
+        user, created = self.core_service.create_user(
             id="john.sso.email.id@gov.uk",
             **user_details,
         )
@@ -24,7 +24,7 @@ class TestCoreService(TestCase):
         self.assertEqual(user.is_active, True)
 
         # User already exists
-        existing_user, is_created = self.core_service.get_or_create_user(
+        existing_user, is_created = self.core_service.create_user(
             id="john.sso.email.id@gov.uk",
             **user_details,
         )

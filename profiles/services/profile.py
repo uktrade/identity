@@ -4,6 +4,7 @@ from profiles.models import Profile
 class ProfileService:
     def get_or_create_profile(
         self,
+        profile_type,
         sso_email_id: str,
         first_name: str,
         last_name: str,

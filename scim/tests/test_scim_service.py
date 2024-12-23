@@ -17,13 +17,13 @@ class TestSCIMService(TestCase):
             active=True,
         )
 
-        user, created = self.scim_service.get_or_create_user(scim_user)
+        user, created = self.scim_service.create_user(scim_user)
         self.assertTrue(created)
         self.assertEqual(user["sso_email_id"], "john.sso.email.id@gov.uk")
         self.assertEqual(user["is_active"], True)
 
         # User already exists
-        existing_user, is_created = self.scim_service.get_or_create_user(scim_user)
+        existing_user, is_created = self.scim_service.create_user(scim_user)
         self.assertFalse(is_created)
 
     @pytest.mark.django_db
