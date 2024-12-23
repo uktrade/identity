@@ -9,6 +9,7 @@ from profiles.schemas import ProfileMinimal
 from scim.schemas import SCIMUserIn
 from user.exceptions import UserAlreadyExists
 
+
 router = Router()
 
 

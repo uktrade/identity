@@ -3,6 +3,7 @@ from typing import Optional
 from profiles.models.generic import Profile
 from user import services as user_services
 
+
 ###############################################################
 # Base data methods
 ###############################################################

@@ -2,7 +2,6 @@
 # If in doubt about what to use, you should probably be using this
 
 from profiles.services import combined, staff_sso
-from profiles.services.profile import ProfileService
 from user.models import User
 
 

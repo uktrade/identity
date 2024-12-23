@@ -6,6 +6,7 @@ from profiles.models.generic import EMAIL_TYPE_WORK, EMAIL_TYPES, Email, Profile
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from user import services as user_services
 
+
 if TYPE_CHECKING:
     from user.models import User
 else:

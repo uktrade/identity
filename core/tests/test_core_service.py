@@ -16,41 +16,16 @@ class TestCoreService(TestCase):
             "first_name": "Billy",
         }
         # User is created
-<<<<<<< HEAD
-        user, created = self.core_service.create_user(
-=======
-        user, created = core_services.create_user(
->>>>>>> origin/simple-schemas
+        user = core_services.create_user(
             id="john.sso.email.id@gov.uk",
             **user_details,
         )
-        self.assertTrue(created)
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
 
         # User already exists
-<<<<<<< HEAD
-        existing_user, is_created = self.core_service.create_user(
-            id="john.sso.email.id@gov.uk",
-            **user_details,
-        )
-        self.assertFalse(is_created)
-
-    @pytest.mark.django_db
-    def test_core_get_user_by_id(self):
-
-        test_user = self.User.objects.create_user(
-            sso_email_id="test_user",
-            is_active=True,
-        )
-
-        user = self.core_service.get_user_by_id(test_user.sso_email_id)
-        self.assertEqual(user.sso_email_id, "test_user")
-        self.assertEqual(user.is_active, True)
-=======
         with self.assertRaises(UserAlreadyExists) as ex:
             existing_user = core_services.create_user(
                 id="john.sso.email.id@gov.uk",
                 **user_details,
             )
->>>>>>> origin/simple-schemas

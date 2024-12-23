@@ -6,6 +6,7 @@ from profiles import services as profile_services
 from profiles.models import PROFILE_TYPE_STAFF_SSO
 from user import services as user_services
 
+
 if TYPE_CHECKING:
     from user.models import User
 else:
