@@ -1,27 +1,43 @@
 from ninja import Router
 
-from core.services import CoreService
-from scim.services import SCIMService
-
-from .schemas import SCIMUserIn, SCIMUserOut
-
+from core import services as core_services
+from core.schemas import Error
+from profiles import services as profile_services
+from profiles.models import PROFILE_TYPE_STAFF_SSO
+from profiles.models.generic import Profile
+from profiles.schemas import ProfileMinimal
+from scim.schemas import SCIMUserIn
+from user.exceptions import UserAlreadyExists
 
 router = Router()
-scim_service = SCIMService()
 
 
-@router.get("scim/v2/Users/{id}", response=SCIMUserOut)
+@router.get(
+    "scim/v2/Users/{id}",
+    response={
+        200: ProfileMinimal,
+        404: Error,
+    },
+)
+# @TODO check if we actually need this method, if not let's drop it or move out of SCIM
 def get_user(request, id: str):
-    return scim_service.get_user_by_id(id)
+    try:
+        return profile_services.combined.get_by_id(id)
+    except Profile.DoesNotExist:
+        return 404, {"message": "No user found with that ID"}
 
 
-response_codes = frozenset({200, 201})
-
-
-@router.post("scim/v2/Users", response={response_codes: SCIMUserOut})
+@router.post("scim/v2/Users", response={201: ProfileMinimal, 409: Error})
 def create_user(request, scim_user: SCIMUserIn):
-    user, created = scim_service.get_or_create_user(scim_user)
-    if created:
+    try:
+        user = core_services.create_user(
+            scim_user.externalId,
+            PROFILE_TYPE_STAFF_SSO,
+            first_name=scim_user.name,
+            last_name=scim_user.name,  # @TODO do we get the names split out?
+            emails=scim_user.emails,
+            preferred_email=scim_user.get_primary_email(),
+        )
         return 201, user
-    else:
-        return 200, user
+    except UserAlreadyExists:
+        return 409, {"message": "A user with that ID already exists"}
