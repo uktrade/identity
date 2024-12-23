@@ -30,7 +30,7 @@ def create(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[dict],
+    emails: list[str],
 ) -> StaffSSOProfile:
     """
     Create a new staff sso profile for the specified request.

@@ -15,11 +15,10 @@ def generate_combined_profile_fields(sso_email_id: str):
 
 
 def create_from_sso(
-    user: User,
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[dict],
+    emails: list[str],
     preferred_email: str | None = None,
 ):
     """A central function to create all relevant profile details"""
@@ -27,8 +26,8 @@ def create_from_sso(
         sso_email_id,
         first_name,
         last_name,
-        preferred_email,
         emails,
+        preferred_email,
     )
     staff_sso.create(
         sso_email_id,

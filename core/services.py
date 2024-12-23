@@ -30,6 +30,7 @@ def create_user(
         preferred_email = kwargs.get("preferred_email", None)
         profile_services.create_from_sso(
             user,
+            id,
             first_name,
             last_name,
             emails,
