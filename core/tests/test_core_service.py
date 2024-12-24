@@ -21,7 +21,7 @@ class TestCoreService(TestCase):
         # User is created
         user, created = core_services.new_user(
             id="john.sso.email.id@gov.uk",
-            initiator=ProfileTypes.STAFF_SSO.values,
+            initiator=ProfileTypes.STAFF_SSO.values,  # type: ignore
             profile_data=profile_data,
         )
         self.assertTrue(created)
@@ -32,6 +32,6 @@ class TestCoreService(TestCase):
         with self.assertRaises(UserExists):
             core_services.new_user(
                 id="john.sso.email.id@gov.uk",
-                initiator=ProfileTypes.STAFF_SSO.values,
+                initiator=ProfileTypes.STAFF_SSO.values,  # type: ignore
                 profile_data=profile_data,
             )
