@@ -59,7 +59,12 @@ def update(user: User, is_staff: bool = False, is_superuser: bool = False):
 
     user.is_staff = is_staff
     user.is_superuser = is_superuser
-    return user.save(update_fields=("is_staff", "is_superuser"))
+    return user.save(
+        update_fields=(
+            "is_staff",
+            "is_superuser",
+        )
+    )
 
 
 def archive(user: User):
@@ -81,7 +86,7 @@ def unarchive(user: User):
 
 
 def delete_from_database(user: User):
-    """Only to be used in data cleaning (i.e. non-standard) operations"""
+    """Really delete a User. Only to be used in data cleaning (i.e. non-standard) operations"""
     return user.delete()
 
 
