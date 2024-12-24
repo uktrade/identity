@@ -39,13 +39,17 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     if scim_user.emails:
         emails = [e.value for e in scim_user.emails]
 
+    profile_data = {
+        "first_name": scim_user.name.givenName,
+        "last_name": scim_user.name.familyName,
+        "emails": emails,
+    }
+
     try:
-        user = core_services.create_user(
-            scim_user.externalId,
-            ProfileTypes.STAFF_SSO.value,
-            first_name=scim_user.name.givenName,
-            last_name=scim_user.name.familyName,
-            emails=emails,
+        user = core_services.new_user(
+            id=scim_user.externalId,
+            initiator=ProfileTypes.STAFF_SSO.value,
+            profile_data=profile_data,
         )
         return 201, user
     except UserAlreadyExists:
