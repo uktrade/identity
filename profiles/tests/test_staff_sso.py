@@ -2,7 +2,7 @@ import pytest
 from django.test import TestCase
 
 from profiles.models import TYPES, Email, StaffSSOProfile, StaffSSOProfileEmail
-from profiles.services.staff_sso import StaffSSOService
+from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
@@ -10,7 +10,6 @@ class StaffSSOServiceTest(TestCase):
 
     @pytest.mark.django_db
     def setUp(self):
-        self.staff_sso_service = StaffSSOService()
         # Create a user for use in the tests
         self.user, _ = User.objects.get_or_create(
             sso_email_id="email@email.com",
@@ -33,13 +32,11 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_get_or_create_staff_sso_profile(self):
 
-        staff_sso_profile, created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
-                user=self.user,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                emails=self.emails,
-            )
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
         )
 
         self.assertTrue(created)
@@ -76,17 +73,13 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.last_name, "Doe")
 
     def test_get_staff_sso_profile_by_id(self):
-        staff_sso_profile, created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
-                user=self.user,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                emails=self.emails,
-            )
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
         )
-        actual = self.staff_sso_service.get_staff_sso_profile_by_id(
-            staff_sso_profile.id
-        )
+        actual = staff_sso_service.get_staff_sso_profile_by_id(staff_sso_profile.id)
         self.assertTrue(created)
         self.assertEqual(actual.user.sso_email_id, "email@email.com")
         self.assertEqual(actual.first_name, "John")
@@ -94,13 +87,11 @@ class StaffSSOServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_update_staff_sso_profile(self):
-        staff_sso_profile, created = (
-            self.staff_sso_service.get_or_create_staff_sso_profile(
-                user=self.user,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                emails=self.emails,
-            )
+        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+            user=self.user,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            emails=self.emails,
         )
         kwargs = {
             "first_name": "newTom",
@@ -118,7 +109,7 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(staff_sso_profile.first_name, self.first_name)
         self.assertEqual(staff_sso_profile.last_name, self.last_name)
 
-        updated_staff_sso_profile = self.staff_sso_service.update_staff_sso_profile(
+        updated_staff_sso_profile = staff_sso_service.update_staff_sso_profile(
             id=staff_sso_profile.id, emails=emails, **kwargs
         )
 
