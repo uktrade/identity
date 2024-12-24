@@ -40,17 +40,17 @@ def create_from_sso(
         profile = combined.get_by_id(sso_email_id)
     except Profile.DoesNotExist:
         combined.create(
-            sso_email_id,
-            combined_profile_data["first_name"],
-            combined_profile_data["last_name"],
-            combined_profile_data["preferred_email"],
-            combined_profile_data["emails"],
+            sso_email_id = sso_email_id,
+            first_name = combined_profile_data["first_name"],
+            last_name=combined_profile_data["last_name"],
+            preferred_email=combined_profile_data["preferred_email"],
+            emails=combined_profile_data["emails"],
         )
     else:
         combined.update(
-            profile,
-            combined_profile_data["first_name"],
-            combined_profile_data["last_name"],
-            combined_profile_data["preferred_email"],
-            combined_profile_data["emails"],
+            profile=profile,
+            first_name=combined_profile_data["first_name"],
+            last_name=combined_profile_data["last_name"],
+            preferred_email=combined_profile_data["preferred_email"],
+            emails=combined_profile_data["emails"],
         )

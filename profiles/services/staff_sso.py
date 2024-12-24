@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model
 
-from profiles.models.generic import EMAIL_TYPE_WORK, EMAIL_TYPES, Email, Profile
+from profiles.models.generic import Email, EmailTypes, Profile
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
-from user import services as user_services
 
 
 if TYPE_CHECKING:
@@ -88,7 +87,7 @@ def update(
 def create_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = EMAIL_TYPE_WORK,
+    type: str = EmailTypes.WORK.value,
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
@@ -108,7 +107,7 @@ def create_email(
 def associate_email(
     profile: StaffSSOProfile,
     email: Email,
-    type: str = EMAIL_TYPE_WORK,
+    type: str = EmailTypes.WORK.value,
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """

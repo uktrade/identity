@@ -1,14 +1,13 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models.generic import EMAIL_TYPE_CONTACT, EMAIL_TYPE_WORK, Email
+from profiles.models.generic import Email, EmailTypes
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
 class StaffSSOServiceTest(TestCase):
-
     @pytest.mark.django_db
     def setUp(self):
         self.sso_email_id = "email@email.com"
@@ -25,12 +24,12 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EMAIL_TYPE_WORK,
+                "type": EmailTypes.WORK,
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EMAIL_TYPE_CONTACT,
+                "type": EmailTypes.CONTACT,
                 "preferred": True,
             },
         ]
@@ -104,7 +103,7 @@ class StaffSSOServiceTest(TestCase):
         emails = [
             {
                 "address": "email2@email.com",
-                "type": EMAIL_TYPE_CONTACT,
+                "type": EmailTypes.CONTACT,
                 "preferred": False,
             }
         ]

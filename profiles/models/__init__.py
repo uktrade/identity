@@ -1,9 +1,7 @@
-PROFILE_TYPE_STAFF_SSO = "SSO"
-PROFILE_TYPE_PEOPLEFINDER = "PF"
-PROFILE_TYPE_ORACLE = "ORACLE"
+from django.db import models
 
-PROFILE_TYPES = (
-    (PROFILE_TYPE_STAFF_SSO, "Staff SSO"),
-    (PROFILE_TYPE_PEOPLEFINDER, "People Finder"),
-    (PROFILE_TYPE_ORACLE, "Oracle"),
-)
+
+class ProfileTypes(models.TextChoices):
+    STAFF_SSO = "SSO", "Staff SSO"
+    PEOPLE_FINDER = "PF", "People Finder"
+    ORACLE = "ORACLE", "Oracle"

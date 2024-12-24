@@ -1,17 +1,15 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models.generic import EMAIL_TYPE_CONTACT, EMAIL_TYPE_WORK
+from profiles.models.generic import EmailTypes
 from profiles.services import combined as profile_service
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
 
 class CombinedProfileServiceTest(TestCase):
-
     @pytest.mark.django_db
     def setUp(self):
-
         self.sso_email_id = "email@email.com"
         self.first_name = "John"
         self.last_name = "Doe"
@@ -27,12 +25,12 @@ class CombinedProfileServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EMAIL_TYPE_WORK,
+                "type": EmailTypes.WORK,
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EMAIL_TYPE_CONTACT,
+                "type": EmailTypes.CONTACT,
                 "preferred": True,
             },
         ]
@@ -100,8 +98,8 @@ class CombinedProfileServiceTest(TestCase):
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
-            preferred_email=preferred_email,
             emails=emails,
+            preferred_email=preferred_email,
         )
 
         return staff_sso_profile, profile

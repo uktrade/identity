@@ -1,7 +1,6 @@
 from typing import Optional
 
 from profiles.models.generic import Profile
-from user import services as user_services
 
 
 ###############################################################
@@ -23,7 +22,6 @@ def create(
     emails: list[str],
     preferred_email: Optional[str] = None,
 ) -> Profile:
-    user = user_services.get_by_id(sso_email_id)
     return Profile.objects.create(
         sso_email_id=sso_email_id,
         first_name=first_name,

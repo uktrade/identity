@@ -1,7 +1,7 @@
 from django.db import models
 
 from .abstract import AbstractHistoricalModel, AbstractProfile
-from .generic import EMAIL_TYPES, Email
+from .generic import Email, EmailTypes
 
 
 class StaffSSOProfile(AbstractProfile):
@@ -17,7 +17,7 @@ class StaffSSOProfileEmail(AbstractHistoricalModel):
         "StaffSSOProfile", on_delete=models.CASCADE, related_name="emails"
     )
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
-    type = models.CharField(max_length=50, choices=EMAIL_TYPES)
+    type = models.CharField(max_length=50, choices=EmailTypes.choices)
     preferred = models.BooleanField(default=False)
 
     class Meta:

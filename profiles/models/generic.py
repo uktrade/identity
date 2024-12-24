@@ -5,9 +5,9 @@ from django.db import models
 from .abstract import AbstractHistoricalModel
 
 
-EMAIL_TYPE_WORK = "work"
-EMAIL_TYPE_CONTACT = "contact"
-EMAIL_TYPES = ((EMAIL_TYPE_WORK, "Work"), (EMAIL_TYPE_CONTACT, "Contact"))
+class EmailTypes(models.TextChoices):
+    WORK = "work", "Work"
+    CONTACT = "contact", "Contact"
 
 
 class Email(AbstractHistoricalModel):

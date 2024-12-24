@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING
 from django.contrib.auth import get_user_model
 
 from profiles import services as profile_services
-from profiles.models import PROFILE_TYPE_STAFF_SSO
+from profiles.models import ProfileTypes
+from profiles.models.staff_sso import StaffSSOProfile
+from profiles.services import staff_sso as staff_sso_services
 from user import services as user_services
 
 
@@ -13,27 +15,35 @@ else:
     User = get_user_model()
 
 
-def create_user(
+def new_user(
     id: str,
-    initiator: str = PROFILE_TYPE_STAFF_SSO,
-    **kwargs,
+    initiator: str,
+    # TODO: DISCUSS: Should this be better typed as a TypedDict depending on which profile type
+    # is being created?
+    profile_data: dict,
 ) -> User:
     """
     Entrypoint for new user creation. Triggers the creation of User record,
     then the relevant Profile record as well as a combined Profile.
     """
-    user = user_services.create(sso_email_id=id)
-    if initiator == PROFILE_TYPE_STAFF_SSO:
-        first_name = kwargs.get("first_name", None)
-        last_name = kwargs.get("last_name", None)
-        emails = kwargs.get("emails", None)
-        preferred_email = kwargs.get("preferred_email", None)
+    initiating_type = ProfileTypes(initiator)
+
+    try:
+        user = user_services.get_by_id(id)
+    except User.DoesNotExist:
+        user = user_services.create(sso_email_id=id)
+
+    if initiating_type == ProfileTypes.STAFF_SSO:
+        first_name: str = profile_data["first_name"]
+        last_name: str = profile_data["last_name"]
+        emails: list[dict] = profile_data["emails"]
+        preferred_email: str | None = profile_data["preferred_email"]
         profile_services.create_from_sso(
-            user,
             id,
             first_name,
             last_name,
             emails,
             preferred_email,
         )
+
     return user

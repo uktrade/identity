@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from core import services as core_services
-from user.exceptions import UserAlreadyExists
+from profiles.models import ProfileTypes
+from user.exceptions import UserExists
 
 
 class TestCoreService(TestCase):
@@ -11,21 +12,25 @@ class TestCoreService(TestCase):
 
     @pytest.mark.django_db
     @pytest.mark.skip()
-    def test_create_user(self):
-        user_details = {
+    def test_new_user(self):
+        profile_data = {
             "first_name": "Billy",
+            "last_name": "Bob",
+            "emails": [{}],
         }
         # User is created
-        user = core_services.create_user(
+        user = core_services.new_user(
             id="john.sso.email.id@gov.uk",
-            **user_details,
+            initiator=ProfileTypes.STAFF_SSO.values,
+            profile_data=profile_data,
         )
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
 
         # User already exists
-        with self.assertRaises(UserAlreadyExists) as ex:
-            existing_user = core_services.create_user(
+        with self.assertRaises(UserExists):
+            core_services.new_user(
                 id="john.sso.email.id@gov.uk",
-                **user_details,
+                initiator=ProfileTypes.STAFF_SSO.values,
+                profile_data=profile_data,
             )
