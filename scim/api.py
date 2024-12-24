@@ -6,7 +6,7 @@ from profiles import services as profile_services
 from profiles.models import PROFILE_TYPE_STAFF_SSO
 from profiles.models.generic import Profile
 from profiles.schemas import ProfileMinimal
-from scim.schemas import CreateUserRequest, ScimUserSchemaMinimal
+from scim.schemas import CreateUserRequest, CreateUserResponse
 from user.exceptions import UserAlreadyExists
 from user.models import User
 
@@ -29,7 +29,7 @@ def get_user(request, id: str):
         return 404, {"message": "No user found with that ID"}
 
 
-@router.post("scim/v2/Users", response={201: ScimUserSchemaMinimal, 409: Error})
+@router.post("scim/v2/Users", response={201: CreateUserResponse, 409: Error})
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     if not scim_user.active:
         # TODO: Discuss what should happen in this scenario
