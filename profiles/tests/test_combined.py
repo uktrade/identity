@@ -1,9 +1,9 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models import EMAIL_TYPE_CONTACT, EMAIL_TYPE_WORK
-from profiles.services import combined as profile_service
-from profiles.services import staff_sso as staff_sso_service
+from profiles.models import EMAIL_TYPE_CONTACT, EMAIL_TYPE_WORK, Profile
+from profiles.services import combined as profile_services
+from profiles.services import staff_sso as staff_sso_services
 from user.models import User
 
 
@@ -48,7 +48,7 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_get_by_id(self):
         staff_sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        get_profile_result = profile_service.get_by_id("email@email.com")
+        get_profile_result = profile_services.get_by_id("email@email.com")
 
         self.assertEqual(get_profile_result.sso_email_id, "email@email.com")
         self.assertEqual(get_profile_result.first_name, "John")
@@ -67,7 +67,7 @@ class CombinedProfileServiceTest(TestCase):
             "preferred_email": "newpref@email.com",
         }
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        profile_service.update(profile, emails=emails, **kwargs)
+        profile_services.update(profile, emails=emails, **kwargs)
 
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
@@ -76,9 +76,9 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "newpref@email.com")
         self.assertEqual(profile.emails, ["newemail1@email.com", "newemail2@email.com"])
 
-    def test_delete(self):
+    def test_archive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        deleted_profile = profile_service.delete(profile)
+        archived_profile = profile_services.archive(profile)
 
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
@@ -87,8 +87,26 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
+    def test_unarchive(self):
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        archived_profile = profile_services.archive(profile)
+        profile.refresh_from_db()
+        self.assertEqual(profile.is_active, False)
+        archived_profile = profile_services.unarchive(profile)
+        profile.refresh_from_db()
+        self.assertEqual(profile.is_active, True)
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+
+    def test_delete_from_database(self):
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        profile.refresh_from_db()
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+        profile_services.delete_from_database(profile)
+        with self.assertRaises(Profile.DoesNotExist):
+            profile_services.get_by_id(profile.sso_email_id)
+
     def create_staff_sso_profile_and_profile(self):
-        staff_sso_profile = staff_sso_service.create(
+        staff_sso_profile = staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -96,7 +114,7 @@ class CombinedProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         emails = [str(email["address"]) for email in self.emails]
-        profile = profile_service.create(
+        profile = profile_services.create(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
