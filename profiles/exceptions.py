@@ -1,13 +1,13 @@
-class UserExists(Exception):
+class ProfileIsArchived(Exception):
     def __init__(self, message):
         self.message = message
 
 
-class UserIsArchived(Exception):
+class ProfileIsNotArchived(Exception):
     def __init__(self, message):
         self.message = message
 
 
-class UserIsNotArchived(Exception):
+class ProfileExists(Exception):
     def __init__(self, message):
         self.message = message

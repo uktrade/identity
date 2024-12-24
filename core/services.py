@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
+from profiles import services as profile_services
 from user import services as user_services
 
 
@@ -11,13 +12,21 @@ else:
     User = get_user_model()
 
 
-def get_or_create_user(id: str, *args, **kwargs) -> tuple[User, bool]:
-    return user_services.get_or_create_user(id, *args, **kwargs)
-
-
-def get_user_by_id(id: str) -> User:
-    return user_services.get_user_by_sso_id(id)
-
-
-# TODO:
-# - Add create_profile, get_profile etc. in this service
+def create_user(
+    id: str,
+    first_name: str,
+    last_name: str,
+    emails: list[dict],
+) -> User:
+    """
+    Entrypoint for new user creation. Triggers the creation of User record,
+    then the relevant Profile record as well as a combined Profile.
+    """
+    user = user_services.create(sso_email_id=id)
+    profile_services.create_from_sso(
+        id,
+        first_name,
+        last_name,
+        emails,
+    )
+    return user
