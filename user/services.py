@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
-from user.exceptions import UserAlreadyExists, UserIsArchived
+from user.exceptions import UserAlreadyExists, UserIsArchived, UserIsNotArchived
 
 
 if TYPE_CHECKING:
@@ -56,6 +56,7 @@ def update(user: User, is_staff: bool = False, is_superuser: bool = False):
     Update method allowing only the right fields to be set in this way.
     To change is_active use the dedicated method. ID may not be updated.
     """
+
     user.is_staff = is_staff
     user.is_superuser = is_superuser
     return user.save(update_fields=("is_staff", "is_superuser"))
@@ -63,12 +64,18 @@ def update(user: User, is_staff: bool = False, is_superuser: bool = False):
 
 def archive(user: User):
     """Simplest and most common version of user soft deletion"""
+    if not user.is_active:
+        raise UserIsArchived("User is already archived")
+
     user.is_active = False
     return user.save(update_fields=("is_active",))
 
 
 def unarchive(user: User):
     """Simplest and most common version of user reactivation"""
+    if user.is_active:
+        raise UserIsNotArchived("User is not archived")
+
     user.is_active = True
     return user.save(update_fields=("is_active",))
 
