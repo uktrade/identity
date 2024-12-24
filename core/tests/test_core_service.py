@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from core import services as core_services
-from user.exceptions import UserAlreadyExists
+from user.exceptions import UserExists
 
 
 class TestCoreService(TestCase):
@@ -25,7 +25,7 @@ class TestCoreService(TestCase):
         self.assertEqual(user.is_active, True)
 
         # User already exists
-        with self.assertRaises(UserAlreadyExists) as ex:
+        with self.assertRaises(UserExists) as ex:
             existing_user = core_services.create_user(
                 id="john.sso.email.id@gov.uk",
                 **user_details,

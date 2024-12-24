@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 
-from user.exceptions import UserAlreadyExists, UserIsArchived, UserIsNotArchived
+from user.exceptions import UserExists, UserIsArchived, UserIsNotArchived
 
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
     """Simplest and most common version of user creation"""
     try:
         get_by_id(sso_email_id)
-        raise UserAlreadyExists("User has been previously created")
+        raise UserExists("User has been previously created")
     except User.DoesNotExist:
         return User.objects.create_user(
             sso_email_id=sso_email_id,

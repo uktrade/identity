@@ -1,4 +1,4 @@
-class UserAlreadyExists(Exception):
+class UserExists(Exception):
     def __init__(self, message):
         self.message = message
 
