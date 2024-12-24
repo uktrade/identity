@@ -1,93 +1,116 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
 
-from django.contrib.auth import get_user_model
 from ninja import Field, Schema
 
-from profiles.schemas import Address, Email, Name, PhoneNumber
+from user.models import User
 
 
-class SCIMUserIn(Schema):
-    schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
-    id: str | None = None
+@dataclass
+class Name:
+    givenName: str | None = None
+    familyName: str | None = None
+    formatted: str | None = None
+    middleName: str | None = None
+    honorificPrefix: str | None = None
+    honorificSuffix: str | None = None
+
+
+@dataclass
+class Email:
+    value: str | None = None
+    type: str | None = None
+    primary: bool = False
+
+
+# @dataclass
+# class PhoneNumber:
+#     value: str | None = None
+#     type: str | None = None
+#     primary: bool = False
+
+# @dataclass
+# class Address:
+#     type: str | None = None
+#     formatted: str | None = None
+#     streetAddress: str | None = None
+#     locality: str | None = None
+#     region: str | None = None
+#     postalCode: str | None = None
+#     country: str | None = None
+
+
+class ScimCoreSchema(Schema):
+    # See https://datatracker.ietf.org/doc/html/rfc7643#section-3.1
+    id: str
     externalId: str
-    userName: str | None = None
+    # meta
+
+
+class ScimUserSchemaRequired(ScimCoreSchema):
+    """
+    Only the required values for a user object
+
+    See: https://datatracker.ietf.org/doc/html/rfc7643#section-4.1
+    """
+
+    schemas: list[str] = ["urn:ietf:params:scim:schemas:core:2.0:User"]
+    userName: str
+
+
+class ScimUserSchema(ScimUserSchemaRequired):
+    """
+    All possible values for the user object
+
+    Note: commented out values are not currently in use by this application.
+    See: https://datatracker.ietf.org/doc/html/rfc7643#section-4.1
+    """
+
     name: Name | None = None
-    displayName: str | None = None
-    nickName: str | None = None
-    profileUrl: str | None = None
-    title: str | None = None
-    userType: str | None = None
-    preferredLanguage: str | None = None
-    locale: str | None = None
-    timezone: str | None = None
+    # displayName: str | None = None
+    # nickName: str | None = None
+    # profileUrl: str | None = None
+    # title: str | None = None
+    # userType: str | None = None
+    # preferredLanguage: str | None = None
+    # locale: str | None = None
+    # timezone: str | None = None
     active: bool | None = None
     emails: list[Email] | None = None
-    phoneNumbers: list[PhoneNumber] | None = None
-    ims: str | None = None
-    photos: str | None = None
-    addresses: list[Address] | None = None
+    # phoneNumbers: list[PhoneNumber] | None = None
+    # ims: str | None = None
+    # photos: str | None = None
+    # addresses: list[Address] | None = None
+    # groups
+    # entitlements
+    # roles
+    # x509Certificates
 
 
-# class SCIMUserOut(Schema):
-#     schemas: List = ["urn:ietf:params:scim:schemas:core:2.0:User"]
-#     id: str = Field(alias="sso_email_id")
-#     externalId: str = Field(alias="sso_email_id")
-#     userName: str | None = None
-#     name: Name | None = None
-#     displayName: str | None = None
-#     nickName: str | None = None
-#     profileUrl: str | None = None
-#     title: str | None = None
-#     userType: str | None = None
-#     preferredLanguage: str | None = None
-#     locale: str | None = None
-#     timezone: str | None = None
-#     active: bool = Field(alias="is_active")
-#     emails: list[Email] | None = None
-#     phoneNumbers: list[PhoneNumber] | None = None
-#     ims: str | None = None
-#     photos: str | None = None
-#     addresses: list[Address] | None = None
+class CreateUserRequest(ScimUserSchema): ...
 
-#     @staticmethod
-#     def resolve_emails(obj: Dict[Any, Any] | get_user_model):
-#         if type(obj) is get_user_model():
-#             if obj.email:
-#                 return [Email(obj.email, "work", True)]
-#         else:
-#             if "emails" in obj:
-#                 return obj["emails"]
-#             else:
-#                 return None
 
-#     @staticmethod
-#     def resolve_name(obj: Dict[Any, Any] | get_user_model):
-#         if type(obj) is get_user_model():
-#             if obj.name:
-#                 return Name(obj.first_name, obj.last_name)
-#         else:
-#             if "name" in obj:
-#                 return obj["name"]
-#             else:
-#                 return None
+class CreateUserResponse(ScimUserSchemaRequired):
+    id = Field(alias="pk")
+    externalId = Field(alias="sso_email_id")
+    userName = Field(alias="sso_email_id")
+    active = Field(alias="is_active")
 
-#     @staticmethod
-#     def resolve_phoneNumbers(obj: Dict[Any, Any] | get_user_model):
-#         if type(obj) is get_user_model():
-#             return [PhoneNumber("0123456789", "work", True)]
-#         else:
-#             if "phoneNumbers" in obj:
-#                 return obj["phoneNumbers"]
-#             else:
-#                 return None
+    class Meta:
+        model = User
+        fields = []
 
-#     @staticmethod
-#     def resolve_addresses(obj: Dict[Any, Any] | get_user_model):
-#         if type(obj) is get_user_model():
-#             return [Address("work")]
-#         else:
-#             if "addresses" in obj:
-#                 return obj["addresses"]
-#             else:
-#                 return None
+    @staticmethod
+    def resolve_name(obj: User):
+        from profiles.services import combined
+
+        combined_profile = combined.get_by_id(obj.sso_email_id)
+        return Name(
+            givenName=combined_profile.first_name,
+            familyName=combined_profile.last_name,
+        )
+
+    @staticmethod
+    def resolve_emails(obj: User):
+        # TODO: We need a better way of getting ALL of a user's emails and
+        # their type/primary status
+        return [Email(value=obj.email, type="work", primary=True)]

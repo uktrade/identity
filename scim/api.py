@@ -6,8 +6,9 @@ from profiles import services as profile_services
 from profiles.models import PROFILE_TYPE_STAFF_SSO
 from profiles.models.generic import Profile
 from profiles.schemas import ProfileMinimal
-from scim.schemas import SCIMUserIn
+from scim.schemas import CreateUserRequest, ScimUserSchemaMinimal
 from user.exceptions import UserAlreadyExists
+from user.models import User
 
 
 router = Router()
@@ -28,15 +29,23 @@ def get_user(request, id: str):
         return 404, {"message": "No user found with that ID"}
 
 
-@router.post("scim/v2/Users", response={201: ProfileMinimal, 409: Error})
-def create_user(request, scim_user: SCIMUserIn):
+@router.post("scim/v2/Users", response={201: ScimUserSchemaMinimal, 409: Error})
+def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
+    if not scim_user.active:
+        # TODO: Discuss what should happen in this scenario
+        raise Exception("WHY ARE WE BEING INFORMED OF A NEW USER THAT IS INACTIVE?")
+
+    emails = []
+    if scim_user.emails:
+        emails = [e.value for e in scim_user.emails]
+
     try:
         user = core_services.create_user(
             scim_user.externalId,
             PROFILE_TYPE_STAFF_SSO,
-            first_name=scim_user.name,
-            last_name=scim_user.name,  # @TODO do we get the names split out?
-            emails=scim_user.emails,
+            first_name=scim_user.name.givenName,
+            last_name=scim_user.name.familyName,
+            emails=emails,
         )
         return 201, user
     except UserAlreadyExists:
