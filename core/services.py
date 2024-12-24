@@ -37,11 +37,13 @@ def new_user(
         first_name: str = profile_data["first_name"]
         last_name: str = profile_data["last_name"]
         emails: list[dict] = profile_data["emails"]
+        preferred_email: str | None = profile_data["preferred_email"]
         profile_services.create_from_sso(
             id,
             first_name,
             last_name,
             emails,
+            preferred_email,
         )
 
     return user

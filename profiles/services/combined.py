@@ -40,12 +40,19 @@ def update(
     last_name: Optional[str],
     preferred_email: Optional[str],
     emails: Optional[list[str]],
-):
+) -> None:
     profile.first_name = first_name
     profile.last_name = last_name
     profile.preferred_email = preferred_email
     profile.emails = emails
-    return profile.save()
+    profile.save(
+        update_fields=[
+            "first_name",
+            "last_name",
+            "preferred_email",
+            "emails",
+        ]
+    )
 
 
 def delete(profile: Profile):
@@ -53,4 +60,4 @@ def delete(profile: Profile):
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
     profile.is_active = False
-    return profile.save()
+    return profile.save(update_fields=["is_active"])

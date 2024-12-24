@@ -68,6 +68,13 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # roles
     # x509Certificates
 
+    def get_primary_email(self) -> str | None:
+        preferred_email = None
+        for email in self.emails:
+            if email.primary:
+                preferred_email = email
+        return preferred_email
+
 
 class CreateUserRequest(ScimUserSchema): ...
 

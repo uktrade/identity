@@ -19,12 +19,11 @@ class TestCoreService(TestCase):
             "emails": [{}],
         }
         # User is created
-        user, created = core_services.new_user(
+        user = core_services.new_user(
             id="john.sso.email.id@gov.uk",
             initiator=ProfileTypes.STAFF_SSO.values,  # type: ignore
             profile_data=profile_data,
         )
-        self.assertTrue(created)
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
 
