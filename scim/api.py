@@ -39,6 +39,8 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     if scim_user.emails:
         emails = [e.value for e in scim_user.emails]
 
+    assert scim_user.name
+
     profile_data = {
         "first_name": scim_user.name.givenName,
         "last_name": scim_user.name.familyName,
@@ -49,7 +51,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     try:
         user = core_services.new_user(
             id=scim_user.externalId,
-            initiator=ProfileTypes.STAFF_SSO.value,
+            initiator=ProfileTypes.STAFF_SSO.value,  # type: ignore
             profile_data=profile_data,
         )
         return 201, user

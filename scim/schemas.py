@@ -22,23 +22,6 @@ class Email:
     primary: bool = False
 
 
-# @dataclass
-# class PhoneNumber:
-#     value: str | None = None
-#     type: str | None = None
-#     primary: bool = False
-
-# @dataclass
-# class Address:
-#     type: str | None = None
-#     formatted: str | None = None
-#     streetAddress: str | None = None
-#     locality: str | None = None
-#     region: str | None = None
-#     postalCode: str | None = None
-#     country: str | None = None
-
-
 class ScimCoreSchema(Schema):
     # See https://datatracker.ietf.org/doc/html/rfc7643#section-3.1
     id: str
@@ -66,20 +49,20 @@ class ScimUserSchema(ScimUserSchemaRequired):
     """
 
     name: Name | None = None
-    # displayName: str | None = None
-    # nickName: str | None = None
-    # profileUrl: str | None = None
-    # title: str | None = None
-    # userType: str | None = None
-    # preferredLanguage: str | None = None
-    # locale: str | None = None
-    # timezone: str | None = None
+    # displayName
+    # nickName
+    # profileUrl
+    # title
+    # userType
+    # preferredLanguage
+    # locale
+    # timezone
     active: bool | None = None
     emails: list[Email] | None = None
-    # phoneNumbers: list[PhoneNumber] | None = None
-    # ims: str | None = None
-    # photos: str | None = None
-    # addresses: list[Address] | None = None
+    # phoneNumbers
+    # ims
+    # photos
+    # addresses
     # groups
     # entitlements
     # roles

@@ -87,7 +87,7 @@ def update(
 def create_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = EmailTypes.WORK.value,
+    type: str = EmailTypes.WORK.value,  # type: ignore
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
@@ -107,7 +107,7 @@ def create_email(
 def associate_email(
     profile: StaffSSOProfile,
     email: Email,
-    type: str = EmailTypes.WORK.value,
+    type: str = EmailTypes.WORK.value,  # type: ignore
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
