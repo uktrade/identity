@@ -38,7 +38,6 @@ def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
     """Simplest and most common version of user creation"""
     try:
         get_by_id(sso_email_id)
-        raise UserExists("User has been previously created")
     except User.DoesNotExist:
         return User.objects.create_user(
             sso_email_id=sso_email_id,
@@ -46,6 +45,7 @@ def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
             is_staff=is_staff,
             is_superuser=is_superuser,
         )
+    raise UserExists("User has been previously created")
 
 
 #### Standard user-object methods ####
