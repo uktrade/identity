@@ -7,7 +7,7 @@ from profiles.models import ProfileTypes
 from profiles.models.generic import Profile
 from profiles.schemas import ProfileMinimal
 from scim.schemas import CreateUserRequest, CreateUserResponse
-from user.exceptions import UserAlreadyExists
+from user.exceptions import UserExists
 from user.models import User
 
 
@@ -52,5 +52,5 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             profile_data=profile_data,
         )
         return 201, user
-    except UserAlreadyExists:
+    except UserExists:
         return 409, {"message": "A user with that ID already exists"}

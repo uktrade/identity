@@ -9,10 +9,10 @@ from user.models import User
 class Name:
     givenName: str | None = None
     familyName: str | None = None
-    formatted: str | None = None
-    middleName: str | None = None
-    honorificPrefix: str | None = None
-    honorificSuffix: str | None = None
+    # formatted: str | None = None
+    # middleName: str | None = None
+    # honorificPrefix: str | None = None
+    # honorificSuffix: str | None = None
 
 
 @dataclass
@@ -90,14 +90,10 @@ class CreateUserRequest(ScimUserSchema): ...
 
 
 class CreateUserResponse(ScimUserSchemaRequired):
-    id = Field(alias="pk")
-    externalId = Field(alias="sso_email_id")
-    userName = Field(alias="sso_email_id")
-    active = Field(alias="is_active")
-
-    class Meta:
-        model = User
-        fields = []
+    id: str = Field(alias="pk")
+    externalId: str = Field(alias="sso_email_id")
+    userName: str = Field(alias="sso_email_id")
+    active: bool = Field(alias="is_active")
 
     @staticmethod
     def resolve_name(obj: User):
