@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from django.contrib.auth import get_user_model
 
 from profiles import services as profile_services
-from profiles.models import PROFILE_TYPE_STAFF_SSO
+from profiles.models import ProfileTypes
 from user import services as user_services
 
 
@@ -15,7 +15,7 @@ else:
 
 def create_user(
     id: str,
-    initiator: str = PROFILE_TYPE_STAFF_SSO,
+    initiator: str = ProfileTypes.STAFF_SSO.value,
     **kwargs,
 ) -> User:
     """
@@ -23,7 +23,7 @@ def create_user(
     then the relevant Profile record as well as a combined Profile.
     """
     user = user_services.create(sso_email_id=id)
-    if initiator == PROFILE_TYPE_STAFF_SSO:
+    if initiator == ProfileTypes.STAFF_SSO.value:
         first_name = kwargs.get("first_name", None)
         last_name = kwargs.get("last_name", None)
         emails = kwargs.get("emails", None)
