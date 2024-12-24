@@ -75,6 +75,7 @@ class ScimUserSchema(ScimUserSchemaRequired):
                 preferred_email = email
         return preferred_email
 
+
 class CreateUserRequest(ScimUserSchema): ...
 
 

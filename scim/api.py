@@ -45,7 +45,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
         "first_name": scim_user.name.givenName,
         "last_name": scim_user.name.familyName,
         "emails": emails,
-        "preferred_email":scim_user.get_primary_email(),
+        "preferred_email": scim_user.get_primary_email(),
     }
 
     try:

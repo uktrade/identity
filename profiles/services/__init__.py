@@ -35,13 +35,13 @@ def create_from_sso(
         last_name,
         emails,
     )
-    combined_profile_data = generate_combined_profile_data()
+    combined_profile_data = generate_combined_profile_data(sso_email_id)
     try:
         profile = combined.get_by_id(sso_email_id)
     except Profile.DoesNotExist:
         combined.create(
-            sso_email_id = sso_email_id,
-            first_name = combined_profile_data["first_name"],
+            sso_email_id=sso_email_id,
+            first_name=combined_profile_data["first_name"],
             last_name=combined_profile_data["last_name"],
             preferred_email=combined_profile_data["preferred_email"],
             emails=combined_profile_data["emails"],
