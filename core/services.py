@@ -14,9 +14,9 @@ else:
 
 def new_user(
     id: str,
-    # TODO: DISCUSS: Should this be better typed as a TypedDict depending on which profile type
-    # is being created?
-    profile_data: dict,
+    first_name: str,
+    last_name: str,
+    emails: list[dict],
 ) -> User:
     """
     Entrypoint for new user creation. Triggers the creation of User record,
@@ -27,10 +27,6 @@ def new_user(
         user = user_services.get_by_id(id)
     except User.DoesNotExist:
         user = user_services.create(sso_email_id=id)
-
-    first_name: str = profile_data["first_name"]
-    last_name: str = profile_data["last_name"]
-    emails: list[dict] = profile_data["emails"]
 
     profile_services.create_from_sso(
         id,

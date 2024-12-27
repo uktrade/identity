@@ -12,15 +12,13 @@ class TestCoreService(TestCase):
     @pytest.mark.django_db
     @pytest.mark.skip()
     def test_new_user(self):
-        profile_data = {
-            "first_name": "Billy",
-            "last_name": "Bob",
-            "emails": [{"address": "test@test.com"}],
-        }
+        profile_data = {}
         # User is created
         user, created = core_services.new_user(
             id="john.sso.email.id@gov.uk",
-            profile_data=profile_data,
+            first_name="Billy",
+            last_name="Bob",
+            emails=[{"address": "test@test.com"}],
         )
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
@@ -29,5 +27,7 @@ class TestCoreService(TestCase):
         with self.assertRaises(UserExists):
             core_services.new_user(
                 id="john.sso.email.id@gov.uk",
-                profile_data=profile_data,
+                first_name="Billy",
+                last_name="Bob",
+                emails=[{"address": "test@test.com"}],
             )

@@ -34,22 +34,26 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
         # TODO: Discuss what should happen in this scenario
         raise Exception("WHY ARE WE BEING INFORMED OF A NEW USER THAT IS INACTIVE?")
 
-    emails = []
+    emails: list[dict] = []
     if scim_user.emails:
-        emails = [e.value for e in scim_user.emails]
+        # TODO: BUILD EMAIL DICTS
+        emails = [
+            {
+                "address": e.value,
+            }
+            for e in scim_user.emails
+        ]
 
     assert scim_user.name
-
-    profile_data = {
-        "first_name": scim_user.name.givenName,
-        "last_name": scim_user.name.familyName,
-        "emails": emails,
-    }
+    assert scim_user.name.givenName
+    assert scim_user.name.familyName
 
     try:
         user = core_services.new_user(
             id=scim_user.externalId,
-            profile_data=profile_data,
+            first_name=scim_user.name.givenName,
+            last_name=scim_user.name.familyName,
+            emails=emails,
         )
         return 201, user
     except UserExists:
