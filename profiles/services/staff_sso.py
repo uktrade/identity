@@ -128,13 +128,9 @@ def update_email_details(
     ]
     if type is not None:
         staff_sso_profile_email.type = type
-        update_fields += [
-            "type",
-        ]
+        update_fields.append("type")
     if preferred is not None:
         staff_sso_profile_email.preferred = preferred
-        update_fields += [
-            "preferred",
-        ]
+        update_fields.append("preferred")
 
     return staff_sso_profile_email.save(update_fields=update_fields)
