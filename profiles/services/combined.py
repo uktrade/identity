@@ -81,6 +81,6 @@ def unarchive(profile: Profile) -> None:
     profile.save(update_fields=("is_active",))
 
 
-def delete_from_database(profile: Profile):
+def delete_from_database(profile: Profile) -> None:
     """Really delete a Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
     profile.delete()
