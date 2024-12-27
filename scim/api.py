@@ -49,7 +49,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     assert scim_user.name.familyName
 
     try:
-        user = core_services.new_user(
+        user = core_services.create_identity(
             id=scim_user.externalId,
             first_name=scim_user.name.givenName,
             last_name=scim_user.name.familyName,

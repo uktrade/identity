@@ -12,7 +12,7 @@ else:
     User = get_user_model()
 
 
-def new_user(
+def create_identity(
     id: str,
     first_name: str,
     last_name: str,
