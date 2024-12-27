@@ -16,7 +16,7 @@ class TestCoreService(TestCase):
         profile_data = {
             "first_name": "Billy",
             "last_name": "Bob",
-            "emails": [{}],
+            "emails": [{"address": "test@test.com"}],
         }
         # User is created
         user = core_services.new_user(

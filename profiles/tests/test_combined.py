@@ -1,7 +1,7 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models.generic import EmailTypes
+from profiles.models.generic import EmailTypes, Profile
 from profiles.services import combined as profile_service
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
@@ -74,9 +74,9 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "newpref@email.com")
         self.assertEqual(profile.emails, ["newemail1@email.com", "newemail2@email.com"])
 
-    def test_delete(self):
+    def test_archive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        deleted_profile = profile_service.delete(profile)
+        archived_profile = profile_service.archive(profile)
 
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
@@ -84,6 +84,24 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.last_name, "Doe")
         self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
+
+    def test_unarchive(self):
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        archived_profile = profile_service.archive(profile)
+        profile.refresh_from_db()
+        self.assertEqual(profile.is_active, False)
+        archived_profile = profile_service.unarchive(profile)
+        profile.refresh_from_db()
+        self.assertEqual(profile.is_active, True)
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+
+    def test_delete_from_database(self):
+        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        profile.refresh_from_db()
+        self.assertEqual(profile.sso_email_id, "email@email.com")
+        profile_service.delete_from_database(profile)
+        with self.assertRaises(Profile.DoesNotExist):
+            profile_service.get_by_id(profile.sso_email_id)
 
     def create_staff_sso_profile_and_profile(self):
         staff_sso_profile = staff_sso_service.create(

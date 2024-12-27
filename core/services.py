@@ -4,8 +4,6 @@ from django.contrib.auth import get_user_model
 
 from profiles import services as profile_services
 from profiles.models import ProfileTypes
-from profiles.models.staff_sso import StaffSSOProfile
-from profiles.services import staff_sso as staff_sso_services
 from user import services as user_services
 
 
