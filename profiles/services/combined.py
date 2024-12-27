@@ -1,7 +1,7 @@
 from typing import Optional
 
-from profiles.models.generic import Profile
 from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
+from profiles.models.generic import Profile
 
 
 ###############################################################

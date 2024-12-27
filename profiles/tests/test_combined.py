@@ -1,10 +1,9 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models.generic import EmailTypes
+from profiles.models.generic import EmailTypes, Profile
 from profiles.services import combined as profile_service
 from profiles.services import staff_sso as staff_sso_service
-from profiles.models.generic import Profile
 from user.models import User
 
 
