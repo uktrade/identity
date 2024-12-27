@@ -23,11 +23,7 @@ def create_identity(
     then the relevant Profile record as well as a combined Profile.
     """
 
-    try:
-        user = user_services.get_by_id(id)
-    except User.DoesNotExist:
-        user = user_services.create(sso_email_id=id)
-
+    user = user_services.create(sso_email_id=id)
     profile_services.create_from_sso(
         id,
         first_name,
