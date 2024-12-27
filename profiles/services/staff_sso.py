@@ -17,12 +17,12 @@ else:
 ###############################################################
 
 
-def get_by_user_id(id: str) -> StaffSSOProfile:
+def get_by_user_id(sso_email_id: str) -> StaffSSOProfile:
     """
     Retrieve a profile by its User ID, only if the user is not soft-deleted.
     """
     # @TODO update the below query (inc the model) to stop it requiring a JOIN
-    return StaffSSOProfile.objects.get(user_id=id, user__is_active=True)
+    return StaffSSOProfile.objects.get(user_id=sso_email_id, user__is_active=True)
 
 
 def create(
@@ -122,7 +122,7 @@ def associate_email(
 
 def update_email_details(
     profile: StaffSSOProfile,
-    email: StaffSSOProfileEmail,
+    email: Email,
     type: Optional[str] = None,
     preferred: Optional[bool] = None,
 ) -> StaffSSOProfileEmail:

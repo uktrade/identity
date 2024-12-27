@@ -1,6 +1,7 @@
 from typing import Optional
 
 from profiles.models.generic import Profile
+from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
 
 
 ###############################################################
@@ -12,7 +13,8 @@ from profiles.models.generic import Profile
 
 
 def get_by_id(sso_email_id: str) -> Profile:
-    return Profile.objects.get(sso_email_id=sso_email_id)
+    # NB we're not raising more specific exceptions here because we're optimising this for speed
+    return Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
 
 
 def create(
@@ -22,13 +24,17 @@ def create(
     emails: list[str],
     preferred_email: Optional[str] = None,
 ) -> Profile:
-    return Profile.objects.create(
-        sso_email_id=sso_email_id,
-        first_name=first_name,
-        last_name=last_name,
-        emails=emails,
-        preferred_email=preferred_email,
-    )
+    try:
+        get_by_id(sso_email_id)
+    except Profile.DoesNotExist:
+        return Profile.objects.create(
+            sso_email_id=sso_email_id,
+            first_name=first_name,
+            last_name=last_name,
+            emails=emails,
+            preferred_email=preferred_email,
+        )
+    raise ProfileExists("Profile has been previously created")
 
 
 #### Standard profile-object methods ####
@@ -41,16 +47,48 @@ def update(
     preferred_email: Optional[str],
     emails: Optional[list[str]],
 ):
-    profile.first_name = first_name
-    profile.last_name = last_name
-    profile.preferred_email = preferred_email
-    profile.emails = emails
-    return profile.save()
+    update_fields = []
+    if first_name is not None:
+        update_fields += [
+            "first_name",
+        ]
+        profile.first_name = first_name
+    if last_name is not None:
+        update_fields += [
+            "last_name",
+        ]
+        profile.last_name = last_name
+    if preferred_email is not None:
+        update_fields += [
+            "preferred_email",
+        ]
+        profile.preferred_email = preferred_email
+    if emails is not None:
+        update_fields += [
+            "emails",
+        ]
+        profile.emails = emails
+    return profile.save(update_fields=update_fields)
 
 
-def delete(profile: Profile):
-    """
-    Retrieve a user by their ID, only if the user is not soft-deleted.
-    """
+def archive(profile: Profile):
+    """Soft-delete a profile"""
+    if not profile.is_active:
+        raise ProfileIsArchived("Profile is already archived")
+
     profile.is_active = False
-    return profile.save()
+    return profile.save(update_fields=("is_active",))
+
+
+def unarchive(profile: Profile):
+    """Restore a soft-deleted profile."""
+    if profile.is_active:
+        raise ProfileIsNotArchived("Profile is not archived")
+
+    profile.is_active = True
+    return profile.save(update_fields=("is_active",))
+
+
+def delete_from_database(profile: Profile):
+    """Really delete a Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
+    return profile.delete()
