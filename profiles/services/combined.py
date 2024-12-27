@@ -46,19 +46,29 @@ def update(
     last_name: Optional[str],
     preferred_email: Optional[str],
     emails: Optional[list[str]],
-) -> None:
-    profile.first_name = first_name
-    profile.last_name = last_name
-    profile.preferred_email = preferred_email
-    profile.emails = emails
-    profile.save(
-        update_fields=[
+):
+    update_fields = []
+    if first_name is not None:
+        update_fields += [
             "first_name",
+        ]
+        profile.first_name = first_name
+    if last_name is not None:
+        update_fields += [
             "last_name",
+        ]
+        profile.last_name = last_name
+    if preferred_email is not None:
+        update_fields += [
             "preferred_email",
+        ]
+        profile.preferred_email = preferred_email
+    if emails is not None:
+        update_fields += [
             "emails",
         ]
-    )
+        profile.emails = emails
+    return profile.save(update_fields=update_fields)
 
 
 def archive(profile: Profile):
