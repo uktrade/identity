@@ -1,8 +1,14 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models import TYPES, Email, StaffSSOProfile, StaffSSOProfileEmail
-from profiles.services import staff_sso as staff_sso_service
+from profiles.models import (
+    EMAIL_TYPE_CONTACT,
+    EMAIL_TYPE_WORK,
+    Email,
+    StaffSSOProfile,
+    StaffSSOProfileEmail,
+)
+from profiles.services import staff_sso as staff_sso_services
 from user.models import User
 
 
@@ -23,23 +29,26 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": TYPES[0][0],
+                "type": EMAIL_TYPE_WORK,
                 "preferred": False,
             },
-            {"address": "email2@email.com", "type": TYPES[1][0], "preferred": True},
+            {
+                "address": "email2@email.com",
+                "type": EMAIL_TYPE_CONTACT,
+                "preferred": True,
+            },
         ]
 
     @pytest.mark.django_db
-    def test_get_or_create_staff_sso_profile(self):
+    def test_create(self):
 
-        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+        staff_sso_profile = staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
         )
 
-        self.assertTrue(created)
         # assert 2 email records created
         self.assertEqual(Email.objects.all().count(), 2)
         self.assertEqual(Email.objects.first().address, "email1@email.com")
@@ -72,22 +81,21 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.first_name, "John")
         self.assertEqual(StaffSSOProfileEmail.objects.last().profile.last_name, "Doe")
 
-    def test_get_staff_sso_profile_by_id(self):
-        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+    def test_get_by_user_id(self):
+        staff_sso_profile = staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
         )
-        actual = staff_sso_service.get_staff_sso_profile_by_id(staff_sso_profile.id)
-        self.assertTrue(created)
+        actual = staff_sso_services.get_by_user_id(staff_sso_profile.user.pk)
         self.assertEqual(actual.user.sso_email_id, "email@email.com")
         self.assertEqual(actual.first_name, "John")
         self.assertEqual(actual.last_name, "Doe")
 
     @pytest.mark.django_db
-    def test_update_staff_sso_profile(self):
-        staff_sso_profile, created = staff_sso_service.get_or_create_staff_sso_profile(
+    def test_update(self):
+        staff_sso_profile = staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -98,7 +106,11 @@ class StaffSSOServiceTest(TestCase):
             "last_name": "newJones",
         }
         emails = [
-            {"address": "email2@email.com", "type": TYPES[1][0], "preferred": False}
+            {
+                "address": "email2@email.com",
+                "type": EMAIL_TYPE_CONTACT,
+                "preferred": False,
+            }
         ]
 
         # check values before update
@@ -109,12 +121,11 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(staff_sso_profile.first_name, self.first_name)
         self.assertEqual(staff_sso_profile.last_name, self.last_name)
 
-        updated_staff_sso_profile = staff_sso_service.update_staff_sso_profile(
-            id=staff_sso_profile.id, emails=emails, **kwargs
-        )
+        staff_sso_services.update(id=staff_sso_profile.user.pk, emails=emails, **kwargs)
+        staff_sso_profile.refresh_from_db()
 
-        self.assertEqual(updated_staff_sso_profile.first_name, "newTom")
-        self.assertEqual(updated_staff_sso_profile.last_name, "newJones")
+        self.assertEqual(staff_sso_profile.first_name, "newTom")
+        self.assertEqual(staff_sso_profile.last_name, "newJones")
         staff_sso_email = StaffSSOProfileEmail.objects.filter(
             email=Email.objects.get(address="email2@email.com")
         )[0]
