@@ -47,9 +47,9 @@ def create(
     for email in emails:
         create_email(
             profile=staff_sso_profile,
-            email_address=email,
-            type="work",
-            preferred=False,
+            email_address=email["address"],
+            type=email["type"],
+            preferred=email["preferred"],
         )
 
     return staff_sso_profile
@@ -89,7 +89,7 @@ def update(
 def create_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = EmailTypes.WORK.value,  # type: ignore
+    type: str = str(EmailTypes.WORK),
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
@@ -98,6 +98,7 @@ def create_email(
     email_object, _ = Email.objects.get_or_create(
         address=email_address,
     )
+
     return associate_email(
         profile=profile,
         email=email_object,
@@ -109,7 +110,7 @@ def create_email(
 def associate_email(
     profile: StaffSSOProfile,
     email: Email,
-    type: str = EmailTypes.WORK.value,  # type: ignore
+    type: str = str(EmailTypes.WORK),
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """

@@ -25,7 +25,7 @@ def create_from_sso(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[str],
+    emails: list[dict],
     preferred_email: str | None = None,
 ):
     """A central function to create all relevant profile details"""

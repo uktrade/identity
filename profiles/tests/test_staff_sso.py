@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pytest
 from django.test import TestCase
 
@@ -24,12 +26,12 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EmailTypes.WORK,
+                "type": str(EmailTypes.WORK),
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EmailTypes.CONTACT,
+                "type": str(EmailTypes.CONTACT),
                 "preferred": True,
             },
         ]

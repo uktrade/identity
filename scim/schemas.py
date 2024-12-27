@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from ninja import Field, Schema
 
@@ -70,9 +71,10 @@ class ScimUserSchema(ScimUserSchemaRequired):
 
     def get_primary_email(self) -> str | None:
         preferred_email = None
-        for email in self.emails:
-            if email.primary:
-                preferred_email = email
+        if self.emails:
+            for email in self.emails:
+                if email.primary:
+                    preferred_email = str(email)
         return preferred_email
 
 

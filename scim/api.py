@@ -51,7 +51,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     try:
         user = core_services.new_user(
             id=scim_user.externalId,
-            initiator=ProfileTypes.STAFF_SSO.value,  # type: ignore
+            initiator=str(ProfileTypes.STAFF_SSO),
             profile_data=profile_data,
         )
         return 201, user

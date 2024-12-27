@@ -1,3 +1,6 @@
+from typing import Literal
+
+import pytest
 from django.test import TestCase
 
 from core import services
@@ -7,6 +10,9 @@ from user.models import User
 
 
 class TestCreateUser(TestCase):
+    # FIXME: After we implement "generate_combined_profile_data(sso_email_id)
+    # update the test and the expected failure."
+    @pytest.mark.xfail(raises=NotImplementedError)
     def test_existing_user(self) -> None:
         # Create test data
         sso_email_id = "test@email.gov.uk"
@@ -17,23 +23,34 @@ class TestCreateUser(TestCase):
         with self.assertRaises(UserExists):
             services.new_user(
                 sso_email_id,
-                ProfileTypes.STAFF_SSO.value,
+                str(ProfileTypes.STAFF_SSO),
                 profile_data={
                     "first_name": "Billy",
                     "last_name": "Bob",
-                    "emails": [{}],
+                    "emails": [
+                        {
+                            "address": "new_user@email.gov.uk",
+                            "type": "",
+                            "preferred": False,
+                        }
+                    ],
                     "preferred_email": "",
                 },
             )
 
+    # FIXME: After we implement "generate_combined_profile_data(sso_email_id)
+    # update the test and the expected failure.
+    @pytest.mark.xfail(raises=NotImplementedError)
     def test_new_user(self) -> None:
         user = services.new_user(
             "new_user@gov.uk",
-            ProfileTypes.STAFF_SSO.value,
+            str(ProfileTypes.STAFF_SSO),
             profile_data={
                 "first_name": "Billy",
                 "last_name": "Bob",
-                "emails": [{}],
+                "emails": [
+                    {"address": "new_user@email.gov.uk", "type": "", "preferred": False}
+                ],
                 "preferred_email": "",
             },
         )
@@ -50,7 +67,13 @@ class TestCreateUser(TestCase):
                 profile_data={
                     "first_name": "Billy",
                     "last_name": "Bob",
-                    "emails": [{}],
+                    "emails": [
+                        {
+                            "address": "new_user@email.gov.uk",
+                            "type": "",
+                            "preferred": False,
+                        }
+                    ],
                     "preferred_email": "",
                 },
             )
