@@ -47,7 +47,7 @@ def create(
     )
 
     for email in emails:
-        create_email(
+        associate_email(
             profile=staff_sso_profile,
             email_address=email["address"],
             type=email["type"],
@@ -88,38 +88,21 @@ def update(
 ###############################################################
 
 
-def create_email(
+def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
     type: str = EMAIL_TYPE_WORK,
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
-    Create a new staff sso email
+    Ensures that an email is associated with a staff sso profile.
     """
     email_object, _ = Email.objects.get_or_create(
         address=email_address,
     )
-    return associate_email(
-        profile=profile,
-        email=email_object,
-        type=type,
-        preferred=preferred,
-    )
-
-
-def associate_email(
-    profile: StaffSSOProfile,
-    email: Email,
-    type: str = EMAIL_TYPE_WORK,
-    preferred: bool = False,
-) -> StaffSSOProfileEmail:
-    """
-    Associate an existing email with a staff sso profile
-    """
     staff_sso_email, _ = StaffSSOProfileEmail.objects.get_or_create(
         profile=profile,
-        email=email,
+        email=email_object,
         type=type,
         preferred=preferred,
     )
