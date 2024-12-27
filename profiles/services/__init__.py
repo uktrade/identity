@@ -1,9 +1,6 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 
-from profiles.models import Email
-from profiles.services import combined, staff_sso
-
 
 def generate_combined_profile_fields(sso_user_id: str):
     """

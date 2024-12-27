@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from core import services as core_services
-from profiles.models import ProfileTypes
 from user.exceptions import UserExists
 
 
@@ -21,7 +20,6 @@ class TestCoreService(TestCase):
         # User is created
         user, created = core_services.new_user(
             id="john.sso.email.id@gov.uk",
-            initiator=ProfileTypes.STAFF_SSO.values,  # type: ignore
             profile_data=profile_data,
         )
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
@@ -31,6 +29,5 @@ class TestCoreService(TestCase):
         with self.assertRaises(UserExists):
             core_services.new_user(
                 id="john.sso.email.id@gov.uk",
-                initiator=ProfileTypes.STAFF_SSO.values,  # type: ignore
                 profile_data=profile_data,
             )

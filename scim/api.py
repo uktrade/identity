@@ -3,7 +3,6 @@ from ninja import Router
 from core import services as core_services
 from core.schemas import Error
 from profiles import services as profile_services
-from profiles.models import ProfileTypes
 from profiles.models.generic import Profile
 from profiles.schemas import ProfileMinimal
 from scim.schemas import CreateUserRequest, CreateUserResponse
@@ -50,7 +49,6 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     try:
         user = core_services.new_user(
             id=scim_user.externalId,
-            initiator=ProfileTypes.STAFF_SSO.value,  # type: ignore
             profile_data=profile_data,
         )
         return 201, user

@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from profiles.models.generic import EmailTypes, Profile
 from profiles.services import combined as profile_services
-from profiles.services import staff_sso as staff_sso_service
+from profiles.services import staff_sso as staff_sso_services
 from user.models import User
 
 
@@ -46,7 +46,7 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_get_by_id(self):
         staff_sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        get_profile_result = profile_service.get_by_id("email@email.com")
+        get_profile_result = profile_services.get_by_id("email@email.com")
 
         self.assertEqual(get_profile_result.sso_email_id, "email@email.com")
         self.assertEqual(get_profile_result.first_name, "John")
@@ -99,12 +99,12 @@ class CombinedProfileServiceTest(TestCase):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
-        profile_service.delete_from_database(profile)
+        profile_services.delete_from_database(profile)
         with self.assertRaises(Profile.DoesNotExist):
-            profile_service.get_by_id(profile.sso_email_id)
+            profile_services.get_by_id(profile.sso_email_id)
 
     def create_staff_sso_profile_and_profile(self):
-        staff_sso_profile = staff_sso_service.create(
+        staff_sso_profile = staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -112,7 +112,7 @@ class CombinedProfileServiceTest(TestCase):
         )
         preferred_email = "email2@email.com"
         emails = [str(email["address"]) for email in self.emails]
-        profile = profile_service.create(
+        profile = profile_services.create(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,

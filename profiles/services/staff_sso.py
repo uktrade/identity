@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model
 
-from profiles.models.generic import Email, EmailTypes, Profile
+from profiles.models.generic import Email, EmailTypes
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
 
