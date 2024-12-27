@@ -62,7 +62,7 @@ def update(
     first_name: Optional[str],
     last_name: Optional[str],
     emails: list[dict],
-) -> StaffSSOProfile:
+) -> None:
     staff_sso_profile = get_by_user_id(id)
     staff_sso_profile.first_name = first_name
     staff_sso_profile.last_name = last_name
@@ -79,8 +79,13 @@ def update(
             preferred=email["preferred"],
         )
 
-    staff_sso_profile.save()
-    return staff_sso_profile
+    staff_sso_profile.save(
+        update_fields=(
+            "first_name",
+            "last_name",
+            "emails",
+        )
+    )
 
 
 ###############################################################
@@ -114,7 +119,7 @@ def update_email_details(
     email: Email,
     type: Optional[str] = None,
     preferred: Optional[bool] = None,
-) -> StaffSSOProfileEmail:
+) -> None:
     """
     Update a staff sso email
     """
@@ -133,4 +138,4 @@ def update_email_details(
         staff_sso_profile_email.preferred = preferred
         update_fields.append("preferred")
 
-    return staff_sso_profile_email.save(update_fields=update_fields)
+    staff_sso_profile_email.save(update_fields=update_fields)

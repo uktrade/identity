@@ -121,12 +121,11 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(staff_sso_profile.first_name, self.first_name)
         self.assertEqual(staff_sso_profile.last_name, self.last_name)
 
-        updated_staff_sso_profile = staff_sso_services.update(
-            id=staff_sso_profile.user.pk, emails=emails, **kwargs
-        )
+        staff_sso_services.update(id=staff_sso_profile.user.pk, emails=emails, **kwargs)
+        staff_sso_profile.refresh_from_db()
 
-        self.assertEqual(updated_staff_sso_profile.first_name, "newTom")
-        self.assertEqual(updated_staff_sso_profile.last_name, "newJones")
+        self.assertEqual(staff_sso_profile.first_name, "newTom")
+        self.assertEqual(staff_sso_profile.last_name, "newJones")
         staff_sso_email = StaffSSOProfileEmail.objects.filter(
             email=Email.objects.get(address="email2@email.com")
         )[0]

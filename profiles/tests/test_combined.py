@@ -78,7 +78,7 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_archive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        archived_profile = profile_services.archive(profile)
+        profile_services.archive(profile)
 
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
@@ -89,10 +89,10 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_unarchive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        archived_profile = profile_services.archive(profile)
+        profile_services.archive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
-        archived_profile = profile_services.unarchive(profile)
+        profile_services.unarchive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, True)
         self.assertEqual(profile.sso_email_id, "email@email.com")
