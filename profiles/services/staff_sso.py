@@ -83,7 +83,6 @@ def update(
         update_fields=(
             "first_name",
             "last_name",
-            "emails",
         )
     )
 
