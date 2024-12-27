@@ -19,7 +19,7 @@ else:
 #### ID is required - no getting around it ####
 
 
-def get_by_id(sso_email_id: str):
+def get_by_id(sso_email_id: str) -> User:
     """
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
@@ -34,7 +34,9 @@ def get_by_id(sso_email_id: str):
         raise User.DoesNotExist("User does not exist")
 
 
-def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False):
+def create(
+    sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
+) -> User:
     """Simplest and most common version of user creation"""
     try:
         get_by_id(sso_email_id)
@@ -51,7 +53,7 @@ def create(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
 #### Standard user-object methods ####
 
 
-def update(user: User, is_staff: bool = False, is_superuser: bool = False):
+def update(user: User, is_staff: bool = False, is_superuser: bool = False) -> None:
     """
     Update method allowing only the right fields to be set in this way.
     To change is_active use the dedicated method. ID may not be updated.
@@ -59,7 +61,7 @@ def update(user: User, is_staff: bool = False, is_superuser: bool = False):
 
     user.is_staff = is_staff
     user.is_superuser = is_superuser
-    return user.save(
+    user.save(
         update_fields=(
             "is_staff",
             "is_superuser",
@@ -67,27 +69,27 @@ def update(user: User, is_staff: bool = False, is_superuser: bool = False):
     )
 
 
-def archive(user: User):
+def archive(user: User) -> None:
     """Simplest and most common version of user soft deletion"""
     if not user.is_active:
         raise UserIsArchived("User is already archived")
 
     user.is_active = False
-    return user.save(update_fields=("is_active",))
+    user.save(update_fields=("is_active",))
 
 
-def unarchive(user: User):
+def unarchive(user: User) -> None:
     """Simplest and most common version of user reactivation"""
     if user.is_active:
         raise UserIsNotArchived("User is not archived")
 
     user.is_active = True
-    return user.save(update_fields=("is_active",))
+    user.save(update_fields=("is_active",))
 
 
-def delete_from_database(user: User):
+def delete_from_database(user: User) -> None:
     """Really delete a User. Only to be used in data cleaning (i.e. non-standard) operations"""
-    return user.delete()
+    user.delete()
 
 
 ###############################################################
@@ -95,21 +97,23 @@ def delete_from_database(user: User):
 ###############################################################
 
 
-def update_by_id(sso_email_id: str, is_staff: bool = False, is_superuser: bool = False):
+def update_by_id(
+    sso_email_id: str, is_staff: bool = False, is_superuser: bool = False
+) -> None:
     user = get_by_id(sso_email_id)
     return update(user, is_staff, is_superuser)
 
 
-def archive_by_id(sso_email_id: str):
+def archive_by_id(sso_email_id: str) -> None:
     user = get_by_id(sso_email_id)
     return archive(user)
 
 
-def unarchive_by_id(sso_email_id: str):
+def unarchive_by_id(sso_email_id: str) -> None:
     user = get_by_id(sso_email_id)
     return unarchive(user)
 
 
-def delete_from_database_by_id(sso_email_id: str):
+def delete_from_database_by_id(sso_email_id: str) -> None:
     user = get_by_id(sso_email_id)
     return delete_from_database(user)

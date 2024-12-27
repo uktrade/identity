@@ -46,49 +46,41 @@ def update(
     last_name: Optional[str],
     preferred_email: Optional[str],
     emails: Optional[list[str]],
-):
+) -> None:
     update_fields = []
     if first_name is not None:
-        update_fields += [
-            "first_name",
-        ]
+        update_fields.append("first_name")
         profile.first_name = first_name
     if last_name is not None:
-        update_fields += [
-            "last_name",
-        ]
+        update_fields.append("last_name")
         profile.last_name = last_name
     if preferred_email is not None:
-        update_fields += [
-            "preferred_email",
-        ]
+        update_fields.append("preferred_email")
         profile.preferred_email = preferred_email
     if emails is not None:
-        update_fields += [
-            "emails",
-        ]
+        update_fields.append("emails")
         profile.emails = emails
-    return profile.save(update_fields=update_fields)
+    profile.save(update_fields=update_fields)
 
 
-def archive(profile: Profile):
+def archive(profile: Profile) -> None:
     """Soft-delete a profile"""
     if not profile.is_active:
         raise ProfileIsArchived("Profile is already archived")
 
     profile.is_active = False
-    return profile.save(update_fields=("is_active",))
+    profile.save(update_fields=("is_active",))
 
 
-def unarchive(profile: Profile):
+def unarchive(profile: Profile) -> None:
     """Restore a soft-deleted profile."""
     if profile.is_active:
         raise ProfileIsNotArchived("Profile is not archived")
 
     profile.is_active = True
-    return profile.save(update_fields=("is_active",))
+    profile.save(update_fields=("is_active",))
 
 
-def delete_from_database(profile: Profile):
+def delete_from_database(profile: Profile) -> None:
     """Really delete a Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
-    return profile.delete()
+    profile.delete()

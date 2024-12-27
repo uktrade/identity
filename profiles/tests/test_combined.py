@@ -2,7 +2,7 @@ import pytest
 from django.test import TestCase
 
 from profiles.models.generic import EmailTypes, Profile
-from profiles.services import combined as profile_service
+from profiles.services import combined as profile_services
 from profiles.services import staff_sso as staff_sso_service
 from user.models import User
 
@@ -65,7 +65,7 @@ class CombinedProfileServiceTest(TestCase):
             "preferred_email": "newpref@email.com",
         }
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        profile_service.update(profile, emails=emails, **kwargs)
+        profile_services.update(profile, emails=emails, **kwargs)
 
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
@@ -76,7 +76,7 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_archive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        archived_profile = profile_service.archive(profile)
+        profile_services.archive(profile)
 
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
@@ -87,10 +87,10 @@ class CombinedProfileServiceTest(TestCase):
 
     def test_unarchive(self):
         sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        archived_profile = profile_service.archive(profile)
+        profile_services.archive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
-        archived_profile = profile_service.unarchive(profile)
+        profile_services.unarchive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, True)
         self.assertEqual(profile.sso_email_id, "email@email.com")
