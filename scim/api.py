@@ -3,7 +3,6 @@ from ninja import Router
 from core import services as core_services
 from core.schemas import Error
 from profiles import services as profile_services
-from profiles.models import ProfileTypes
 from profiles.models.generic import Profile
 from profiles.schemas import ProfileMinimal
 from scim.schemas import CreateUserRequest, CreateUserResponse
@@ -35,24 +34,27 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
         # TODO: Discuss what should happen in this scenario
         raise Exception("WHY ARE WE BEING INFORMED OF A NEW USER THAT IS INACTIVE?")
 
-    emails = []
+    emails: list[dict] = []
     if scim_user.emails:
-        emails = [e.value for e in scim_user.emails]
+        # TODO: BUILD EMAIL DICTS
+        emails = [
+            {
+                "address": e.value,
+            }
+            for e in scim_user.emails
+        ]
 
     assert scim_user.name
-
-    profile_data = {
-        "first_name": scim_user.name.givenName,
-        "last_name": scim_user.name.familyName,
-        "emails": emails,
-        "preferred_email": scim_user.get_primary_email(),
-    }
+    assert scim_user.name.givenName
+    assert scim_user.name.familyName
 
     try:
-        user = core_services.new_user(
+        user = core_services.create_identity(
             id=scim_user.externalId,
-            initiator=str(ProfileTypes.STAFF_SSO),
-            profile_data=profile_data,
+            first_name=scim_user.name.givenName,
+            last_name=scim_user.name.familyName,
+            emails=emails,
+            preferred_email= scim_user.get_primary_email(),
         )
         return 201, user
     except UserExists:
