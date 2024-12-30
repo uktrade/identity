@@ -39,7 +39,7 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_create(self):
         staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -79,7 +79,7 @@ class StaffSSOServiceTest(TestCase):
 
     def test_get_by_user_id(self):
         staff_sso_profile = staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -92,7 +92,7 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_update(self):
         staff_sso_profile = staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
