@@ -34,7 +34,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 # App
 #
 APP_ENV: str = env.str("APP_ENV")
-SERVICE: str = env.str("SERVICE", "MAIN")
+INFRA_SERVICE: str = env.str("INFRA_SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 
 # Django
@@ -143,8 +143,8 @@ AUTH_USER_MODEL = "user.User"
 
 # Hawk API auth setup
 DJANGO_HAWK = {
-    "HAWK_INCOMING_ACCESS_KEY": env(f"{SERVICE}_HAWK_ID", None),
-    "HAWK_INCOMING_SECRET_KEY": env(f"{SERVICE}_HAWK_KEY", None),
+    "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
+    "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
 }
 
 LOGGING = {
@@ -199,7 +199,7 @@ if SENTRY_DSN:
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", 0.0),
         send_default_pii=True,
     )
-    set_tag("service", SERVICE)
+    set_tag("infra-service", INFRA_SERVICE)
 
 
 # Database
