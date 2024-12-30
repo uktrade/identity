@@ -30,6 +30,7 @@ pytest-django = "^4.9.0"
 django-extensions = "^3.2.3"
 coverage = "^7.6.4"
 mypy = "^1.12.1"
+pytest-mock = "^3.14.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-awesome-pages-plugin = "^2.8.0"

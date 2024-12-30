@@ -1,18 +1,17 @@
 from ninja import Router
 
-from core.services import CoreService
-from scim.services import SCIMService
+from core import services as core_services
+from profiles import services as profile_services
 
 from .schemas import SCIMUserIn, SCIMUserOut
 
 
 router = Router()
-scim_service = SCIMService()
 
 
 @router.get("/{id}", response=SCIMUserOut)
 def get_user(request, id: str):
-    return scim_service.get_user_by_id(id)
+    return profile_services.combined.get_by_id(id)
 
 
 response_codes = frozenset({200, 201})
@@ -20,8 +19,11 @@ response_codes = frozenset({200, 201})
 
 @router.post("/", response={response_codes: SCIMUserOut})
 def create_user(request, scim_user: SCIMUserIn):
-    user, created = scim_service.get_or_create_user(scim_user)
-    if created:
-        return 201, user
-    else:
-        return 200, user
+    # @TODO fix mypy stuff properly
+    user = core_services.create_user(  # type: ignore
+        scim_user.id, "SSO", **scim_user  # type: ignore
+    )  # type: ignore
+    # if created:
+    return 201, user
+    # else:
+    #     return 200, user
