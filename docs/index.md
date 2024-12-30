@@ -21,11 +21,21 @@ ID provides a simple integration point for custom-built services erquiring live 
 
 ## Core concepts
 
+### Users and Profiles
+
 To maintain the highest granularity of data, the ID system distinguishes between User and Profile records.
 
 Within the ID system, a User represents a single person; other than an identifier and state flags, it holds no other personal information. User records and their state are "owned" by Staff SSO (see below).
 
 Profile records are the way the ID service maintains (sometimes conflicting) data about a User from different sources. Each data source has its own Profile type and writes only to that type. The ID service maintains a distinct "combined" (de-normalised) Profile that represents the most accurate data across all the data sources.
+
+### "Infra services"
+
+Named to follow the AWS ECS naming of "services", the ID service will deploy the main application runtime in multiple configurations, each called a "service" in AWS ECS.
+
+This segmentation allows each service to have a distinct load balancer and network configuration allowing for a defence in depth approach to security.
+
+The slightly different configurations used for each of these services will ensure that different APIs may or may not be enabled at all within each of the services; for example the SCIM user management API will only be enabled within the SSO_SCIM infra-service.
 
 ## Connected services
 
