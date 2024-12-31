@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 
 from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
 from profiles.models.combined import Profile
+
 
 if TYPE_CHECKING:
     from user.models import User
@@ -46,7 +47,9 @@ def create(
             preferred_email=preferred_email,
         )
 
-        requesting_user_id = None
+        if reason is None:
+            reason = "Creating new Profile"
+        requesting_user_id = "via-api"
         if requesting_user is not None:
             requesting_user_id = requesting_user.pk
         LogEntry.objects.log_action(
@@ -92,7 +95,7 @@ def update(
 
     if reason is None:
         reason = f"Updating Profile record: {", ".join(update_fields)}"
-    requesting_user_id = None
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -116,7 +119,7 @@ def archive(
 
     if reason is None:
         reason = "Archiving Profile record"
-    requesting_user_id = None
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -143,7 +146,7 @@ def unarchive(
 
     if reason is None:
         reason = "Unarchiving Profile record"
-    requesting_user_id = None
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -161,11 +164,13 @@ def unarchive(
 
 def delete_from_database(
     profile: Profile,
-    reason: str,
-    requesting_profile: Optional[profile] = None,
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
 ) -> None:
     """Really delete a Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
-    requesting_user_id = None
+    if reason is None:
+        reason = "Deleting Profile record"
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(

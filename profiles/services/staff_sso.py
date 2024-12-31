@@ -24,8 +24,9 @@ def get_by_user_id(sso_email_id: str) -> StaffSSOProfile:
     """
     Retrieve a profile by its User ID, only if the user is not soft-deleted.
     """
-    # @TODO update the below query (inc the model) to stop it requiring a JOIN
-    return StaffSSOProfile.objects.get(user_id=sso_email_id, user__is_active=True)
+    return StaffSSOProfile.objects.get(
+        user__sso_email_id=sso_email_id, user__is_active=True
+    )
 
 
 def create(
@@ -33,16 +34,31 @@ def create(
     first_name: str,
     last_name: str,
     emails: list[dict],
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
 ) -> StaffSSOProfile:
     """
     Create a new staff sso profile for the specified request.
     """
-
-    user = user_services.get_by_id(sso_email_id)
+    user = user_services.get_by_id(sso_email_id=sso_email_id)
     staff_sso_profile = StaffSSOProfile.objects.create(
         user=user,
         first_name=first_name,
         last_name=last_name,
+    )
+
+    if reason is None:
+        reason = "Creating new StaffSSOProfile"
+    requesting_user_id = "via-api"
+    if requesting_user is not None:
+        requesting_user_id = requesting_user.pk
+    LogEntry.objects.log_action(
+        user_id=requesting_user_id,
+        content_type_id=get_content_type_for_model(staff_sso_profile).pk,
+        object_id=staff_sso_profile.pk,
+        object_repr=str(staff_sso_profile),
+        change_message=reason,
+        action_flag=ADDITION,
     )
     # FIXME: We don't have complex email data to create the email
     # eg. we don't know when the preferred email will be True(?)
@@ -58,14 +74,21 @@ def create(
 
 
 def update(
-    id: str,
+    sso_email_id: str,
     first_name: Optional[str],
     last_name: Optional[str],
     emails: list[dict],
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
 ) -> None:
-    staff_sso_profile = get_by_user_id(id)
-    staff_sso_profile.first_name = first_name
-    staff_sso_profile.last_name = last_name
+    staff_sso_profile = get_by_user_id(sso_email_id)
+    update_fields = []
+    if first_name is not None:
+        update_fields.append("first_name")
+        staff_sso_profile.first_name = first_name
+    if last_name is not None:
+        update_fields.append("last_name")
+        staff_sso_profile.last_name = last_name
 
     # create staff sso email records
     for email in emails:
@@ -79,11 +102,20 @@ def update(
             preferred=email["preferred"],
         )
 
-    staff_sso_profile.save(
-        update_fields=(
-            "first_name",
-            "last_name",
-        )
+    staff_sso_profile.save(update_fields=update_fields)
+
+    if reason is None:
+        reason = f"Updating StaffSSOProfile record: {", ".join(update_fields)}"
+    requesting_user_id = "via-api"
+    if requesting_user is not None:
+        requesting_user_id = requesting_user.pk
+    LogEntry.objects.log_action(
+        user_id=requesting_user_id,
+        content_type_id=get_content_type_for_model(staff_sso_profile).pk,
+        object_id=staff_sso_profile.pk,
+        object_repr=str(staff_sso_profile),
+        change_message=reason,
+        action_flag=CHANGE,
     )
 
 

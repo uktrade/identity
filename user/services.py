@@ -54,7 +54,9 @@ def create(
             is_superuser=is_superuser,
         )
 
-        requesting_user_id = None
+        if reason is None:
+            reason = "Creating new User record"
+        requesting_user_id = "via-api"
         if requesting_user is not None:
             requesting_user_id = requesting_user.pk
         LogEntry.objects.log_action(
@@ -84,8 +86,18 @@ def update(
     Update method allowing only the right fields to be set in this way.
     To change is_active use the dedicated method. ID may not be updated.
     """
+    user.is_staff = is_staff
+    user.is_superuser = is_superuser
+    user.save(
+        update_fields=(
+            "is_staff",
+            "is_superuser",
+        )
+    )
 
-    requesting_user_id = None
+    if reason is None:
+        reason = "Updating User record: is_staff, is_superuser"
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -95,15 +107,6 @@ def update(
         object_repr=str(user),
         change_message=reason,
         action_flag=CHANGE,
-    )
-
-    user.is_staff = is_staff
-    user.is_superuser = is_superuser
-    user.save(
-        update_fields=(
-            "is_staff",
-            "is_superuser",
-        )
     )
 
 
@@ -116,7 +119,7 @@ def archive(
 
     if reason is None:
         reason = "Archiving User record"
-    requesting_user_id = None
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -141,7 +144,7 @@ def unarchive(
 
     if reason is None:
         reason = "Unarchiving User record"
-    requesting_user_id = None
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
@@ -161,7 +164,9 @@ def delete_from_database(
     user: User, reason: Optional[str] = None, requesting_user: Optional[User] = None
 ) -> None:
     """Really delete a User"""
-    requesting_user_id = None
+    if reason is None:
+        reason = "Deleting User record"
+    requesting_user_id = "via-api"
     if requesting_user is not None:
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
