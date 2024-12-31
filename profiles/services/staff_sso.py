@@ -2,14 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model
 
-from profiles.models import (
-    EMAIL_TYPE_WORK,
-    EMAIL_TYPES,
-    Email,
-    Profile,
-    StaffSSOProfile,
-    StaffSSOProfileEmail,
-)
+from profiles.models.generic import Email, EmailTypes
+from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
 
 if TYPE_CHECKING:
@@ -95,7 +89,7 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = EMAIL_TYPE_WORK,
+    type: str = EmailTypes.WORK.value,  # type: ignore
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """

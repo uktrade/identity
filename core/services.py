@@ -12,7 +12,7 @@ else:
     User = get_user_model()
 
 
-def create_user(
+def create_identity(
     id: str,
     first_name: str,
     last_name: str,
@@ -21,12 +21,14 @@ def create_user(
     """
     Entrypoint for new user creation. Triggers the creation of User record,
     then the relevant Profile record as well as a combined Profile.
+
+    Returns the combined Profile
     """
-    user = user_services.create(sso_email_id=id)
-    profile_services.create_from_sso(
+
+    user_services.create(sso_email_id=id)
+    return profile_services.create_from_sso(
         id,
         first_name,
         last_name,
         emails,
     )
-    return user

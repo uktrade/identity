@@ -1,7 +1,7 @@
 from typing import Optional
 
 from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
-from profiles.models import Profile
+from profiles.models.combined import Profile
 
 
 ###############################################################
@@ -22,7 +22,7 @@ def create(
     first_name: str,
     last_name: str,
     emails: list[str],
-    preferred_email: Optional[str],
+    preferred_email: Optional[str] = None,
 ) -> Profile:
     try:
         get_by_id(sso_email_id)

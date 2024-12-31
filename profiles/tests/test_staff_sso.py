@@ -1,19 +1,13 @@
 import pytest
 from django.test import TestCase
 
-from profiles.models import (
-    EMAIL_TYPE_CONTACT,
-    EMAIL_TYPE_WORK,
-    Email,
-    StaffSSOProfile,
-    StaffSSOProfileEmail,
-)
+from profiles.models.generic import Email, EmailTypes
+from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from profiles.services import staff_sso as staff_sso_services
 from user.models import User
 
 
 class StaffSSOServiceTest(TestCase):
-
     @pytest.mark.django_db
     def setUp(self):
         # Create a user for use in the tests
@@ -29,20 +23,19 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EMAIL_TYPE_WORK,
+                "type": EmailTypes.WORK,
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EMAIL_TYPE_CONTACT,
+                "type": EmailTypes.CONTACT,
                 "preferred": True,
             },
         ]
 
     @pytest.mark.django_db
     def test_create(self):
-
-        staff_sso_profile = staff_sso_services.create(
+        staff_sso_services.create(
             user=self.user,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -108,7 +101,7 @@ class StaffSSOServiceTest(TestCase):
         emails = [
             {
                 "address": "email2@email.com",
-                "type": EMAIL_TYPE_CONTACT,
+                "type": EmailTypes.CONTACT,
                 "preferred": False,
             }
         ]
