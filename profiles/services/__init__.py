@@ -2,6 +2,7 @@
 # If in doubt about what to use, you should probably be using this
 
 from profiles.models.combined import Profile
+from profiles.models.staff_sso import StaffSSOProfileEmail
 from profiles.services import combined, staff_sso
 
 from .combined import get_by_id as get_combined_by_id
@@ -17,10 +18,11 @@ def generate_combined_profile_data(sso_email_id: str):
     field hierarchy per data type to generate the values for the combined.
     create method
     """
-    raise NotImplementedError()
+    sso_profile = staff_sso.get_by_user_id(sso_email_id)
+
     return {
-        "first_name": "",
-        "last_name": "",
+        "first_name": sso_profile.first_name,
+        "last_name": sso_profile.last_name,
         "preferred_email": "",
         "emails": [],
     }
@@ -41,9 +43,9 @@ def create_from_sso(
         emails,
     )
     combined_profile_data = generate_combined_profile_data(sso_email_id)
+
     # We might need a try/except here, if other providers (eg. oracle)
     # are going to do "create" action on the combined profile.
-
     return combined.create(
         sso_email_id=sso_email_id,
         first_name=combined_profile_data["first_name"],

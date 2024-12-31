@@ -2,6 +2,7 @@ import pytest
 from django.test import TestCase
 
 from core import services
+from profiles.models.combined import Profile
 from user.exceptions import UserExists
 from user.models import User
 
@@ -28,11 +29,8 @@ class TestCreateUser(TestCase):
                 ],
             )
 
-    # FIXME: After we implement "generate_combined_profile_data(sso_email_id)
-    # update the test and the expected failure.
-    @pytest.mark.xfail(raises=NotImplementedError)
     def test_new_user(self) -> None:
-        user = services.create_identity(
+        profile = services.create_identity(
             "new_user@gov.uk",
             "Billy",
             "Bob",
@@ -40,7 +38,7 @@ class TestCreateUser(TestCase):
                 {"address": "new_user@email.gov.uk", "type": "", "preferred": False},
             ],
         )
-        self.assertTrue(isinstance(user, User))
-        self.assertTrue(user.pk)
-        self.assertEqual(user.sso_email_id, "new_user@gov.uk")
+        self.assertTrue(isinstance(profile, Profile))
+        self.assertTrue(profile.pk)
+        self.assertEqual(profile.sso_email_id, "new_user@gov.uk")
         self.assertTrue(User.objects.get(sso_email_id="new_user@gov.uk"))
