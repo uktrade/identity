@@ -1,9 +1,14 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 
-from profiles.models.generic import Profile
 from profiles.services import combined, staff_sso
-from user.models import User
+from profiles.models.combined import Profile
+
+from .combined import get_by_id as get_combined_by_id
+
+
+def get_by_id(sso_email_id: str) -> Profile:
+    return get_combined_by_id(sso_email_id=sso_email_id)
 
 
 def generate_combined_profile_data(sso_email_id: str):
@@ -27,7 +32,7 @@ def create_from_sso(
     last_name: str,
     emails: list[dict],
     preferred_email: str | None = None,
-):
+)-> Profile:
     """A central function to create all relevant profile details"""
     staff_sso.create(
         sso_email_id,

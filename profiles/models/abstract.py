@@ -13,6 +13,7 @@ class AbstractHistoricalModel(models.Model):
     )
 
 
+# @TODO discuss why not inherit from AbstractHistoricalModel
 class AbstractProfile(models.Model):
     class Meta:
         abstract = True

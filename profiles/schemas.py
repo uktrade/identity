@@ -1,6 +1,6 @@
 from ninja import Field, ModelSchema
 
-from profiles.models.generic import Profile
+from profiles.models.combined import Profile
 
 
 class ProfileMinimal(ModelSchema):

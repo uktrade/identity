@@ -1,8 +1,13 @@
+# Comments are used for many fields in the schemas in this file.
+# That's because these schemas specifically refer to the SCIM protocol,
+# and the commented-out fields are specified in the protocol (and in
+# the order they're in) but not represented in our data models.
+
 from dataclasses import dataclass
-from typing import Any
 
 from ninja import Field, Schema
 
+from profiles.models.combined import Profile
 from user.models import User
 
 
@@ -78,23 +83,20 @@ class ScimUserSchema(ScimUserSchemaRequired):
         return preferred_email
 
 
-class CreateUserRequest(ScimUserSchema): ...
+class MinimalUserResponse(ScimUserSchemaRequired):
+    """Designed to be populated by a combined Profile"""
 
-
-class CreateUserResponse(ScimUserSchemaRequired):
     id: str = Field(alias="pk")
     externalId: str = Field(alias="sso_email_id")
     userName: str = Field(alias="sso_email_id")
     active: bool = Field(alias="is_active")
 
     @staticmethod
-    def resolve_name(obj: User):
-        from profiles.services import combined
-
-        combined_profile = combined.get_by_id(obj.sso_email_id)
+    def resolve_name(obj: Profile):
+        # @TODO should we be using preferred name?
         return Name(
-            givenName=combined_profile.first_name,
-            familyName=combined_profile.last_name,
+            givenName=obj.first_name,
+            familyName=obj.last_name,
         )
 
     @staticmethod
@@ -102,3 +104,15 @@ class CreateUserResponse(ScimUserSchemaRequired):
         # TODO: We need a better way of getting ALL of a user's emails and
         # their type/primary status
         return [Email(value=obj.email, type="work", primary=True)]
+
+
+class CreateUserRequest(ScimUserSchema): ...
+
+
+class CreateUserResponse(MinimalUserResponse): ...
+
+
+class GetUserResponse(MinimalUserResponse): ...
+
+
+class PutUserResponse(MinimalUserResponse): ...
