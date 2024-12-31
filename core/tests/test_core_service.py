@@ -13,7 +13,7 @@ class TestCoreService(TestCase):
     @pytest.mark.skip()
     def test_create_identity(self):
         # User is created
-        user, created = core_services.create_identity(
+        user = core_services.create_identity(
             id="john.sso.email.id@gov.uk",
             first_name="Billy",
             last_name="Bob",

@@ -21,14 +21,14 @@ def create_identity(
     """
     Entrypoint for new user creation. Triggers the creation of User record,
     then the relevant Profile record as well as a combined Profile.
+
+    Returns the combined Profile
     """
 
-    user = user_services.create(sso_email_id=id)
-    profile_services.create_from_sso(
+    user_services.create(sso_email_id=id)
+    return profile_services.create_from_sso(
         id,
         first_name,
         last_name,
         emails,
     )
-
-    return user

@@ -3,9 +3,8 @@ from ninja import Router
 from core import services as core_services
 from core.schemas import Error
 from profiles import services as profile_services
-from profiles.models.generic import Profile
-from profiles.schemas import ProfileMinimal
-from scim.schemas import CreateUserRequest, CreateUserResponse
+from profiles.models.combined import Profile
+from scim.schemas import CreateUserRequest, CreateUserResponse, GetUserResponse
 from user.exceptions import UserExists
 from user.models import User
 
@@ -16,14 +15,14 @@ router = Router()
 @router.get(
     "scim/v2/Users/{id}",
     response={
-        200: ProfileMinimal,
+        200: GetUserResponse,
         404: Error,
     },
 )
-# @TODO check if we actually need this method, if not let's drop it or move out of SCIM
 def get_user(request, id: str):
+    """In fact returns the combined Profile"""
     try:
-        return profile_services.combined.get_by_id(id)
+        return profile_services.get_by_id(id)
     except Profile.DoesNotExist:
         return 404, {"message": "No user found with that ID"}
 
