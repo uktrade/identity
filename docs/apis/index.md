@@ -8,8 +8,11 @@ The most optimisation-prioritised API is for [basic profile retrieval](./basic-p
 
 ## Infrastructure "services" and authentication
 
-`INFRA_SERVICE`
-Hawk
+The ID service at runtime will be split into a running "service" (in AWS ECS terminology) per API, allowing infrastructure-level security to be applied per API.
+
+The *ENV* var `INFRA_SERVICE` is used by the runtime code to tell which service it's running under; this is in turn used to load or unload the URLs for a given API, among other things.
+
+Hawk/Mohawk key-based header auth is also used to protect every API endpoint; there's a distinct id/key pair per API, also based on the same ENV var.
 
 ## Direct documentation
 

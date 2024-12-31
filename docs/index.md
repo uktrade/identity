@@ -29,6 +29,8 @@ Within the ID system, a User represents a single person; other than an identifie
 
 Profile records are the way the ID service maintains (sometimes conflicting) data about a User from different sources. Each data source has its own Profile type and writes only to that type. The ID service maintains a distinct "combined" (de-normalised) Profile that represents the most accurate data across all the data sources.
 
+Read more in [data structures](./data-structures/).
+
 ### "Infra services"
 
 Named to follow the AWS ECS naming of "services", the ID service will deploy the main application runtime in multiple configurations, each called a "service" in AWS ECS.
