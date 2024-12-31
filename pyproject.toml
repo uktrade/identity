@@ -64,15 +64,10 @@ ignore_missing_imports = false
 
 [[tool.mypy.overrides]]
 module = [
-    "debugpy.*",
-]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = [
     "django.*",
     "environ.*",
     "dbt_copilot_python.*",
+    "debugpy.*",
 ]
 ignore_missing_imports = true
 
