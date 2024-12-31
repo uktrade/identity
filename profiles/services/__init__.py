@@ -1,8 +1,8 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 
-from profiles.services import combined, staff_sso
 from profiles.models.combined import Profile
+from profiles.services import combined, staff_sso
 
 from .combined import get_by_id as get_combined_by_id
 
@@ -32,7 +32,7 @@ def create_from_sso(
     last_name: str,
     emails: list[dict],
     preferred_email: str | None = None,
-)-> Profile:
+) -> Profile:
     """A central function to create all relevant profile details"""
     staff_sso.create(
         sso_email_id,
@@ -41,21 +41,13 @@ def create_from_sso(
         emails,
     )
     combined_profile_data = generate_combined_profile_data(sso_email_id)
-    try:
-        profile = combined.get_by_id(sso_email_id)
-    except Profile.DoesNotExist:
-        combined.create(
-            sso_email_id=sso_email_id,
-            first_name=combined_profile_data["first_name"],
-            last_name=combined_profile_data["last_name"],
-            preferred_email=combined_profile_data["preferred_email"],
-            emails=combined_profile_data["emails"],
-        )
-    else:
-        combined.update(
-            profile=profile,
-            first_name=combined_profile_data["first_name"],
-            last_name=combined_profile_data["last_name"],
-            preferred_email=combined_profile_data["preferred_email"],
-            emails=combined_profile_data["emails"],
-        )
+    # We might need a try/except here, if other providers (eg. oracle)
+    # are going to do "create" action on the combined profile.
+
+    return combined.create(
+        sso_email_id=sso_email_id,
+        first_name=combined_profile_data["first_name"],
+        last_name=combined_profile_data["last_name"],
+        preferred_email=combined_profile_data["preferred_email"],
+        emails=combined_profile_data["emails"],
+    )

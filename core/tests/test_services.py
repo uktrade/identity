@@ -7,9 +7,6 @@ from user.models import User
 
 
 class TestCreateUser(TestCase):
-    # FIXME: After we implement "generate_combined_profile_data(sso_email_id)
-    # update the test and the expected failure."
-    @pytest.mark.xfail(raises=NotImplementedError)
     def test_existing_user(self) -> None:
         # Create test data
         sso_email_id = "test@email.gov.uk"
