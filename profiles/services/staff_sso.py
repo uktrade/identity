@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
+from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
+from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
 from profiles.models.generic import Email, EmailTypes
