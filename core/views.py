@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 
 def index(request):
+    print(f" ----->> {request.user}")
     return render(request, "core/base.html")
 
 
