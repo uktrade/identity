@@ -106,7 +106,7 @@ class CombinedProfileServiceTest(TestCase):
 
     def create_staff_sso_profile_and_profile(self):
         staff_sso_profile = staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,

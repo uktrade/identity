@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pytest
 from django.test import TestCase
 
@@ -10,9 +12,10 @@ from user.models import User
 class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def setUp(self):
+        self.sso_email_id = "email@email.com"
         # Create a user for use in the tests
         self.user, _ = User.objects.get_or_create(
-            sso_email_id="email@email.com",
+            sso_email_id=self.sso_email_id,
             is_active=True,
             is_staff=False,
             is_superuser=False,
@@ -23,12 +26,12 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EmailTypes.WORK,
+                "type": str(EmailTypes.WORK),
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EmailTypes.CONTACT,
+                "type": str(EmailTypes.CONTACT),
                 "preferred": True,
             },
         ]
@@ -36,7 +39,7 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_create(self):
         staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -76,7 +79,7 @@ class StaffSSOServiceTest(TestCase):
 
     def test_get_by_user_id(self):
         staff_sso_profile = staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -89,7 +92,7 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_update(self):
         staff_sso_profile = staff_sso_services.create(
-            user=self.user,
+            sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,

@@ -98,7 +98,14 @@ class MinimalUserResponse(ScimUserSchemaRequired):
         return [Email(value=obj.email, type="work", primary=True)]
 
 
-class CreateUserRequest(ScimUserSchema): ...
+class CreateUserRequest(ScimUserSchema):
+    def get_primary_email(self) -> str | None:
+        primary_email = None
+        if self.emails:
+            for email in self.emails:
+                if email.primary:
+                    primary_email = str(email)
+        return primary_email
 
 
 class CreateUserResponse(MinimalUserResponse): ...

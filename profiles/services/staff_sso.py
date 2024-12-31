@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 from profiles.models.generic import Email, EmailTypes
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
+from user import services as user_services
 
 
 if TYPE_CHECKING:
@@ -26,7 +27,7 @@ def get_by_user_id(sso_email_id: str) -> StaffSSOProfile:
 
 
 def create(
-    user: User,
+    sso_email_id: str,
     first_name: str,
     last_name: str,
     emails: list[dict],
@@ -34,12 +35,15 @@ def create(
     """
     Create a new staff sso profile for the specified request.
     """
+
+    user = user_services.get_by_id(sso_email_id)
     staff_sso_profile = StaffSSOProfile.objects.create(
         user=user,
         first_name=first_name,
         last_name=last_name,
     )
-
+    # FIXME: We don't have complex email data to create the email
+    # eg. we don't know when the preferred email will be True(?)
     for email in emails:
         associate_email(
             profile=staff_sso_profile,
@@ -89,7 +93,7 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = EmailTypes.WORK.value,  # type: ignore
+    type: str = str(EmailTypes.WORK),
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
