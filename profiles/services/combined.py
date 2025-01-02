@@ -41,11 +41,6 @@ def create(
     Creates a combined Profile object - will set primary email to the first
     in the list of emails if none is provided
     """
-    if primary_email is None:
-        primary_email = all_emails[0]
-    if contact_email is None:
-        contact_email = primary_email
-
     try:
         get_by_id(sso_email_id)
     except Profile.DoesNotExist:

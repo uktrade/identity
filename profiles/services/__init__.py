@@ -21,11 +21,18 @@ def generate_combined_profile_data(sso_email_id: str):
     sso_profile = staff_sso.get_by_id(sso_email_id)
     user = sso_profile.user
 
+    primary_email = sso_profile.primary_email
+    if primary_email is None:
+        primary_email = sso_profile.email_addresses[0]
+    contact_email = sso_profile.contact_email
+    if contact_email is None:
+        contact_email = primary_email
+
     return {
         "first_name": sso_profile.first_name,
         "last_name": sso_profile.last_name,
-        "primary_email": sso_profile.primary_email,
-        "contact_email": sso_profile.contact_email,
+        "primary_email": primary_email,
+        "contact_email": contact_email,
         "emails": sso_profile.email_addresses,
         "is_active": user.is_active,
     }
