@@ -1,0 +1,27 @@
+from django.db import models
+
+from .abstract import AbstractHistoricalModel, AbstractProfile
+from .generic import Email, EmailTypes
+
+
+class StaffSSOProfile(AbstractProfile):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"StaffSSOProfile: {self.first_name} {self.last_name}"
+
+
+class StaffSSOProfileEmail(AbstractHistoricalModel):
+    profile = models.ForeignKey(
+        "StaffSSOProfile", on_delete=models.CASCADE, related_name="emails"
+    )
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50, choices=EmailTypes.choices)
+    preferred = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("profile", "email", "type")
+
+    def __str__(self):
+        return f"StaffSSOProfileEmail: {self.profile.first_name} {self.profile.last_name}: {self.email.address}"

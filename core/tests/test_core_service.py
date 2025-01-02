@@ -11,22 +11,22 @@ class TestCoreService(TestCase):
 
     @pytest.mark.django_db
     @pytest.mark.skip()
-    def test_create_user(self):
+    def test_create_identity(self):
         # User is created
-        user = core_services.create_user(
+        user = core_services.create_identity(
             id="john.sso.email.id@gov.uk",
             first_name="Billy",
-            last_name="Joel",
+            last_name="Bob",
             emails=[{"address": "test@test.com"}],
         )
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
 
         # User already exists
-        with self.assertRaises(UserExists) as ex:
-            existing_user = core_services.create_user(
+        with self.assertRaises(UserExists):
+            core_services.create_identity(
                 id="john.sso.email.id@gov.uk",
                 first_name="Billy",
-                last_name="Joel",
+                last_name="Bob",
                 emails=[{"address": "test@test.com"}],
             )

@@ -20,6 +20,7 @@ django-staff-sso-client = "^4.3.0"
 django-ninja = "^1.3.0"
 whitenoise = "^6.8.2"
 django-simple-history = "^3.7.0"
+django-hawk = "^1.2.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -29,6 +30,7 @@ django-extensions = "^3.2.3"
 coverage = "^7.6.4"
 mypy = "^1.12.1"
 pytest-mock = "^3.14.0"
+debugpy = "*"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-awesome-pages-plugin = "^2.8.0"
@@ -58,13 +60,10 @@ exclude = [
     '/migrations/',
 ]
 check_untyped_defs = true
+ignore_missing_imports = false
 
 [[tool.mypy.overrides]]
-module = [
-    "django.*",
-    "environ.*",
-    "dbt_copilot_python.*",
-]
+module = ["django.*", "environ.*", "dbt_copilot_python.*", "debugpy.*"]
 ignore_missing_imports = true
 
 [build-system]
