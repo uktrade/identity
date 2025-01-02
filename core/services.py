@@ -1,10 +1,5 @@
-from typing import TYPE_CHECKING
-
-from django.contrib.auth import get_user_model
-
 from profiles import services as profile_services
 from profiles.models.combined import Profile
-from profiles.models.generic import EmailWithContext
 from user import services as user_services
 
 
@@ -12,7 +7,8 @@ def create_identity(
     id: str,
     first_name: str,
     last_name: str,
-    emails: list[EmailWithContext],
+    all_emails: list[str],
+    primary_email: str | None = None,
     contact_email: str | None = None,
 ) -> Profile:
     """
@@ -24,9 +20,10 @@ def create_identity(
 
     user_services.create(sso_email_id=id)
     return profile_services.create_from_sso(
-        id,
-        first_name,
-        last_name,
-        emails,
-        contact_email,
+        sso_email_id=id,
+        first_name=first_name,
+        last_name=last_name,
+        all_emails=all_emails,
+        contact_email=contact_email,
+        primary_email=primary_email,
     )

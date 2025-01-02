@@ -3,7 +3,6 @@ from django.contrib.admin.models import LogEntry
 from django.test import TestCase
 
 from profiles.models.combined import Profile
-from profiles.models.generic import EmailType, EmailWithContext
 from profiles.services import combined as profile_services
 from profiles.services import staff_sso as staff_sso_services
 from user.models import User
@@ -24,18 +23,12 @@ class CombinedProfileServiceTest(TestCase):
             is_superuser=False,
         )
 
-        self.emails: list[EmailWithContext] = [
-            {
-                "address": "email1@email.com",
-                "type": EmailType.VERIFIED,
-                "preferred": False,
-            },
-            {
-                "address": "email2@email.com",
-                "type": EmailType.CONTACT,
-                "preferred": True,
-            },
+        self.emails: list[str] = [
+            "email1@email.com",
+            "email2@email.com",
         ]
+        self.primary_email = "email2@email.com"
+        self.contact_email = "email2@email.com"
 
     def test_create(self):
         _, profile = self.create_staff_sso_profile_and_profile()
@@ -43,7 +36,7 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.sso_email_id, "email@email.com")
         self.assertEqual(profile.first_name, "John")
         self.assertEqual(profile.last_name, "Doe")
-        self.assertEqual(profile.preferred_email, "email2@email.com")
+        self.assertEqual(profile.primary_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
         self.assertEqual(LogEntry.objects.count(), 1)
@@ -60,7 +53,7 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(get_profile_result.sso_email_id, "email@email.com")
         self.assertEqual(get_profile_result.first_name, "John")
         self.assertEqual(get_profile_result.last_name, "Doe")
-        self.assertEqual(get_profile_result.preferred_email, "email2@email.com")
+        self.assertEqual(get_profile_result.primary_email, "email2@email.com")
         self.assertEqual(
             get_profile_result.emails, ["email1@email.com", "email2@email.com"]
         )
@@ -74,15 +67,15 @@ class CombinedProfileServiceTest(TestCase):
             profile,
             first_name="Tom",
             last_name="Jones",
-            preferred_email="newpref@email.com",
-            emails=emails,
+            primary_email="newpref@email.com",
+            all_emails=emails,
         )
 
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
         self.assertEqual(profile.first_name, "Tom")
         self.assertEqual(profile.last_name, "Jones")
-        self.assertEqual(profile.preferred_email, "newpref@email.com")
+        self.assertEqual(profile.primary_email, "newpref@email.com")
         self.assertEqual(profile.emails, ["newemail1@email.com", "newemail2@email.com"])
 
         self.assertEqual(LogEntry.objects.count(), 1)
@@ -92,7 +85,7 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(log.object_repr, str(profile))
         self.assertEqual(
             log.get_change_message(),
-            "Updating Profile record: first_name, last_name, preferred_email, emails",
+            "Updating Profile record: first_name, last_name, primary_email, emails",
         )
 
     def test_archive(self):
@@ -104,7 +97,7 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.is_active, False)
         self.assertEqual(profile.sso_email_id, "email@email.com")
         self.assertEqual(profile.last_name, "Doe")
-        self.assertEqual(profile.preferred_email, "email2@email.com")
+        self.assertEqual(profile.primary_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
         self.assertEqual(LogEntry.objects.count(), 1)
@@ -164,19 +157,18 @@ class CombinedProfileServiceTest(TestCase):
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
-            emails=self.emails,
+            all_emails=self.emails,
         )
         self.assertEqual(LogEntry.objects.count(), 1)
         LogEntry.objects.first().delete()
         self.assertEqual(LogEntry.objects.count(), 0)
-        preferred_email = "email2@email.com"
-        emails = [str(email["address"]) for email in self.emails]
+        primary_email = "email2@email.com"
         profile = profile_services.create(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
-            emails=emails,
-            preferred_email=preferred_email,
+            all_emails=self.emails,
+            primary_email=primary_email,
         )
 
         return staff_sso_profile, profile

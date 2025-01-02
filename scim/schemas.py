@@ -100,12 +100,15 @@ class MinimalUserResponse(ScimUserSchemaRequired):
 
 class CreateUserRequest(ScimUserSchema):
     def get_primary_email(self) -> str | None:
-        primary_email = None
         if self.emails:
             for email in self.emails:
                 if email.primary:
-                    primary_email = str(email)
-        return primary_email
+                    return str(email)
+        return None
+
+    def get_contact_email(self) -> str | None:
+        # @TODO is there a way to get this via SCIM?
+        return None
 
 
 class CreateUserResponse(MinimalUserResponse): ...

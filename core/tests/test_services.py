@@ -20,13 +20,7 @@ class TestCreateUser(TestCase):
                 sso_email_id,
                 "Billy",
                 "Bob",
-                [
-                    {
-                        "address": "new_user@email.gov.uk",
-                        "type": None,
-                        "preferred": False,
-                    },
-                ],
+                ["new_user@email.gov.uk"],
             )
 
     def test_new_user(self) -> None:
@@ -34,13 +28,7 @@ class TestCreateUser(TestCase):
             "new_user@gov.uk",
             "Billy",
             "Bob",
-            [
-                {
-                    "address": "new_user@email.gov.uk",
-                    "type": None,
-                    "preferred": False,
-                },
-            ],
+            ["new_user@email.gov.uk"],
         )
         self.assertTrue(isinstance(profile, Profile))
         self.assertTrue(profile.pk)
