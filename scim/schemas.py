@@ -65,6 +65,7 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # timezone
     active: bool | None = None
     emails: list[Email] | None = None
+
     # phoneNumbers
     # ims
     # photos
@@ -73,6 +74,13 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # entitlements
     # roles
     # x509Certificates
+    def get_primary_email(self) -> str | None:
+        primary_email = None
+        if self.emails:
+            for email in self.emails:
+                if email.primary:
+                    primary_email = str(email)
+        return primary_email
 
 
 class MinimalUserResponse(ScimUserSchemaRequired):
@@ -98,14 +106,7 @@ class MinimalUserResponse(ScimUserSchemaRequired):
         return [Email(value=obj.email, type="work", primary=True)]
 
 
-class CreateUserRequest(ScimUserSchema):
-    def get_primary_email(self) -> str | None:
-        primary_email = None
-        if self.emails:
-            for email in self.emails:
-                if email.primary:
-                    primary_email = str(email)
-        return primary_email
+class CreateUserRequest(ScimUserSchema): ...
 
 
 class CreateUserResponse(MinimalUserResponse): ...
@@ -114,4 +115,9 @@ class CreateUserResponse(MinimalUserResponse): ...
 class GetUserResponse(MinimalUserResponse): ...
 
 
-class PutUserResponse(MinimalUserResponse): ...
+class UpdateUserRequest(ScimUserSchema): ...
+
+
+class UpdateUserResponse(MinimalUserResponse):
+    name: Name | None = None
+    emails: list[Email] | None = None

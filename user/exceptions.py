@@ -11,3 +11,8 @@ class UserIsArchived(Exception):
 class UserIsNotArchived(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class DataConflict(Exception):
+    def __init__(self, message):
+        self.message = message

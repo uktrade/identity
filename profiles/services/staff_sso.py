@@ -59,30 +59,31 @@ def update(
     id: str,
     first_name: Optional[str],
     last_name: Optional[str],
-    emails: list[dict],
+    emails: Optional[list[dict]],
 ) -> None:
     staff_sso_profile = get_by_user_id(id)
     staff_sso_profile.first_name = first_name
     staff_sso_profile.last_name = last_name
 
     # create staff sso email records
-    for email in emails:
-        email_object, _ = Email.objects.get_or_create(
-            address=email["address"],
-        )
-        update_email_details(
-            profile=staff_sso_profile,
-            email=email_object,
-            type=email["type"],
-            preferred=email["preferred"],
-        )
+    if emails:
+        for email in emails:
+            email_object, _ = Email.objects.get_or_create(
+                address=email["address"],
+            )
+            update_email_details(
+                profile=staff_sso_profile,
+                email=email_object,
+                type=email["type"],
+                preferred=email["preferred"],
+            )
 
-    staff_sso_profile.save(
-        update_fields=(
-            "first_name",
-            "last_name",
+        staff_sso_profile.save(
+            update_fields=(
+                "first_name",
+                "last_name",
+            )
         )
-    )
 
 
 ###############################################################
