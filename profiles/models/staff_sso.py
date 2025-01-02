@@ -1,7 +1,7 @@
 from django.db import models
 
 from .abstract import AbstractHistoricalModel, AbstractProfile
-from .generic import Email, EmailTypes, EmailTypesChoices
+from .generic import Email, EmailType, EmailTypeChoices
 
 
 class StaffSSOProfile(AbstractProfile):
@@ -11,10 +11,10 @@ class StaffSSOProfile(AbstractProfile):
     @property
     def contact_email(self):
         try:
-            return self.emails.get(type=EmailTypes.CONTACT, preferred=True)
+            return self.emails.get(type=EmailType.CONTACT, preferred=True)
         except StaffSSOProfileEmail.DoesNotExist:
             try:
-                return self.emails.get(type=EmailTypes.CONTACT)
+                return self.emails.get(type=EmailType.CONTACT)
             except StaffSSOProfileEmail.DoesNotExist:
                 return None
 
@@ -31,7 +31,7 @@ class StaffSSOProfileEmail(AbstractHistoricalModel):
         "StaffSSOProfile", on_delete=models.CASCADE, related_name="emails"
     )
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
-    type = models.CharField(max_length=50, choices=EmailTypesChoices)
+    type = models.CharField(max_length=50, choices=EmailTypeChoices)
     preferred = models.BooleanField(default=False)
 
     class Meta:

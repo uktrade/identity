@@ -3,7 +3,7 @@ from django.contrib.admin.models import LogEntry
 from django.test import TestCase
 
 from profiles.models.combined import Profile
-from profiles.models.generic import EmailObject, EmailTypes
+from profiles.models.generic import EmailType, EmailWithContext
 from profiles.services import combined as profile_services
 from profiles.services import staff_sso as staff_sso_services
 from user.models import User
@@ -24,15 +24,15 @@ class CombinedProfileServiceTest(TestCase):
             is_superuser=False,
         )
 
-        self.emails: list[EmailObject] = [
+        self.emails: list[EmailWithContext] = [
             {
                 "address": "email1@email.com",
-                "type": EmailTypes.VERIFIED,
+                "type": EmailType.VERIFIED,
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": EmailTypes.CONTACT,
+                "type": EmailType.CONTACT,
                 "preferred": True,
             },
         ]

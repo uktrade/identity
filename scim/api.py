@@ -4,7 +4,7 @@ from core import services as core_services
 from core.schemas import Error
 from profiles import services as profile_services
 from profiles.models.combined import Profile
-from profiles.models.generic import EmailObject
+from profiles.models.generic import EmailWithContext
 from scim.schemas import CreateUserRequest, CreateUserResponse, GetUserResponse
 from user.exceptions import UserExists
 from user.models import User
@@ -34,7 +34,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
         # TODO: Discuss what should happen in this scenario
         raise Exception("WHY ARE WE BEING INFORMED OF A NEW USER THAT IS INACTIVE?")
 
-    emails: list[EmailObject] = []
+    emails: list[EmailWithContext] = []
     if scim_user.emails:
         # TODO: BUILD EMAIL DICTS
         emails = [

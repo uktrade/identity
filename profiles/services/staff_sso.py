@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
+from django.contrib.admin.models import ADDITION, CHANGE, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.models.generic import Email, EmailObject, EmailTypes
+from profiles.models.generic import Email, EmailType, EmailWithContext
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from user import services as user_services
 
@@ -33,7 +33,7 @@ def create(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[EmailObject],
+    emails: list[EmailWithContext],
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> StaffSSOProfile:
@@ -66,7 +66,7 @@ def create(
         associate_email(
             profile=staff_sso_profile,
             email_address=email["address"],
-            type=email["type"],
+            email_type=email["type"],
             preferred=email["preferred"],
         )
 
@@ -77,7 +77,7 @@ def update(
     sso_email_id: str,
     first_name: Optional[str],
     last_name: Optional[str],
-    emails: list[EmailObject],
+    emails: list[EmailWithContext],
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
@@ -127,19 +127,24 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: EmailTypes | None = EmailTypes.VERIFIED,
-    preferred: bool | None = False,
+    email_type: Optional[EmailType] = None,
+    preferred: Optional[bool] = None,
 ) -> StaffSSOProfileEmail:
     """
     Ensures that an email is associated with a staff sso profile.
     """
+    if email_type is None:
+        email_type = EmailType.VERIFIED
+    if preferred is None:
+        preferred = False
+
     email_object, _ = Email.objects.get_or_create(
         address=email_address,
     )
     staff_sso_email, _ = StaffSSOProfileEmail.objects.get_or_create(
         profile=profile,
         email=email_object,
-        type=type,
+        type=email_type,
         preferred=preferred,
     )
     return staff_sso_email
@@ -148,7 +153,7 @@ def associate_email(
 def update_email_details(
     profile: StaffSSOProfile,
     email: Email,
-    type: Optional[EmailTypes] = None,
+    type: Optional[EmailType] = None,
     preferred: Optional[bool] = None,
 ) -> None:
     """

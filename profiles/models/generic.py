@@ -7,18 +7,18 @@ from django.db import models
 from .abstract import AbstractHistoricalModel
 
 
-class EmailTypes(StrEnum):
+class EmailType(StrEnum):
     VERIFIED = "verified"
     CONTACT = "contact"
     USER_ADDED = "user-added"
 
 
-EmailTypesChoices = [(e.name, e.value) for e in EmailTypes]
+EmailTypeChoices = [(e.name, e.value) for e in EmailType]
 
 
-class EmailObject(TypedDict):
+class EmailWithContext(TypedDict):
     address: str
-    type: Optional[EmailTypes]
+    type: Optional[EmailType]
     preferred: Optional[bool]
 
 
