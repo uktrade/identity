@@ -22,3 +22,7 @@ class AbstractProfile(models.Model):
         inherit=True,
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+
+    @property
+    def sso_email_id(self):
+        return self.user.sso_email_id
