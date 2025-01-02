@@ -1,6 +1,7 @@
 from typing import Literal
 
 import pytest
+from django.contrib.admin.models import LogEntry
 from django.test import TestCase
 
 from profiles.models.generic import Email, EmailTypes
@@ -38,8 +39,9 @@ class StaffSSOServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_create(self):
+        self.assertEqual(LogEntry.objects.count(), 0)
         staff_sso_services.create(
-            sso_email_id=self.sso_email_id,
+            sso_email_id=self.user.pk,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -57,6 +59,13 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(
             StaffSSOProfile.objects.first().user.sso_email_id, "email@email.com"
         )
+
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_addition())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(StaffSSOProfile.objects.first()))
+        self.assertEqual(log.get_change_message(), "Creating new StaffSSOProfile")
 
         # assert staff sso email created
         self.assertEqual(StaffSSOProfileEmail.objects.all().count(), 2)
@@ -79,7 +88,7 @@ class StaffSSOServiceTest(TestCase):
 
     def test_get_by_user_id(self):
         staff_sso_profile = staff_sso_services.create(
-            sso_email_id=self.sso_email_id,
+            sso_email_id=self.user.pk,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
@@ -92,15 +101,13 @@ class StaffSSOServiceTest(TestCase):
     @pytest.mark.django_db
     def test_update(self):
         staff_sso_profile = staff_sso_services.create(
-            sso_email_id=self.sso_email_id,
+            sso_email_id=self.user.pk,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
         )
-        kwargs = {
-            "first_name": "newTom",
-            "last_name": "newJones",
-        }
+        LogEntry.objects.first().delete()
+        self.assertEqual(self.user.pk, staff_sso_profile.sso_email_id)
         emails = [
             {
                 "address": "email2@email.com",
@@ -117,7 +124,12 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(staff_sso_profile.first_name, self.first_name)
         self.assertEqual(staff_sso_profile.last_name, self.last_name)
 
-        staff_sso_services.update(id=staff_sso_profile.user.pk, emails=emails, **kwargs)
+        staff_sso_services.update(
+            sso_email_id=staff_sso_profile.user.pk,
+            first_name="newTom",
+            last_name="newJones",
+            emails=emails,
+        )
         staff_sso_profile.refresh_from_db()
 
         self.assertEqual(staff_sso_profile.first_name, "newTom")
@@ -126,3 +138,13 @@ class StaffSSOServiceTest(TestCase):
             email=Email.objects.get(address="email2@email.com")
         )[0]
         self.assertFalse(staff_sso_email.preferred)
+
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_change())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(staff_sso_profile))
+        self.assertEqual(
+            log.get_change_message(),
+            "Updating StaffSSOProfile record: first_name, last_name",
+        )

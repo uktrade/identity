@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.admin.models import LogEntry
 from django.test import TestCase
 
 from profiles.models.combined import Profile
@@ -37,7 +38,7 @@ class CombinedProfileServiceTest(TestCase):
         ]
 
     def test_create(self):
-        staff_sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        _, profile = self.create_staff_sso_profile_and_profile()
 
         self.assertEqual(profile.sso_email_id, "email@email.com")
         self.assertEqual(profile.first_name, "John")
@@ -45,8 +46,15 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_addition())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(profile))
+        self.assertEqual(log.get_change_message(), "Creating new Profile")
+
     def test_get_by_id(self):
-        staff_sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        self.create_staff_sso_profile_and_profile()
         get_profile_result = profile_services.get_by_id("email@email.com")
 
         self.assertEqual(get_profile_result.sso_email_id, "email@email.com")
@@ -59,14 +67,16 @@ class CombinedProfileServiceTest(TestCase):
 
     @pytest.mark.django_db
     def test_update(self):
-        sso_profile, profile = self.create_staff_sso_profile_and_profile()
-        kwargs = {
-            "first_name": "Tom",
-            "last_name": "Jones",
-            "preferred_email": "newpref@email.com",
-        }
+        _, profile = self.create_staff_sso_profile_and_profile()
         emails = ["newemail1@email.com", "newemail2@email.com"]
-        profile_services.update(profile, emails=emails, **kwargs)
+        LogEntry.objects.first().delete()
+        profile_services.update(
+            profile,
+            first_name="Tom",
+            last_name="Jones",
+            preferred_email="newpref@email.com",
+            emails=emails,
+        )
 
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
@@ -75,8 +85,19 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "newpref@email.com")
         self.assertEqual(profile.emails, ["newemail1@email.com", "newemail2@email.com"])
 
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_change())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(profile))
+        self.assertEqual(
+            log.get_change_message(),
+            "Updating Profile record: first_name, last_name, preferred_email, emails",
+        )
+
     def test_archive(self):
-        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        _, profile = self.create_staff_sso_profile_and_profile()
+        LogEntry.objects.all().delete()
         profile_services.archive(profile)
 
         profile.refresh_from_db()
@@ -86,31 +107,68 @@ class CombinedProfileServiceTest(TestCase):
         self.assertEqual(profile.preferred_email, "email2@email.com")
         self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_change())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(profile))
+        self.assertEqual(
+            log.get_change_message(),
+            "Archiving Profile record",
+        )
+
     def test_unarchive(self):
-        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        _, profile = self.create_staff_sso_profile_and_profile()
         profile_services.archive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, False)
+        LogEntry.objects.all().delete()
         profile_services.unarchive(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.is_active, True)
         self.assertEqual(profile.sso_email_id, "email@email.com")
 
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_change())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, str(profile))
+        self.assertEqual(
+            log.get_change_message(),
+            "Unarchiving Profile record",
+        )
+
     def test_delete_from_database(self):
-        sso_profile, profile = self.create_staff_sso_profile_and_profile()
+        _, profile = self.create_staff_sso_profile_and_profile()
+        LogEntry.objects.all().delete()
+        obj_repr = str(profile)
         profile.refresh_from_db()
         self.assertEqual(profile.sso_email_id, "email@email.com")
         profile_services.delete_from_database(profile)
         with self.assertRaises(Profile.DoesNotExist):
             profile_services.get_by_id(profile.sso_email_id)
 
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertTrue(log.is_deletion())
+        self.assertEqual(log.user.pk, "via-api")
+        self.assertEqual(log.object_repr, obj_repr)
+        self.assertEqual(
+            log.get_change_message(),
+            "Deleting Profile record",
+        )
+
     def create_staff_sso_profile_and_profile(self):
+        self.assertEqual(LogEntry.objects.count(), 0)
         staff_sso_profile = staff_sso_services.create(
             sso_email_id=self.sso_email_id,
             first_name=self.first_name,
             last_name=self.last_name,
             emails=self.emails,
         )
+        self.assertEqual(LogEntry.objects.count(), 1)
+        LogEntry.objects.first().delete()
+        self.assertEqual(LogEntry.objects.count(), 0)
         preferred_email = "email2@email.com"
         emails = [str(email["address"]) for email in self.emails]
         profile = profile_services.create(

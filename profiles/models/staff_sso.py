@@ -23,7 +23,7 @@ class StaffSSOProfile(AbstractProfile):
         return [e["email__address"] for e in self.emails.values("email__address")]
 
     def __str__(self):
-        return f"StaffSSOProfile for {self.first_name} {self.last_name}"
+        return f"StaffSSOProfile: {self.first_name} {self.last_name}"
 
 
 class StaffSSOProfileEmail(AbstractHistoricalModel):
@@ -38,4 +38,4 @@ class StaffSSOProfileEmail(AbstractHistoricalModel):
         unique_together = ("profile", "email", "type", "preferred")
 
     def __str__(self):
-        return f"StaffSSOProfileEmail: {self.profile.__str__()} - Email: {self.email.__str__()} - Email Type: {self.type} Preferred: {self.preferred}"
+        return f"StaffSSOProfileEmail: {self.profile.first_name} {self.profile.last_name}: {self.email.address}"
