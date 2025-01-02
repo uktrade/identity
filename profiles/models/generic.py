@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 from django.core.validators import EmailValidator
 from django.db import models
@@ -18,8 +18,8 @@ EmailTypesChoices = [(e.name, e.value) for e in EmailTypes]
 
 class EmailObject(TypedDict):
     address: str
-    type: EmailTypes
-    preferred: bool
+    type: Optional[EmailTypes]
+    preferred: Optional[bool]
 
 
 class Email(AbstractHistoricalModel):

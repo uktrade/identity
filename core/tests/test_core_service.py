@@ -17,7 +17,7 @@ class TestCoreService(TestCase):
             id="john.sso.email.id@gov.uk",
             first_name="Billy",
             last_name="Bob",
-            emails=[{"address": "test@test.com"}],
+            emails=[{"address": "test@test.com", "type": None, "preferred": None}],
         )
         self.assertEqual(user.sso_email_id, "john.sso.email.id@gov.uk")
         self.assertEqual(user.is_active, True)
@@ -28,5 +28,5 @@ class TestCoreService(TestCase):
                 id="john.sso.email.id@gov.uk",
                 first_name="Billy",
                 last_name="Bob",
-                emails=[{"address": "test@test.com"}],
+                emails=[{"address": "test@test.com", "type": None, "preferred": None}],
             )

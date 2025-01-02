@@ -23,7 +23,7 @@ class Name:
 
 @dataclass
 class Email:
-    value: str | None = None
+    value: str
     type: str | None = None
     primary: bool = False
 
@@ -44,6 +44,7 @@ class ScimUserSchemaRequired(ScimCoreSchema):
 
     schemas: list[str] = ["urn:ietf:params:scim:schemas:core:2.0:User"]
     userName: str
+    emails: list[Email]
 
 
 class ScimUserSchema(ScimUserSchemaRequired):
@@ -64,7 +65,6 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # locale
     # timezone
     active: bool | None = None
-    emails: list[Email] | None = None
     # phoneNumbers
     # ims
     # photos

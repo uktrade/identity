@@ -127,8 +127,8 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: EmailTypes = EmailTypes.VERIFIED,
-    preferred: bool = False,
+    type: EmailTypes | None = EmailTypes.VERIFIED,
+    preferred: bool | None = False,
 ) -> StaffSSOProfileEmail:
     """
     Ensures that an email is associated with a staff sso profile.

@@ -23,7 +23,7 @@ class TestCreateUser(TestCase):
                 [
                     {
                         "address": "new_user@email.gov.uk",
-                        "type": "",
+                        "type": None,
                         "preferred": False,
                     },
                 ],
@@ -35,7 +35,7 @@ class TestCreateUser(TestCase):
             "Billy",
             "Bob",
             [
-                {"address": "new_user@email.gov.uk", "type": "", "preferred": False},
+                {"address": "new_user@email.gov.uk", "type": None, "preferred": False},
             ],
         )
         self.assertTrue(isinstance(profile, Profile))

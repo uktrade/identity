@@ -4,7 +4,7 @@ import pytest
 from django.contrib.admin.models import LogEntry
 from django.test import TestCase
 
-from profiles.models.generic import Email, EmailTypes
+from profiles.models.generic import Email, EmailObject, EmailTypes
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from profiles.services import staff_sso as staff_sso_services
 from user.models import User
@@ -24,15 +24,15 @@ class StaffSSOServiceTest(TestCase):
 
         self.first_name = "John"
         self.last_name = "Doe"
-        self.emails = [
+        self.emails: list[EmailObject] = [
             {
                 "address": "email1@email.com",
-                "type": str(EmailTypes.VERIFIED),
+                "type": EmailTypes.VERIFIED,
                 "preferred": False,
             },
             {
                 "address": "email2@email.com",
-                "type": str(EmailTypes.CONTACT),
+                "type": EmailTypes.CONTACT,
                 "preferred": True,
             },
         ]
@@ -108,7 +108,7 @@ class StaffSSOServiceTest(TestCase):
         )
         LogEntry.objects.first().delete()
         self.assertEqual(self.user.pk, staff_sso_profile.sso_email_id)
-        emails = [
+        emails: list[EmailObject] = [
             {
                 "address": "email2@email.com",
                 "type": EmailTypes.CONTACT,
