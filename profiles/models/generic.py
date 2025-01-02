@@ -5,8 +5,9 @@ from .abstract import AbstractHistoricalModel
 
 
 class EmailTypes(models.TextChoices):
-    WORK = "work", "Work"
+    VERIFIED = "verified", "Auth verified"
     CONTACT = "contact", "Contact"
+    USER_ADDED = "user-added", "User added"
 
 
 class Email(AbstractHistoricalModel):

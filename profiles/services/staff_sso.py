@@ -93,7 +93,7 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = str(EmailTypes.WORK),
+    type: str = str(EmailTypes.VERIFIED),
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """

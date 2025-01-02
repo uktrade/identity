@@ -26,7 +26,7 @@ class CombinedProfileServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": EmailTypes.WORK,
+                "type": EmailTypes.VERIFIED,
                 "preferred": False,
             },
             {

@@ -95,7 +95,7 @@ class MinimalUserResponse(ScimUserSchemaRequired):
     def resolve_emails(obj: User):
         # TODO: We need a better way of getting ALL of a user's emails and
         # their type/primary status
-        return [Email(value=obj.email, type="work", primary=True)]
+        return [Email(value=obj.email, type="verified", primary=True)]
 
 
 class CreateUserRequest(ScimUserSchema):

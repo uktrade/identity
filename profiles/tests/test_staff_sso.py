@@ -26,7 +26,7 @@ class StaffSSOServiceTest(TestCase):
         self.emails = [
             {
                 "address": "email1@email.com",
-                "type": str(EmailTypes.WORK),
+                "type": str(EmailTypes.VERIFIED),
                 "preferred": False,
             },
             {
@@ -63,7 +63,7 @@ class StaffSSOServiceTest(TestCase):
         self.assertEqual(
             StaffSSOProfileEmail.objects.first().email.address, "email1@email.com"
         )
-        self.assertEqual(StaffSSOProfileEmail.objects.first().type, "work")
+        self.assertEqual(StaffSSOProfileEmail.objects.first().type, "verified")
         self.assertEqual(StaffSSOProfileEmail.objects.first().preferred, False)
         self.assertEqual(
             StaffSSOProfileEmail.objects.last().email.address, "email2@email.com"
