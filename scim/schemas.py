@@ -85,7 +85,7 @@ class MinimalUserResponse(ScimUserSchemaRequired):
 
     @staticmethod
     def resolve_name(obj: Profile):
-        # @TODO should we be using preferred name?
+        # @TODO we should be using preferred name once it's available
         return Name(
             givenName=obj.first_name,
             familyName=obj.last_name,

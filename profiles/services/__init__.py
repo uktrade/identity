@@ -23,8 +23,8 @@ def generate_combined_profile_data(sso_email_id: str):
     return {
         "first_name": sso_profile.first_name,
         "last_name": sso_profile.last_name,
-        "preferred_email": "",
-        "emails": [],
+        "preferred_email": sso_profile.contact_email,
+        "emails": sso_profile.email_addresses,
     }
 
 
@@ -33,7 +33,7 @@ def create_from_sso(
     first_name: str,
     last_name: str,
     emails: list[dict],
-    preferred_email: str | None = None,
+    contact_email: str | None = None,
 ) -> Profile:
     """A central function to create all relevant profile details"""
     staff_sso.create(

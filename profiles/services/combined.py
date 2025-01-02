@@ -24,6 +24,13 @@ def create(
     emails: list[str],
     preferred_email: Optional[str] = None,
 ) -> Profile:
+    """
+    Creates a combined Profile object - will set preferred email to the first
+    in the list of emails if none is provided
+    """
+    if preferred_email is None:
+        preferred_email = emails[0]
+
     try:
         get_by_id(sso_email_id)
     except Profile.DoesNotExist:

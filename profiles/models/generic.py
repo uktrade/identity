@@ -1,13 +1,25 @@
+from enum import StrEnum
+from typing import TypedDict
+
 from django.core.validators import EmailValidator
 from django.db import models
 
 from .abstract import AbstractHistoricalModel
 
 
-class EmailTypes(models.TextChoices):
-    VERIFIED = "verified", "Auth verified"
-    CONTACT = "contact", "Contact"
-    USER_ADDED = "user-added", "User added"
+class EmailTypes(StrEnum):
+    VERIFIED = "verified"
+    CONTACT = "contact"
+    USER_ADDED = "user-added"
+
+
+EmailTypesChoices = [(e.name, e.value) for e in EmailTypes]
+
+
+class EmailObject(TypedDict):
+    address: str
+    type: EmailTypes
+    preferred: bool
 
 
 class Email(AbstractHistoricalModel):

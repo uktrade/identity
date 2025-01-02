@@ -12,7 +12,7 @@ def create_identity(
     first_name: str,
     last_name: str,
     emails: list[dict],
-    preferred_email: str | None = None,
+    contact_email: str | None = None,
 ) -> Profile:
     """
     Entrypoint for new user creation. Triggers the creation of User record,
@@ -27,5 +27,5 @@ def create_identity(
         first_name,
         last_name,
         emails,
-        preferred_email,
+        contact_email,
     )
