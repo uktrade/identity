@@ -2,7 +2,7 @@
 # If in doubt about what to use, you should probably be using this
 
 from profiles.models.combined import Profile
-from profiles.models.staff_sso import StaffSSOProfileEmail
+from profiles.models.generic import EmailObject
 from profiles.services import combined, staff_sso
 
 from .combined import get_by_id as get_combined_by_id
@@ -32,7 +32,7 @@ def create_from_sso(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[dict],
+    emails: list[EmailObject],
     contact_email: str | None = None,
 ) -> Profile:
     """A central function to create all relevant profile details"""

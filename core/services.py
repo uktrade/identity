@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 from profiles import services as profile_services
 from profiles.models.combined import Profile
+from profiles.models.generic import EmailObject
 from user import services as user_services
 
 
@@ -11,7 +12,7 @@ def create_identity(
     id: str,
     first_name: str,
     last_name: str,
-    emails: list[dict],
+    emails: list[EmailObject],
     contact_email: str | None = None,
 ) -> Profile:
     """

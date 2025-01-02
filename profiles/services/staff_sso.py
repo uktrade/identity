@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model
 
-from profiles.models.generic import Email, EmailTypes
+from profiles.models.generic import Email, EmailObject, EmailTypes
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from user import services as user_services
 
@@ -30,7 +30,7 @@ def create(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[dict],
+    emails: list[EmailObject],
 ) -> StaffSSOProfile:
     """
     Create a new staff sso profile for the specified request.
@@ -59,7 +59,7 @@ def update(
     id: str,
     first_name: Optional[str],
     last_name: Optional[str],
-    emails: list[dict],
+    emails: list[EmailObject],
 ) -> None:
     staff_sso_profile = get_by_user_id(id)
     staff_sso_profile.first_name = first_name
@@ -93,7 +93,7 @@ def update(
 def associate_email(
     profile: StaffSSOProfile,
     email_address: str,
-    type: str = str(EmailTypes.VERIFIED),
+    type: EmailTypes = EmailTypes.VERIFIED,
     preferred: bool = False,
 ) -> StaffSSOProfileEmail:
     """
@@ -114,7 +114,7 @@ def associate_email(
 def update_email_details(
     profile: StaffSSOProfile,
     email: Email,
-    type: Optional[str] = None,
+    type: Optional[EmailTypes] = None,
     preferred: Optional[bool] = None,
 ) -> None:
     """
