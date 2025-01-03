@@ -1,215 +1,167 @@
 import pytest
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 
 from user import services as user_services
-from user.exceptions import UserIsArchived
+from user.exceptions import UserExists, UserIsArchived, UserIsNotArchived
 
+
+pytestmark = pytest.mark.django_db
 
 User = get_user_model()
 
 
-class UserServiceTest(TestCase):
-    @pytest.fixture(autouse=True)
-    def __inject_fixtures(self, mocker):
-        self.mocker = mocker
+def test_get_by_id(basic_user):
+    user = user_services.get_by_id(basic_user.sso_email_id)
+    assert user.pk == basic_user.pk
 
-    @pytest.mark.django_db
-    def setUp(self):
-        # Create a user for use in the tests
-        self.user = User.objects.create_user(
-            sso_email_id="sso_email_id@email.com",
-            is_active=True,
-            is_staff=False,
-            is_superuser=False,
+    # Try to get a soft-deleted user
+    user.is_active = False
+    user.save()
+    with pytest.raises(UserIsArchived) as ex:
+        user_services.get_by_id(basic_user.sso_email_id)
+        assert ex.value.args[0] == "User has been previously deleted"
+
+    # or a non-existent one
+    with pytest.raises(User.DoesNotExist) as ex:
+        user_services.get_by_id("9999")
+        assert str(ex.value.args[0]) == "User does not exist"
+
+
+def test_create():
+    assert LogEntry.objects.count() == 0
+    user = user_services.create(
+        sso_email_id="sso_email_id_new_user@email.com",
+    )
+
+    assert user.sso_email_id == "sso_email_id_new_user@email.com"
+    assert user.is_active
+    assert not user.is_staff
+    assert not user.is_superuser
+
+    with pytest.raises(UserExists) as ex:
+        user_services.create(
+            sso_email_id="sso_email_id_new_user@email.com",
         )
+        assert str(ex.value.args[0]) == "User has been previously created"
 
-    @pytest.mark.django_db
-    def test_get_by_id(self):
-        user = user_services.get_by_id(self.user.sso_email_id)
-        self.assertEqual(user.sso_email_id, "sso_email_id@email.com")
-        self.assertEqual(user.is_active, True)
-        self.assertEqual(user.is_staff, False)
-        self.assertEqual(user.is_superuser, False)
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_addition()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(user)
+    assert log.get_change_message() == "Creating new User record"
 
-    @pytest.mark.django_db
-    def test_create_user(self):
-        self.assertEqual(LogEntry.objects.count(), 0)
-        user = user_services.create(sso_email_id="sso_email_id_new_user@email.com")
 
-        self.assertEqual(user.sso_email_id, "sso_email_id_new_user@email.com")
-        self.assertEqual(user.is_active, True)
-        self.assertEqual(user.is_staff, False)
-        self.assertEqual(user.is_superuser, False)
+def test_update(basic_user):
+    assert not basic_user.is_staff
+    assert not basic_user.is_superuser
+    user_services.update(
+        basic_user,
+        is_staff=True,
+        is_superuser=True,
+    )
+    basic_user.refresh_from_db()
+    assert basic_user.sso_email_id == "sso_email_id@email.com"
+    assert basic_user.is_staff
+    assert basic_user.is_superuser
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_addition())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(user))
-        self.assertEqual(log.get_change_message(), "Creating new User record")
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(basic_user)
+    assert log.get_change_message() == "Updating User record: is_staff, is_superuser"
 
-    @pytest.mark.django_db
-    def test_update_user(self):
-        LogEntry.objects.all().delete()
-        user_services.update(self.user, is_staff=True, is_superuser=True)
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.sso_email_id, "sso_email_id@email.com")
-        self.assertEqual(self.user.is_staff, True)
-        self.assertEqual(self.user.is_superuser, True)
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(self.user))
-        self.assertEqual(
-            log.get_change_message(),
-            "Updating User record: is_staff, is_superuser",
-        )
+def test_archive(basic_user):
+    assert basic_user.is_active
+    user_services.archive(basic_user)
+    basic_user.refresh_from_db()
+    assert not basic_user.is_active
 
-    @pytest.mark.django_db
-    def test_archive(self):
-        LogEntry.objects.all().delete()
-        user_for_deletion = User.objects.create_user(
-            sso_email_id="userfordeletion",
-            is_active=True,
-            is_staff=False,
-            is_superuser=False,
-        )
-        user_services.archive(user_for_deletion)
-        user_for_deletion.refresh_from_db()
-        self.assertFalse(user_for_deletion.is_active)
+    with pytest.raises(UserIsArchived) as ex:
+        user_services.archive(basic_user)
+        assert str(ex.value.args[0]) == "User is already archived"
 
-        # Try to get a soft-deleted user
-        with self.assertRaises(UserIsArchived) as ex:
-            user_services.get_by_id(user_for_deletion.sso_email_id)
-        self.assertEqual(ex.exception.message, "User has been previously deleted")
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk, "via-api"
+    assert log.object_repr, str(basic_user)
+    assert log.get_change_message() == "Archiving User record"
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(user_for_deletion))
-        self.assertEqual(
-            log.get_change_message(),
-            "Archiving User record",
-        )
 
-    @pytest.mark.django_db
-    def test_unarchive(self):
-        # Soft delete the user first
-        user_services.archive(self.user)
-        LogEntry.objects.all().delete()
-        # update the user setting active True
-        user_services.unarchive(self.user)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.is_active)
+def test_unarchive(basic_user):
+    basic_user.is_active = False
+    basic_user.save()
+    basic_user.refresh_from_db()
+    assert not basic_user.is_active
 
-        # Ensure we can access the restored user
-        restored_user = user_services.get_by_id(self.user.sso_email_id)
-        self.assertEqual(restored_user.sso_email_id, "sso_email_id@email.com")
+    user_services.unarchive(basic_user)
+    basic_user.refresh_from_db()
+    assert basic_user.is_active
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(self.user))
-        self.assertEqual(
-            log.get_change_message(),
-            "Unarchiving User record",
-        )
+    with pytest.raises(UserIsNotArchived) as ex:
+        user_services.unarchive(basic_user)
+        assert str(ex.value.args[0]) == "User is not archived"
 
-    @pytest.mark.django_db
-    def test_delete_from_database(self):
-        user_for_deletion = User.objects.create_user(
-            sso_email_id="userfordeletion",
-            is_active=True,
-            is_staff=False,
-            is_superuser=False,
-        )
-        self.assertEqual(user_services.get_by_id("userfordeletion"), user_for_deletion)
-        LogEntry.objects.all().delete()
-        obj_repr = str(user_for_deletion)
-        user_services.delete_from_database(user_for_deletion)
-        with self.assertRaises(User.DoesNotExist):
-            user_services.get_by_id("userfordeletion")
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(basic_user)
+    assert log.get_change_message() == "Unarchiving User record"
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_deletion())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, obj_repr)
-        self.assertEqual(
-            log.get_change_message(),
-            "Deleting User record",
-        )
 
-    @pytest.mark.django_db
-    def test_user_not_found(self):
-        with self.assertRaises(User.DoesNotExist) as ex:
-            user_services.get_by_id("9999")
-        self.assertEqual(str(ex.exception), "User does not exist")
+def test_delete_from_database(basic_user):
+    id = basic_user.pk
+    obj_repr = str(basic_user)
+    user_services.delete_from_database(basic_user)
+    with pytest.raises(User.DoesNotExist):
+        user_services.get_by_id(id)
 
-    @pytest.mark.django_db
-    def test_delete_user_errors(self):
-        # check if user does not exist
-        with self.assertRaises(User.DoesNotExist) as ex:
-            user_services.archive_by_id("9999")
-        self.assertEqual(str(ex.exception), "User does not exist")
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_deletion()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == obj_repr
+    assert log.get_change_message() == "Deleting User record"
 
-        # check if user is already deleted
-        user_services.archive_by_id(self.user.sso_email_id)
-        with self.assertRaises(UserIsArchived) as ex:
-            user_services.archive_by_id(self.user.sso_email_id)
 
-        self.assertEqual(ex.exception.message, "User has been previously deleted")
+def test_update_by_id(basic_user, mocker):
+    mock_get_by_id = mocker.patch("user.services.get_by_id", return_value=basic_user)
+    mock_update = mocker.patch("user.services.update")
+    assert not basic_user.is_staff
+    user_services.update_by_id(basic_user.sso_email_id, is_staff=True)
+    mock_get_by_id.assert_called_once_with(basic_user.sso_email_id)
+    mock_update.assert_called_once_with(basic_user, True, False)
 
-    @pytest.mark.django_db
-    def test_update_by_id(self):
-        mock_get_by_id = self.mocker.patch(
-            "user.services.get_by_id", return_value=self.user
-        )
-        mock_update = self.mocker.patch("user.services.update")
-        self.assertFalse(self.user.is_staff)
-        user_services.update_by_id(self.user.sso_email_id, is_staff=True)
-        mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
-        mock_update.assert_called_once_with(self.user, True, False)
 
-    @pytest.mark.django_db
-    def test_archive_by_id(self):
-        mock_get_by_id = self.mocker.patch(
-            "user.services.get_by_id", return_value=self.user
-        )
-        mock_archive = self.mocker.patch("user.services.archive")
-        self.assertTrue(self.user.is_active)
-        user_services.archive_by_id(self.user.sso_email_id)
-        mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
-        mock_archive.assert_called_once_with(self.user)
+def test_archive_by_id(basic_user, mocker):
+    mock_get_by_id = mocker.patch("user.services.get_by_id", return_value=basic_user)
+    mock_archive = mocker.patch("user.services.archive")
+    assert basic_user.is_active
+    user_services.archive_by_id(basic_user.sso_email_id)
+    mock_get_by_id.assert_called_once_with(basic_user.sso_email_id)
+    mock_archive.assert_called_once_with(basic_user)
 
-    @pytest.mark.django_db
-    def test_unarchive_by_id(self):
-        mock_get_by_id = self.mocker.patch(
-            "user.services.get_by_id", return_value=self.user
-        )
-        mock_unarchive = self.mocker.patch("user.services.unarchive")
-        self.user.is_active = False
-        self.user.save()
-        self.assertFalse(self.user.is_active)
-        user_services.unarchive_by_id(self.user.sso_email_id)
-        mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
-        mock_unarchive.assert_called_once_with(self.user)
 
-    @pytest.mark.django_db
-    def test_delete_from_database_by_id(self):
-        mock_get_by_id = self.mocker.patch(
-            "user.services.get_by_id", return_value=self.user
-        )
-        mock_delete_from_database = self.mocker.patch(
-            "user.services.delete_from_database"
-        )
-        self.assertFalse(self.user.is_staff)
-        user_services.delete_from_database_by_id(self.user.sso_email_id)
-        mock_get_by_id.assert_called_once_with(self.user.sso_email_id)
-        mock_delete_from_database.assert_called_once_with(self.user)
+def test_unarchive_by_id(basic_user, mocker):
+    mock_get_by_id = mocker.patch("user.services.get_by_id", return_value=basic_user)
+    mock_unarchive = mocker.patch("user.services.unarchive")
+    basic_user.is_active = False
+    basic_user.save()
+    assert not basic_user.is_active
+    user_services.unarchive_by_id(basic_user.sso_email_id)
+    mock_get_by_id.assert_called_once_with(basic_user.sso_email_id)
+    mock_unarchive.assert_called_once_with(basic_user)
+
+
+def test_delete_from_database_by_id(basic_user, mocker):
+    mock_get_by_id = mocker.patch("user.services.get_by_id", return_value=basic_user)
+    mock_delete_from_database = mocker.patch("user.services.delete_from_database")
+    assert not basic_user.is_staff
+    user_services.delete_from_database_by_id(basic_user.sso_email_id)
+    mock_get_by_id.assert_called_once_with(basic_user.sso_email_id)
+    mock_delete_from_database.assert_called_once_with(basic_user)

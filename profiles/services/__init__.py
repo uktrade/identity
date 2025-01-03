@@ -18,12 +18,12 @@ def generate_combined_profile_data(sso_email_id: str):
     field hierarchy per data type to generate the values for the combined.
     create method
     """
-    sso_profile = staff_sso.get_by_id(sso_email_id)
+    sso_profile = staff_sso.get_by_id(sso_email_id=sso_email_id)
     user = sso_profile.user
 
     primary_email = sso_profile.primary_email
     if primary_email is None:
-        primary_email = sso_profile.email_addresses[0]
+        primary_email = sso_profile.emails.first().email.address
     contact_email = sso_profile.contact_email
     if contact_email is None:
         contact_email = primary_email
@@ -55,7 +55,7 @@ def create_from_sso(
         primary_email=primary_email,
         contact_email=contact_email,
     )
-    combined_profile_data = generate_combined_profile_data(sso_email_id)
+    combined_profile_data = generate_combined_profile_data(sso_email_id=sso_email_id)
 
     # We might need a try/except here, if other providers (eg. oracle)
     # are going to do "create" action on the combined profile.
