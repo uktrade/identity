@@ -31,11 +31,16 @@ def create(
     sso_email_id: str,
     first_name: str,
     last_name: str,
-    emails: list[str],
-    preferred_email: Optional[str] = None,
+    all_emails: list[str],
+    primary_email: Optional[str] = None,
+    contact_email: Optional[str] = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> Profile:
+    """
+    Creates a combined Profile object - will set primary email to the first
+    in the list of emails if none is provided
+    """
     try:
         get_by_id(sso_email_id)
     except Profile.DoesNotExist:
@@ -43,8 +48,10 @@ def create(
             sso_email_id=sso_email_id,
             first_name=first_name,
             last_name=last_name,
-            emails=emails,
-            preferred_email=preferred_email,
+            emails=all_emails,
+            primary_email=primary_email,
+            contact_email=contact_email,
+            is_active=True,
         )
 
         if reason is None:
@@ -72,8 +79,9 @@ def update(
     profile: Profile,
     first_name: Optional[str],
     last_name: Optional[str],
-    preferred_email: Optional[str],
-    emails: Optional[list[str]],
+    all_emails: list[str],
+    primary_email: Optional[str] = None,
+    contact_email: Optional[str] = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
@@ -84,12 +92,15 @@ def update(
     if last_name is not None:
         update_fields.append("last_name")
         profile.last_name = last_name
-    if preferred_email is not None:
-        update_fields.append("preferred_email")
-        profile.preferred_email = preferred_email
-    if emails is not None:
+    if primary_email is not None:
+        update_fields.append("primary_email")
+        profile.primary_email = primary_email
+    if contact_email is not None:
+        update_fields.append("contact_email")
+        profile.contact_email = contact_email
+    if all_emails is not None:
         update_fields.append("emails")
-        profile.emails = emails
+        profile.emails = all_emails
 
     profile.save(update_fields=update_fields)
 

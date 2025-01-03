@@ -30,18 +30,12 @@ def get_user(request, id: str):
 @router.post("scim/v2/Users", response={201: CreateUserResponse, 409: Error})
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     if not scim_user.active:
-        # TODO: Discuss what should happen in this scenario
-        raise Exception("WHY ARE WE BEING INFORMED OF A NEW USER THAT IS INACTIVE?")
+        raise ValueError("Cannot create inactive profile via SCIM")
 
-    emails: list[dict] = []
-    if scim_user.emails:
-        # TODO: BUILD EMAIL DICTS
-        emails = [
-            {
-                "address": e.value,
-            }
-            for e in scim_user.emails
-        ]
+    if not scim_user.emails:
+        raise ValueError("Cannot create profile with no email")
+
+    emails = [email.value for email in scim_user.emails]
 
     assert scim_user.name
     assert scim_user.name.givenName
@@ -52,8 +46,9 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             id=scim_user.externalId,
             first_name=scim_user.name.givenName,
             last_name=scim_user.name.familyName,
-            emails=emails,
-            preferred_email=scim_user.get_primary_email(),
+            all_emails=emails,
+            primary_email=scim_user.get_primary_email(),
+            contact_email=scim_user.get_contact_email(),
         )
         return 201, user
     except UserExists:
