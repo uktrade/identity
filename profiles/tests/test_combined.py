@@ -1,174 +1,116 @@
 import pytest
+
 from django.contrib.admin.models import LogEntry
-from django.test import TestCase
 
 from profiles.models.combined import Profile
 from profiles.services import combined as profile_services
-from profiles.services import staff_sso as staff_sso_services
-from user.models import User
 
 
-class CombinedProfileServiceTest(TestCase):
-    @pytest.mark.django_db
-    def setUp(self):
-        self.sso_email_id = "email@email.com"
-        self.first_name = "John"
-        self.last_name = "Doe"
+pytestmark = pytest.mark.django_db
 
-        # Create a user for use in the tests
-        self.user, _ = User.objects.get_or_create(
-            sso_email_id=self.sso_email_id,
-            is_active=True,
-            is_staff=False,
-            is_superuser=False,
-        )
 
-        self.emails: list[str] = [
+def test_create():
+    created_profile = profile_services.create(
+        sso_email_id="email@email.com",
+        first_name="John",
+        last_name="Doe",
+        primary_email="email2@email.com",
+        all_emails=[
             "email1@email.com",
             "email2@email.com",
-        ]
-        self.primary_email = "email2@email.com"
-        self.contact_email = "email2@email.com"
+        ],
+    )
+    assert created_profile.sso_email_id == "email@email.com"
+    assert created_profile.first_name == "John"
+    assert created_profile.last_name == "Doe"
+    assert created_profile.primary_email == "email2@email.com"
+    assert created_profile.emails, ["email1@email.com" == "email2@email.com"]
 
-    def test_create(self):
-        _, profile = self.create_staff_sso_profile_and_profile()
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_addition()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(created_profile)
+    assert log.get_change_message() == "Creating new Profile"
 
-        self.assertEqual(profile.sso_email_id, "email@email.com")
-        self.assertEqual(profile.first_name, "John")
-        self.assertEqual(profile.last_name, "Doe")
-        self.assertEqual(profile.primary_email, "email2@email.com")
-        self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_addition())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(profile))
-        self.assertEqual(log.get_change_message(), "Creating new Profile")
+def test_get_by_id(combined_profile):
+    get_profile_result = profile_services.get_by_id(combined_profile.sso_email_id)
 
-    def test_get_by_id(self):
-        self.create_staff_sso_profile_and_profile()
-        get_profile_result = profile_services.get_by_id("email@email.com")
+    assert get_profile_result.sso_email_id == combined_profile.sso_email_id
+    assert get_profile_result.first_name == combined_profile.first_name
+    assert get_profile_result.last_name == combined_profile.last_name
+    assert get_profile_result.primary_email == combined_profile.primary_email
+    assert get_profile_result.emails == combined_profile.emails
 
-        self.assertEqual(get_profile_result.sso_email_id, "email@email.com")
-        self.assertEqual(get_profile_result.first_name, "John")
-        self.assertEqual(get_profile_result.last_name, "Doe")
-        self.assertEqual(get_profile_result.primary_email, "email2@email.com")
-        self.assertEqual(
-            get_profile_result.emails, ["email1@email.com", "email2@email.com"]
-        )
 
-    @pytest.mark.django_db
-    def test_update(self):
-        _, profile = self.create_staff_sso_profile_and_profile()
-        emails = ["newemail1@email.com", "newemail2@email.com"]
-        LogEntry.objects.first().delete()
-        profile_services.update(
-            profile,
-            first_name="Tom",
-            last_name="Jones",
-            primary_email="newpref@email.com",
-            all_emails=emails,
-        )
+def test_update(combined_profile):
+    emails = ["newemail1@email.com", "newemail2@email.com"]
+    profile_services.update(
+        combined_profile,
+        first_name="Tom",
+        last_name="Jones",
+        primary_email="newpref@email.com",
+        all_emails=emails,
+    )
 
-        profile.refresh_from_db()
-        self.assertEqual(profile.sso_email_id, "email@email.com")
-        self.assertEqual(profile.first_name, "Tom")
-        self.assertEqual(profile.last_name, "Jones")
-        self.assertEqual(profile.primary_email, "newpref@email.com")
-        self.assertEqual(profile.emails, ["newemail1@email.com", "newemail2@email.com"])
+    combined_profile.refresh_from_db()
+    assert combined_profile.first_name == "Tom"
+    assert combined_profile.last_name == "Jones"
+    assert combined_profile.primary_email == "newpref@email.com"
+    assert combined_profile.emails == ["newemail1@email.com", "newemail2@email.com"]
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(profile))
-        self.assertEqual(
-            log.get_change_message(),
-            "Updating Profile record: first_name, last_name, primary_email, emails",
-        )
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(combined_profile)
+    assert (
+        log.get_change_message()
+        == "Updating Profile record: first_name, last_name, primary_email, emails"
+    )
 
-    def test_archive(self):
-        _, profile = self.create_staff_sso_profile_and_profile()
-        LogEntry.objects.all().delete()
-        profile_services.archive(profile)
 
-        profile.refresh_from_db()
-        self.assertEqual(profile.is_active, False)
-        self.assertEqual(profile.sso_email_id, "email@email.com")
-        self.assertEqual(profile.last_name, "Doe")
-        self.assertEqual(profile.primary_email, "email2@email.com")
-        self.assertEqual(profile.emails, ["email1@email.com", "email2@email.com"])
+def test_archive(combined_profile):
+    profile_services.archive(combined_profile)
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(profile))
-        self.assertEqual(
-            log.get_change_message(),
-            "Archiving Profile record",
-        )
+    combined_profile.refresh_from_db()
+    assert not combined_profile.is_active
 
-    def test_unarchive(self):
-        _, profile = self.create_staff_sso_profile_and_profile()
-        profile_services.archive(profile)
-        profile.refresh_from_db()
-        self.assertEqual(profile.is_active, False)
-        LogEntry.objects.all().delete()
-        profile_services.unarchive(profile)
-        profile.refresh_from_db()
-        self.assertEqual(profile.is_active, True)
-        self.assertEqual(profile.sso_email_id, "email@email.com")
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(combined_profile)
+    assert log.get_change_message() == "Archiving Profile record"
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_change())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, str(profile))
-        self.assertEqual(
-            log.get_change_message(),
-            "Unarchiving Profile record",
-        )
 
-    def test_delete_from_database(self):
-        _, profile = self.create_staff_sso_profile_and_profile()
-        LogEntry.objects.all().delete()
-        obj_repr = str(profile)
-        profile.refresh_from_db()
-        self.assertEqual(profile.sso_email_id, "email@email.com")
-        profile_services.delete_from_database(profile)
-        with self.assertRaises(Profile.DoesNotExist):
-            profile_services.get_by_id(profile.sso_email_id)
+def test_unarchive(combined_profile):
+    combined_profile.is_active = False
+    combined_profile.save()
+    combined_profile.refresh_from_db()
+    profile_services.unarchive(combined_profile)
+    combined_profile.refresh_from_db()
+    assert combined_profile.is_active
 
-        self.assertEqual(LogEntry.objects.count(), 1)
-        log = LogEntry.objects.first()
-        self.assertTrue(log.is_deletion())
-        self.assertEqual(log.user.pk, "via-api")
-        self.assertEqual(log.object_repr, obj_repr)
-        self.assertEqual(
-            log.get_change_message(),
-            "Deleting Profile record",
-        )
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_change()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == str(combined_profile)
+    assert log.get_change_message() == "Unarchiving Profile record"
 
-    def create_staff_sso_profile_and_profile(self):
-        self.assertEqual(LogEntry.objects.count(), 0)
-        staff_sso_profile = staff_sso_services.create(
-            sso_email_id=self.sso_email_id,
-            first_name=self.first_name,
-            last_name=self.last_name,
-            all_emails=self.emails,
-        )
-        self.assertEqual(LogEntry.objects.count(), 1)
-        LogEntry.objects.first().delete()
-        self.assertEqual(LogEntry.objects.count(), 0)
-        primary_email = "email2@email.com"
-        profile = profile_services.create(
-            sso_email_id=self.sso_email_id,
-            first_name=self.first_name,
-            last_name=self.last_name,
-            all_emails=self.emails,
-            primary_email=primary_email,
-        )
 
-        return staff_sso_profile, profile
+def test_delete_from_database(combined_profile):
+    obj_repr = str(combined_profile)
+    combined_profile.refresh_from_db()
+    profile_services.delete_from_database(combined_profile)
+    with pytest.raises(combined_profile.DoesNotExist):
+        profile_services.get_by_id(combined_profile.sso_email_id)
+
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_deletion()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == obj_repr
+    assert log.get_change_message() == "Deleting Profile record"
