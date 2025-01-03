@@ -27,7 +27,7 @@ class StaffSSOProfile(AbstractProfile):
         return [e["email__address"] for e in self.emails.values("email__address")]
 
     def __str__(self):
-        return f"StaffSSOProfile: {self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
 
 class StaffSSOProfileEmail(AbstractHistoricalModel):
@@ -42,4 +42,11 @@ class StaffSSOProfileEmail(AbstractHistoricalModel):
         unique_together = ("profile", "email")
 
     def __str__(self):
-        return f"StaffSSOProfileEmail: {self.profile.first_name} {self.profile.last_name}: {self.email.address}"
+        suffix = ""
+        if self.is_primary:
+            suffix = "Primary"
+        if self.is_contact:
+            suffix += " Contact"
+        if suffix != "":
+            suffix = f"({suffix})"
+        return f"{self.profile.first_name} {self.profile.last_name}: {self.email.address} {suffix}"
