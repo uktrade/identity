@@ -1,5 +1,4 @@
 import pytest
-
 from django.contrib.admin.models import LogEntry
 
 from profiles.models.combined import Profile

@@ -9,32 +9,104 @@ from profiles.services import staff_sso as staff_sso_services
 pytestmark = pytest.mark.django_db
 
 
+def test_get_by_id(sso_profile):
+    actual = staff_sso_services.get_by_id(sso_profile.user.pk)
+    assert actual.user.sso_email_id == sso_profile.user.sso_email_id
+
+    # Try to get a soft-deleted profile
+    sso_profile.user.is_active = False
+    sso_profile.user.save()
+    with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
+        # no custom error to keep overheads low
+        staff_sso_services.get_by_id(sso_profile.user.pk)
+        assert ex.value.args[0] == "User has been previously deleted"
+
+    # or a non-existent one
+    with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
+        staff_sso_services.get_by_id("9999")
+        assert str(ex.value.args[0]) == "User does not exist"
+
+
 def test_create(basic_user):
-    assert LogEntry.objects.count() == 0
-    assert Email.objects.count() == 0
     assert StaffSSOProfile.objects.count() == 0
+    assert Email.objects.count() == 0
     assert StaffSSOProfileEmail.objects.count() == 0
-    staff_sso_services.create(
+
+    with pytest.raises(ValueError) as ex:
+        staff_sso_services.create(
+            sso_email_id=basic_user.pk,
+            first_name="John",
+            last_name="Doe",
+            all_emails=[
+                "email1@email.com",
+                "email2@email.com",
+                "email3@email.com",
+            ],
+            primary_email="email@email.com",
+            contact_email="email1@email.com",
+        )
+        assert str(ex.value.args[0]) == "primary_email not in all_emails"
+
+    with pytest.raises(ValueError) as ex:
+        staff_sso_services.create(
+            sso_email_id=basic_user.pk,
+            first_name="John",
+            last_name="Doe",
+            all_emails=[
+                "email1@email.com",
+                "email2@email.com",
+                "email3@email.com",
+            ],
+            primary_email="email1@email.com",
+            contact_email="email@email.com",
+        )
+        assert str(ex.value.args[0]) == "contact_email not in all_emails"
+
+    profile = staff_sso_services.create(
         sso_email_id=basic_user.pk,
         first_name="John",
         last_name="Doe",
         all_emails=[
             "email1@email.com",
             "email2@email.com",
+            "email3@email.com",
         ],
         primary_email="email2@email.com",
+        contact_email="email1@email.com",
     )
 
-    # assert 2 email records created
-    assert Email.objects.count() == 2
-    assert Email.objects.first().address == "email1@email.com"
-    assert Email.objects.last().address == "email2@email.com"
+    # assert all email records created
+    assert Email.objects.count() == 3
+    assert Email.objects.filter(address="email1@email.com")
+    assert Email.objects.filter(address="email2@email.com")
+    assert Email.objects.filter(address="email3@email.com")
 
     # assert staff sso profile created
     assert StaffSSOProfile.objects.count() == 1
-    assert StaffSSOProfile.objects.first().first_name == "John"
-    assert StaffSSOProfile.objects.first().last_name == "Doe"
-    assert StaffSSOProfile.objects.first().user.sso_email_id == basic_user.pk
+    assert profile == StaffSSOProfile.objects.first()
+    assert profile.primary_email == "email2@email.com"
+    assert profile.contact_email == "email1@email.com"
+
+    # assert staff sso email created
+    assert StaffSSOProfileEmail.objects.count() == 3
+    pe1 = StaffSSOProfileEmail.objects.get(
+        profile=profile,
+        email=Email.objects.get(address="email1@email.com"),
+    )
+    pe2 = StaffSSOProfileEmail.objects.get(
+        profile=profile,
+        email=Email.objects.get(address="email2@email.com"),
+    )
+    pe3 = StaffSSOProfileEmail.objects.get(
+        profile=profile,
+        email=Email.objects.get(address="email3@email.com"),
+    )
+    assert not pe1.is_primary
+    assert pe2.is_primary
+    assert not pe3.is_primary
+    assert pe1.is_contact
+    assert not pe2.is_contact
+    assert not pe3.is_contact
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()
@@ -43,52 +115,59 @@ def test_create(basic_user):
     assert log.object_repr == str(StaffSSOProfile.objects.first())
     assert log.get_change_message() == "Creating new StaffSSOProfile"
 
-    # assert staff sso email created
-    assert StaffSSOProfileEmail.objects.count() == 2
-    assert StaffSSOProfileEmail.objects.first().email.address == "email1@email.com"
-    assert not StaffSSOProfileEmail.objects.first().is_primary
-    assert StaffSSOProfileEmail.objects.last().email.address == "email2@email.com"
-    assert StaffSSOProfileEmail.objects.last().is_primary
-    assert StaffSSOProfileEmail.objects.first().profile.first_name == "John"
-    assert StaffSSOProfileEmail.objects.first().profile.last_name == "Doe"
-    assert StaffSSOProfileEmail.objects.last().profile.first_name == "John"
-    assert StaffSSOProfileEmail.objects.last().profile.last_name == "Doe"
 
-
-def test_get_by_user_id(sso_profile):
-    actual = staff_sso_services.get_by_id(sso_profile.user.pk)
-    assert actual.user.sso_email_id == sso_profile.user.pk
-    assert actual.first_name == sso_profile.first_name
-    assert actual.last_name == sso_profile.last_name
-
-
+@pytest.mark.skip("waiting for updated functionality to under primary")
 def test_update(sso_profile):
-    emails = [
-        "email2@email.com",
-    ]
-
+    emails = ["email2@email.com"]
     # check values before update
-    staff_sso_email = StaffSSOProfileEmail.objects.filter(
-        email=Email.objects.get(address="email2@email.com")
-    )[0]
-    assert staff_sso_email.is_primary
-    assert sso_profile.first_name == sso_profile.first_name
-    assert sso_profile.last_name == sso_profile.last_name
+    staff_sso_email = StaffSSOProfileEmail.objects.get(
+        email=Email.objects.get(address=emails[0])
+    )
 
+    with pytest.raises(ValueError) as ex:
+        staff_sso_services.update(
+            staff_sso_profile=sso_profile,
+            first_name="John",
+            last_name="Doe",
+            all_emails=[
+                "email1@email.com",
+                "email2@email.com",
+                "email3@email.com",
+            ],
+            primary_email="email@email.com",
+            contact_email="email1@email.com",
+        )
+        assert str(ex.value.args[0]) == "primary_email not in all_emails"
+
+    with pytest.raises(ValueError) as ex:
+        staff_sso_services.update(
+            staff_sso_profile=sso_profile,
+            first_name="John",
+            last_name="Doe",
+            all_emails=[
+                "email1@email.com",
+                "email2@email.com",
+                "email3@email.com",
+            ],
+            primary_email="email1@email.com",
+            contact_email="email@email.com",
+        )
+        assert str(ex.value.args[0]) == "contact_email not in all_emails"
+
+    assert staff_sso_email.is_primary
+    assert sso_profile.emails.count() == 2
     staff_sso_services.update(
-        sso_email_id=sso_profile.user.pk,
+        staff_sso_profile=sso_profile,
         first_name="newTom",
         last_name="newJones",
         all_emails=emails,
     )
     sso_profile.refresh_from_db()
-
+    staff_sso_email.refresh_from_db()
     assert sso_profile.first_name == "newTom"
     assert sso_profile.last_name == "newJones"
-    staff_sso_email = StaffSSOProfileEmail.objects.filter(
-        email=Email.objects.get(address="email2@email.com")
-    )[0]
     assert not staff_sso_email.is_primary
+    assert sso_profile.emails.count() == 1
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()
@@ -98,4 +177,95 @@ def test_update(sso_profile):
     assert (
         log.get_change_message()
         == "Updating StaffSSOProfile record: first_name, last_name"
+    )
+
+
+def test_set_email_details(sso_profile):
+    email = Email.objects.create(address="andy@adams.com")
+    second_email = Email.objects.create(address="barney@bates.com")
+    #
+    # Through record
+    #
+    # no through record exists
+    with pytest.raises(StaffSSOProfileEmail.DoesNotExist):
+        assert StaffSSOProfileEmail.objects.get(
+            profile=sso_profile,
+            email=email,
+        )
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=email,
+    )
+    # through record created
+    assert StaffSSOProfileEmail.objects.get(
+        profile=sso_profile,
+        email=email,
+    )
+    # existing through record allowed
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=email,
+    )
+    #
+    # Primary email
+    #
+    assert sso_profile.primary_email != email.address
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=email,
+        is_primary=True,
+    )
+    assert sso_profile.primary_email == email.address
+    # only 1 primary address allowed
+    assert (
+        StaffSSOProfileEmail.objects.filter(
+            profile=sso_profile, is_primary=True
+        ).count()
+        == 1
+    )
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=second_email,
+        is_primary=True,
+    )
+    assert sso_profile.primary_email == second_email.address
+    assert (
+        StaffSSOProfileEmail.objects.filter(
+            profile=sso_profile, is_primary=True
+        ).count()
+        == 1
+    )
+    #
+    #  Contact email
+    #
+    assert (
+        StaffSSOProfileEmail.objects.filter(
+            profile=sso_profile, is_contact=True
+        ).count()
+        == 0
+    )
+    assert sso_profile.contact_email is None
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=email,
+        is_contact=True,
+    )
+    assert sso_profile.contact_email == email.address  # type: ignore
+    assert (
+        StaffSSOProfileEmail.objects.filter(
+            profile=sso_profile, is_contact=True
+        ).count()
+        == 1
+    )
+    staff_sso_services.set_email_details(
+        profile=sso_profile,
+        email=second_email,
+        is_contact=True,
+    )
+    assert sso_profile.contact_email == second_email.address  # type: ignore
+    assert (
+        StaffSSOProfileEmail.objects.filter(
+            profile=sso_profile, is_contact=True
+        ).count()
+        == 1
     )

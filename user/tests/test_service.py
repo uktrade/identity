@@ -3,7 +3,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
 
 from user import services as user_services
-from user.exceptions import UserIsArchived, UserExists, UserIsNotArchived
+from user.exceptions import UserExists, UserIsArchived, UserIsNotArchived
 
 
 pytestmark = pytest.mark.django_db

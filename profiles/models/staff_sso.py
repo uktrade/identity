@@ -11,14 +11,14 @@ class StaffSSOProfile(AbstractProfile):
     @property
     def contact_email(self):
         try:
-            return self.emails.get(is_contact=True)
+            return self.emails.get(is_contact=True).email.address
         except StaffSSOProfileEmail.DoesNotExist:
             return None
 
     @property
     def primary_email(self):
         try:
-            return self.emails.get(is_primary=True)
+            return self.emails.get(is_primary=True).email.address
         except StaffSSOProfileEmail.DoesNotExist:
             return None
 
