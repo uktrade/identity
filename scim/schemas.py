@@ -107,7 +107,10 @@ class CreateUserRequest(ScimUserSchema):
         return None
 
     def get_contact_email(self) -> str | None:
-        # @TODO is there a way to get this via SCIM?
+        if self.emails:
+            for email in self.emails:
+                if email.type == "contact":
+                    return str(email)
         return None
 
 
