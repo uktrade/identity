@@ -41,14 +41,17 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
     assert scim_user.name.givenName
     assert scim_user.name.familyName
 
+    primary_email = scim_user.get_primary_email()
+    contact_email = scim_user.get_contact_email()
+
     try:
         user = core_services.create_identity(
             id=scim_user.externalId,
             first_name=scim_user.name.givenName,
             last_name=scim_user.name.familyName,
             all_emails=emails,
-            primary_email=scim_user.get_primary_email(),
-            contact_email=scim_user.get_contact_email(),
+            primary_email=primary_email if primary_email else core_services.UNSET,
+            contact_email=contact_email if contact_email else core_services.UNSET,
         )
         return 201, user
     except UserExists:

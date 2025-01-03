@@ -1,5 +1,6 @@
 from profiles import services as profile_services
 from profiles.models.combined import Profile
+from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 
 
@@ -8,8 +9,8 @@ def create_identity(
     first_name: str,
     last_name: str,
     all_emails: list[str],
-    primary_email: str | None = None,
-    contact_email: str | None = None,
+    primary_email: str | Unset | None = None,
+    contact_email: str | Unset | None = None,
 ) -> Profile:
     """
     Entrypoint for new user creation. Triggers the creation of User record,

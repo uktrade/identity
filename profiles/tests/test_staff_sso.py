@@ -102,12 +102,13 @@ class StaffSSOServiceTest(TestCase):
         )
         LogEntry.objects.first().delete()
         self.assertEqual(self.user.pk, staff_sso_profile.sso_email_id)
+        assert len(self.emails) == staff_sso_profile.emails.count()
         emails: list[str] = ["email2@email.com"]
 
         # check values before update
-        staff_sso_email = StaffSSOProfileEmail.objects.filter(
+        staff_sso_email = StaffSSOProfileEmail.objects.get(
             email=Email.objects.get(address="email2@email.com")
-        )[0]
+        )
         self.assertTrue(staff_sso_email.is_primary)
         self.assertEqual(staff_sso_profile.first_name, self.first_name)
         self.assertEqual(staff_sso_profile.last_name, self.last_name)
@@ -123,9 +124,11 @@ class StaffSSOServiceTest(TestCase):
 
         self.assertEqual(staff_sso_profile.first_name, "newTom")
         self.assertEqual(staff_sso_profile.last_name, "newJones")
-        staff_sso_email = StaffSSOProfileEmail.objects.filter(
+        staff_sso_email = StaffSSOProfileEmail.objects.get(
             email=Email.objects.get(address="email2@email.com")
-        )[0]
+        )
+        assert len(emails) == staff_sso_profile.emails.count()
+        assert len(self.emails) != len(emails)
         self.assertTrue(staff_sso_email.is_primary)
 
         self.assertEqual(LogEntry.objects.count(), 1)
