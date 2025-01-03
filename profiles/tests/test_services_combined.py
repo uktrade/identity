@@ -1,11 +1,30 @@
 import pytest
 from django.contrib.admin.models import LogEntry
 
+from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
 from profiles.models.combined import Profile
 from profiles.services import combined as profile_services
 
 
 pytestmark = pytest.mark.django_db
+
+
+def test_get_by_id(combined_profile):
+    get_profile_result = profile_services.get_by_id(combined_profile.sso_email_id)
+    assert get_profile_result == combined_profile
+
+    # Try to get a soft-deleted profile
+    combined_profile.is_active = False
+    combined_profile.save()
+    with pytest.raises(Profile.DoesNotExist) as ex:
+        # no custom error to keep overheads low
+        profile_services.get_by_id(combined_profile.sso_email_id)
+        assert ex.value.args[0] == "User has been previously deleted"
+
+    # or a non-existent one
+    with pytest.raises(Profile.DoesNotExist) as ex:
+        profile_services.get_by_id("9999")
+        assert str(ex.value.args[0]) == "User does not exist"
 
 
 def test_create():
@@ -23,7 +42,7 @@ def test_create():
     assert created_profile.first_name == "John"
     assert created_profile.last_name == "Doe"
     assert created_profile.primary_email == "email2@email.com"
-    assert created_profile.emails, ["email1@email.com" == "email2@email.com"]
+    assert created_profile.emails == ["email1@email.com", "email2@email.com"]
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()
@@ -32,15 +51,18 @@ def test_create():
     assert log.object_repr == str(created_profile)
     assert log.get_change_message() == "Creating new Profile"
 
-
-def test_get_by_id(combined_profile):
-    get_profile_result = profile_services.get_by_id(combined_profile.sso_email_id)
-
-    assert get_profile_result.sso_email_id == combined_profile.sso_email_id
-    assert get_profile_result.first_name == combined_profile.first_name
-    assert get_profile_result.last_name == combined_profile.last_name
-    assert get_profile_result.primary_email == combined_profile.primary_email
-    assert get_profile_result.emails == combined_profile.emails
+    with pytest.raises(ProfileExists) as ex:
+        profile_services.create(
+            sso_email_id="email@email.com",
+            first_name="John",
+            last_name="Doe",
+            primary_email="email2@email.com",
+            all_emails=[
+                "email1@email.com",
+                "email2@email.com",
+            ],
+        )
+        assert str(ex.value.args[0]) == "Profile has been previously created"
 
 
 def test_update(combined_profile):
@@ -71,10 +93,14 @@ def test_update(combined_profile):
 
 
 def test_archive(combined_profile):
+    assert combined_profile.is_active
     profile_services.archive(combined_profile)
-
     combined_profile.refresh_from_db()
     assert not combined_profile.is_active
+
+    with pytest.raises(ProfileIsArchived) as ex:
+        profile_services.archive(combined_profile)
+        assert str(ex.value.args[0]) == "Profile is already archived"
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()
@@ -88,9 +114,14 @@ def test_unarchive(combined_profile):
     combined_profile.is_active = False
     combined_profile.save()
     combined_profile.refresh_from_db()
+    assert not combined_profile.is_active
     profile_services.unarchive(combined_profile)
     combined_profile.refresh_from_db()
     assert combined_profile.is_active
+
+    with pytest.raises(ProfileIsNotArchived) as ex:
+        profile_services.unarchive(combined_profile)
+        assert str(ex.value.args[0]) == "User is not archived"
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()
