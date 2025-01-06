@@ -67,3 +67,33 @@ def create_from_sso(
         contact_email=combined_profile_data["contact_email"],
         all_emails=combined_profile_data["emails"],
     )
+
+
+def update_from_sso(
+    sso_email_id: str,
+    first_name: str | None,
+    last_name: str | None,
+    all_emails: list[str],
+    primary_email: Optional[str] = None,
+    contact_email: Optional[str] = None,
+) -> Profile:
+    staff_sso.update(
+        sso_email_id=sso_email_id,
+        first_name=first_name,
+        last_name=last_name,
+        all_emails=all_emails,
+        primary_email=primary_email,
+        contact_email=contact_email,
+    )
+    combined_profile = get_by_id(sso_email_id)
+
+    combined.update(
+        profile=combined_profile,
+        first_name=first_name,
+        last_name=last_name,
+        all_emails=all_emails,
+        primary_email=primary_email,
+        contact_email=contact_email,
+    )
+
+    return combined_profile
