@@ -42,23 +42,10 @@ class TestUpdateIdentity(TestCase):
             "new_user@gov.uk",
             "Billy",
             "Bob",
-            [
-                {"address": "new_user@email.gov.uk", "type": "", "preferred": False},
-            ],
+            ["new_user@email.gov.uk"],
         )
-        services.update_identity_profile(profile.sso_email_id, first_name="Joe")
+        services.update_identity(profile.sso_email_id, first_name="Joe", last_name="Bobby", all_emails=["new_user@email.gov.uk"])
         updated_profile = services.combined.get_by_id(profile.sso_email_id)
 
         self.assertEqual(updated_profile.first_name, "Joe")
-        self.assertEqual(updated_profile.last_name, "Bob")
-
-    def test_update_user(self) -> None:
-        sso_email_id = "test@email.gov.uk"
-        user = User.objects.create_user(
-            sso_email_id=sso_email_id,
-        )
-        self.assertEqual(user.is_active, True)
-
-        updated_user = services.update_identity_user(user.sso_email_id, is_active=False)
-
-        self.assertEqual(updated_user.is_active, False)
+        self.assertEqual(updated_profile.last_name, "Bobby")
