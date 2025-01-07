@@ -6,6 +6,7 @@ ENV POETRY_VIRTUALENVS_CREATE=false
 
 WORKDIR /app
 
+RUN git config --global --add safe.directory /app
 RUN pip install --upgrade pip
 RUN pip install poetry==1.8.5
 

@@ -97,13 +97,13 @@ fix: # Run project formatting
 
 # Checks
 check-black: # Run black with `--check` flag
-	poetry run black --check .
+	$(run-no-deps) web black --check .
 
 check-isort: # Run isort with `--check` flag
-	poetry run isort --check .
+	$(run-no-deps) web isort --check .
 
 check-mypy: # Run mypy
-	poetry run mypy .
+	$(run-no-deps) web mypy .
 
 check: # Run project checks
 	make check-black
