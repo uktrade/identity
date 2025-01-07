@@ -4,6 +4,7 @@ from django.contrib.admin.models import LogEntry
 from profiles.models.generic import Email
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 from profiles.services import staff_sso as staff_sso_services
+from profiles.types import UNSET
 
 
 pytestmark = pytest.mark.django_db
@@ -116,7 +117,6 @@ def test_create(basic_user):
     assert log.get_change_message() == "Creating new StaffSSOProfile"
 
 
-@pytest.mark.skip("waiting for updated functionality to under primary")
 def test_update(sso_profile):
     emails = ["email2@email.com"]
     # check values before update
@@ -166,10 +166,24 @@ def test_update(sso_profile):
     staff_sso_email.refresh_from_db()
     assert sso_profile.first_name == "newTom"
     assert sso_profile.last_name == "newJones"
-    assert not staff_sso_email.is_primary
+    assert staff_sso_email.is_primary
     assert sso_profile.emails.count() == 1
 
     assert LogEntry.objects.count() == 1
+
+    staff_sso_services.update(
+        staff_sso_profile=sso_profile,
+        first_name="newTom",
+        last_name="newJones",
+        all_emails=emails,
+        primary_email=UNSET,
+        contact_email=UNSET,
+    )
+    sso_profile.refresh_from_db()
+    staff_sso_email.refresh_from_db()
+    assert not staff_sso_email.is_primary
+
+    assert LogEntry.objects.count() == 2
     log = LogEntry.objects.first()
     assert log.is_change()
     assert log.user.pk == "via-api"
