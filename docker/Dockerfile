@@ -9,7 +9,7 @@ WORKDIR /app
 RUN pip install --upgrade pip
 RUN pip install poetry
 
-COPY poetry.lock pyproject.toml /app/
+COPY poetry.lock pyproject.toml README.md /app/
 
 RUN poetry install --with dev
 
