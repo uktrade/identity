@@ -1,5 +1,4 @@
 import pytest
-from django.test import TestCase
 
 from core import services
 from profiles.models.combined import Profile
@@ -7,30 +6,27 @@ from user.exceptions import UserExists
 from user.models import User
 
 
-class TestCreateUser(TestCase):
-    def test_existing_user(self) -> None:
-        # Create test data
-        sso_email_id = "test@email.gov.uk"
-        User.objects.create_user(
-            sso_email_id=sso_email_id,
+pytestmark = pytest.mark.django_db
+
+
+def test_existing_user(basic_user) -> None:
+    with pytest.raises(UserExists):
+        services.create_identity(
+            id=basic_user.pk,
+            first_name="Billy",
+            last_name="Bob",
+            all_emails=["new_user@email.gov.uk"],
         )
 
-        with self.assertRaises(UserExists):
-            services.create_identity(
-                sso_email_id,
-                "Billy",
-                "Bob",
-                ["new_user@email.gov.uk"],
-            )
 
-    def test_new_user(self) -> None:
-        profile = services.create_identity(
-            "new_user@gov.uk",
-            "Billy",
-            "Bob",
-            ["new_user@email.gov.uk"],
-        )
-        self.assertTrue(isinstance(profile, Profile))
-        self.assertTrue(profile.pk)
-        self.assertEqual(profile.sso_email_id, "new_user@gov.uk")
-        self.assertTrue(User.objects.get(sso_email_id="new_user@gov.uk"))
+def test_new_user() -> None:
+    profile = services.create_identity(
+        id="new_user@gov.uk",
+        first_name="Billy",
+        last_name="Bob",
+        all_emails=["new_user@email.gov.uk"],
+    )
+    assert isinstance(profile, Profile)
+    assert profile.pk
+    assert profile.sso_email_id == "new_user@gov.uk"
+    assert User.objects.get(sso_email_id="new_user@gov.uk")
