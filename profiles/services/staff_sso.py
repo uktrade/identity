@@ -24,9 +24,7 @@ def get_by_id(sso_email_id: str) -> StaffSSOProfile:
     """
     Retrieve a profile by its User ID, only if the user is not soft-deleted.
     """
-    return StaffSSOProfile.objects.get(
-        user__sso_email_id=sso_email_id, user__is_active=True
-    )
+    return StaffSSOProfile.objects.get(user__sso_email_id=sso_email_id)
 
 
 def create(
@@ -90,14 +88,14 @@ def create(
 
 def update(
     sso_email_id: str,
-    first_name: Optional[str],
-    last_name: Optional[str],
+    first_name: str,
+    last_name: str,
     all_emails: list[str],
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
-) -> None:
+) -> StaffSSOProfile:
     if primary_email is not None and primary_email not in all_emails:
         raise ValueError("primary_email not in all_emails")
     if contact_email is not None and contact_email not in all_emails:
@@ -130,8 +128,6 @@ def update(
             is_contact=is_contact,
         )
 
-    staff_sso_profile.save(update_fields=update_fields)
-
     if reason is None:
         reason = f"Updating StaffSSOProfile record: {", ".join(update_fields)}"
     requesting_user_id = "via-api"
@@ -145,6 +141,7 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
+    return staff_sso_profile.save(update_fields=update_fields)
 
 
 ###############################################################

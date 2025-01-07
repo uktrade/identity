@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from core import services
 from profiles.models.combined import Profile
+from profiles.services import staff_sso, update_from_sso
 from user.exceptions import UserExists
 from user.models import User
 
@@ -44,8 +45,16 @@ class TestUpdateIdentity(TestCase):
             "Bob",
             ["new_user@email.gov.uk"],
         )
-        services.update_identity(profile.sso_email_id, first_name="Joe", last_name="Bobby", all_emails=["new_user@email.gov.uk"])
-        updated_profile = services.combined.get_by_id(profile.sso_email_id)
+        sso_profile = staff_sso.get_by_id(profile.sso_email_id)
+        print(sso_profile)
+
+        updated_profile = services.update_identity(
+            profile.sso_email_id,
+            first_name="Joe",
+            last_name="Bobby",
+            all_emails=["new_user@email.gov.uk"],
+            is_active=True,
+        )
 
         self.assertEqual(updated_profile.first_name, "Joe")
         self.assertEqual(updated_profile.last_name, "Bobby")

@@ -71,8 +71,8 @@ def create_from_sso(
 
 def update_from_sso(
     sso_email_id: str,
-    first_name: str | None,
-    last_name: str | None,
+    first_name: str,
+    last_name: str,
     all_emails: list[str],
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,

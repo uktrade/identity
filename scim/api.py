@@ -80,6 +80,7 @@ def update_user(
             all_emails=all_emails,
             primary_email=scim_user.get_primary_email(),
             contact_email=scim_user.get_contact_email(),
+            is_active=scim_user.active,
         )
         return 200, profile
     except User.DoesNotExist:

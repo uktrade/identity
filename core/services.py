@@ -36,7 +36,7 @@ def update_identity(
     first_name: str,
     last_name: str,
     all_emails: list[str],
-    is_active: bool | None = None,
+    is_active: bool | None,
     primary_email: str | None = None,
     contact_email: str | None = None,
 ) -> Profile:
@@ -46,11 +46,12 @@ def update_identity(
     Returns the combined Profile
     """
 
-    user = user_services.get_by_id(id)
+    user = user = User.objects.get(sso_email_id=id)
+
     if not is_active:
         user_services.archive(user)
-    else:
-        user_services.unarchive(user)
+    # else:
+    #     user_services.unarchive(user)
 
     return profile_services.update_from_sso(
         sso_email_id=id,
