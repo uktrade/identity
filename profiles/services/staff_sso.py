@@ -90,7 +90,7 @@ def create(
 
 
 def update(
-    sso_email_id: str,
+    staff_sso_profile: StaffSSOProfile,
     first_name: Optional[str],
     last_name: Optional[str],
     all_emails: list[str],
@@ -112,7 +112,6 @@ def update(
     ):
         raise ValueError("contact_email not in all_emails")
 
-    staff_sso_profile = get_by_id(sso_email_id)
     update_fields = []
     if first_name is not None:
         update_fields.append("first_name")
@@ -193,7 +192,7 @@ def set_email_details(
         update_fields.append("is_primary")
     if is_contact is not None:
         # ensure only one is marked as contact
-        profile.emails.filter(is_primary=True).exclude(email=email).update(
+        profile.emails.filter(is_contact=True).exclude(email=email).update(
             is_contact=False
         )
         if is_contact == UNSET:
