@@ -2,7 +2,7 @@ import pytest
 
 from core import services
 from profiles.models.combined import Profile
-from profiles.services import staff_sso, update_from_sso
+from profiles.types import UNSET
 from user.exceptions import UserExists
 from user.models import User
 
@@ -33,23 +33,24 @@ def test_new_user() -> None:
     assert User.objects.get(sso_email_id="new_user@gov.uk")
 
 
-def test_update_profile() -> None:
+def test_update_identity() -> None:
     profile = services.create_identity(
         "new_user@gov.uk",
         "Billy",
         "Bob",
         ["new_user@email.gov.uk"],
     )
-    sso_profile = staff_sso.get_by_id(profile.sso_email_id)
-    print(sso_profile)
+    assert User.objects.get(sso_email_id="new_user@gov.uk").is_active
 
-    updated_profile = services.update_identity(
-        profile.sso_email_id,
+    services.update_identity(
+        profile,
         first_name="Joe",
         last_name="Bobby",
         all_emails=["new_user@email.gov.uk"],
-        is_active=True,
+        is_active=False,
     )
+    profile.refresh_from_db()
 
-    assert updated_profile.first_name == "Joe"
-    assert updated_profile.last_name == "Bobby"
+    assert profile.first_name == "Joe"
+    assert profile.last_name == "Bobby"
+    assert not User.objects.get(sso_email_id="new_user@gov.uk").is_active

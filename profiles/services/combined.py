@@ -84,7 +84,7 @@ def update(
     contact_email: Optional[str] = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
-) -> Profile:
+) -> None:
     update_fields = []
     if first_name is not None:
         update_fields.append("first_name")
@@ -102,7 +102,7 @@ def update(
         update_fields.append("emails")
         profile.emails = all_emails
 
-    updated_profile = profile.save(update_fields=update_fields)
+    profile.save(update_fields=update_fields)
 
     if reason is None:
         reason = f"Updating Profile record: {", ".join(update_fields)}"
@@ -117,7 +117,6 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
-    return updated_profile
 
 
 def archive(

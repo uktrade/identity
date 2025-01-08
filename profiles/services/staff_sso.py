@@ -98,7 +98,7 @@ def update(
     contact_email: str | Unset | None = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
-) -> StaffSSOProfile:
+) -> None:
     if (
         primary_email is not None
         and primary_email is not UNSET
@@ -119,6 +119,7 @@ def update(
     if last_name is not None:
         update_fields.append("last_name")
         staff_sso_profile.last_name = last_name
+    staff_sso_profile.save(update_fields=update_fields)
 
     # add / update staff sso email records
     for email in all_emails:
@@ -157,7 +158,6 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
-    return staff_sso_profile.save(update_fields=update_fields)
 
 
 ###############################################################

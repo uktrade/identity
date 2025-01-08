@@ -19,7 +19,7 @@ router = Router()
 
 
 @router.get(
-    "scim/v2/Users/{id}",
+    "{id}",
     response={
         200: GetUserResponse,
         404: ScimErrorSchema,
@@ -36,7 +36,7 @@ def get_user(request, id: str):
         }
 
 
-@router.post("scim/v2/Users", response={201: CreateUserResponse, 409: ScimErrorSchema})
+@router.post("", response={201: CreateUserResponse, 409: ScimErrorSchema})
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     if not scim_user.active:
         raise ValueError("Cannot create inactive profile via SCIM")
@@ -64,35 +64,31 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 
 
 @router.put(
-    "scim/v2/Users/{id}",
-    response={200: UpdateUserResponse, 201: CreateUserResponse, 400: ScimErrorSchema},
+    "{id}",
+    response={200: UpdateUserResponse, 404: ScimErrorSchema, 400: ScimErrorSchema},
 )
 def update_user(
     request, id: str, scim_user: UpdateUserRequest
 ) -> tuple[int, Profile | dict]:
 
     all_emails = [email.value for email in scim_user.emails]
+    primary_email = (scim_user.get_primary_email(),)
+    contact_email = (scim_user.get_contact_email(),)
+    is_active = scim_user.active
+    profile = core_services.get_by_id(id=id)
     try:
-        profile = core_services.update_identity(
-            id=id,
+        core_services.update_identity(
+            profile=profile,
             first_name=scim_user.name.givenName,
             last_name=scim_user.name.familyName,
             all_emails=all_emails,
-            primary_email=scim_user.get_primary_email(),
-            contact_email=scim_user.get_contact_email(),
-            is_active=scim_user.active,
+            primary_email=str(primary_email) if primary_email else core_services.UNSET,
+            contact_email=str(contact_email) if contact_email else core_services.UNSET,
+            is_active=is_active,
         )
         return 200, profile
     except User.DoesNotExist:
-        profile = core_services.create_identity(
-            id=id,
-            first_name=scim_user.name.givenName,
-            last_name=scim_user.name.familyName,
-            all_emails=all_emails,
-            primary_email=scim_user.get_primary_email(),
-            contact_email=scim_user.get_contact_email(),
-        )
-        return 201, profile
+        return 404, {"status": "404", "detail": "User does not exist"}
     except ValueError as e:
         return 400, {
             "status": "400",

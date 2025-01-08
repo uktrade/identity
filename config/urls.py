@@ -6,7 +6,7 @@ from scim.api import router as scim_router
 from .api import protected_apis
 
 
-protected_apis.add_router("", scim_router)
+protected_apis.add_router("scim/v2/Users/", scim_router)
 
 urlpatterns = [
     path("", include("core.urls")),

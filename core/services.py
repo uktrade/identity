@@ -5,6 +5,10 @@ from user import services as user_services
 from user.models import User
 
 
+def get_by_id(id: str):
+    return profile_services.get_by_id(sso_email_id=id)
+
+
 def create_identity(
     id: str,
     first_name: str,
@@ -32,32 +36,32 @@ def create_identity(
 
 
 def update_identity(
-    id: str,
+    profile: Profile,
     first_name: str,
     last_name: str,
     all_emails: list[str],
-    is_active: bool | None,
-    primary_email: str | None = None,
-    contact_email: str | None = None,
-) -> Profile:
+    is_active: bool,
+    primary_email: str | Unset | None = None,
+    contact_email: str | Unset | None = None,
+) -> None:
     """
     Function for updating an existing user (archive / unarchive) and their profile information.
 
     Returns the combined Profile
     """
 
-    user = user = User.objects.get(sso_email_id=id)
-
-    if not is_active:
-        user_services.archive(user)
-    # else:
-    #     user_services.unarchive(user)
-
-    return profile_services.update_from_sso(
-        sso_email_id=id,
+    profile_services.update_from_sso(
+        profile=profile,
         first_name=first_name,
         last_name=last_name,
         all_emails=all_emails,
         primary_email=primary_email,
         contact_email=contact_email,
     )
+
+    user = User.objects.get(sso_email_id=profile.sso_email_id)
+    if user.is_active != is_active:
+        if is_active:
+            user_services.unarchive(user)
+        else:
+            user_services.archive(user)

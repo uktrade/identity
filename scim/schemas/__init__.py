@@ -1,6 +1,7 @@
 from ninja import Field
 
 from profiles.models.combined import Profile
+from profiles.types import Unset
 from scim.schemas.scim import Email, Name, ScimUserSchema, ScimUserSchemaRequired
 from user.models import User
 
@@ -11,6 +12,7 @@ class MinimalUserRequest(ScimUserSchema):
     user data.
     """
 
+    active: bool
     name: Name
     emails: list[Email]
 

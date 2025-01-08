@@ -4,6 +4,7 @@ from typing import Optional
 
 from profiles.models.combined import Profile
 from profiles.services import combined, staff_sso
+from profiles.types import Unset
 
 from .combined import get_by_id as get_combined_by_id
 
@@ -70,14 +71,14 @@ def create_from_sso(
 
 
 def update_from_sso(
-    sso_email_id: str,
+    profile: Profile,
     first_name: str,
     last_name: str,
     all_emails: list[str],
-    primary_email: Optional[str] = None,
-    contact_email: Optional[str] = None,
-) -> Profile:
-    sso_profile = staff_sso.get_by_id(sso_email_id)
+    primary_email: str | Unset | None = None,
+    contact_email: str | Unset | None = None,
+) -> None:
+    sso_profile = staff_sso.get_by_id(profile.sso_email_id)
     staff_sso.update(
         staff_sso_profile=sso_profile,
         first_name=first_name,
@@ -86,15 +87,17 @@ def update_from_sso(
         primary_email=primary_email,
         contact_email=contact_email,
     )
-    combined_profile = get_by_id(sso_email_id)
+
+    combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
+    combined_profile_data = generate_combined_profile_data(
+        sso_email_id=profile.sso_email_id
+    )
 
     combined.update(
         profile=combined_profile,
-        first_name=first_name,
-        last_name=last_name,
-        all_emails=all_emails,
-        primary_email=primary_email,
-        contact_email=contact_email,
+        first_name=combined_profile_data["first_name"],
+        last_name=combined_profile_data["last_name"],
+        primary_email=combined_profile_data["primary_email"],
+        contact_email=combined_profile_data["contact_email"],
+        all_emails=combined_profile_data["emails"],
     )
-
-    return combined_profile
