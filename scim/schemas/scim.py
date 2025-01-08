@@ -4,17 +4,15 @@
 # the order they're in) but not represented in our data models.
 
 from dataclasses import dataclass
+from typing import Literal
 
-from ninja import Field, Schema
-
-from profiles.models.combined import Profile
-from user.models import User
+from ninja import Schema
 
 
 @dataclass
 class Name:
-    givenName: str | None = None
-    familyName: str | None = None
+    givenName: str
+    familyName: str
     # formatted: str | None = None
     # middleName: str | None = None
     # honorificPrefix: str | None = None
@@ -32,6 +30,8 @@ class ScimCoreSchema(Schema):
     # See https://datatracker.ietf.org/doc/html/rfc7643#section-3.1
     id: str
     externalId: str
+    # "meta" and some of its sub-attributes are required as part of the core SCIM schema
+    # we will need to add this attribute if we are integrating with Oracle or Microsoft
     # meta
 
 
@@ -44,7 +44,6 @@ class ScimUserSchemaRequired(ScimCoreSchema):
 
     schemas: list[str] = ["urn:ietf:params:scim:schemas:core:2.0:User"]
     userName: str
-    emails: list[Email]
 
 
 class ScimUserSchema(ScimUserSchemaRequired):
@@ -65,6 +64,7 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # locale
     # timezone
     active: bool | None = None
+    emails: list[Email] | None = None
     # phoneNumbers
     # ims
     # photos
@@ -75,49 +75,22 @@ class ScimUserSchema(ScimUserSchemaRequired):
     # x509Certificates
 
 
-class MinimalUserResponse(ScimUserSchemaRequired):
-    """Designed to be populated by a combined Profile"""
-
-    id: str = Field(alias="pk")
-    externalId: str = Field(alias="sso_email_id")
-    userName: str = Field(alias="sso_email_id")
-    active: bool = Field(alias="is_active")
-
-    @staticmethod
-    def resolve_name(obj: Profile):
-        # @TODO we should be using preferred name once it's available
-        return Name(
-            givenName=obj.first_name,
-            familyName=obj.last_name,
-        )
-
-    @staticmethod
-    def resolve_emails(obj: User):
-        # TODO: We need a better way of getting ALL of a user's emails and
-        # their type/primary status
-        return [Email(value=obj.email, type="verified", primary=True)]
-
-
-class CreateUserRequest(ScimUserSchema):
-    def get_primary_email(self) -> str | None:
-        if self.emails:
-            for email in self.emails:
-                if email.primary:
-                    return str(email)
-        return None
-
-    def get_contact_email(self) -> str | None:
-        if self.emails:
-            for email in self.emails:
-                if email.type == "contact":
-                    return str(email)
-        return None
-
-
-class CreateUserResponse(MinimalUserResponse): ...
-
-
-class GetUserResponse(MinimalUserResponse): ...
-
-
-class PutUserResponse(MinimalUserResponse): ...
+class ScimErrorSchema(Schema):
+    schemas: list[str] = ["urn:ietf:params:scim:api:messages:2.0:Error"]
+    status: str
+    detail: str | None = None
+    scimType: (
+        Literal[
+            "invalidFilter",
+            "tooMany",
+            "uniqueness",
+            "mutability",
+            "invalidSyntax",
+            "invalidPath",
+            "noTarget",
+            "invalidValue",
+            "invalidVers",
+            "sensitive",
+        ]
+        | None
+    ) = None
