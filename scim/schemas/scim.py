@@ -31,7 +31,7 @@ class ScimCoreSchema(Schema):
     id: str
     externalId: str
     # "meta" and some of its sub-attributes are required as part of the core SCIM schema
-    # we will need to
+    # we will need to add this attribute if we are integrating with Oracle or Microsoft
     # meta
 
 
