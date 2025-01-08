@@ -75,3 +75,6 @@ class UpdateUserResponse(MinimalUserResponse):
 
 class GetUserResponse(MinimalUserResponse):
     name: Name
+
+
+class DeleteUserRequest(MinimalUserRequest): ...

@@ -6,6 +6,7 @@ from profiles.models.combined import Profile
 from scim.schemas import (
     CreateUserRequest,
     CreateUserResponse,
+    DeleteUserRequest,
     GetUserResponse,
     UpdateUserRequest,
     UpdateUserResponse,
@@ -94,3 +95,10 @@ def update_user(
             "status": "400",
             "detail": e.args[0],
         }
+
+router.delete("{id}",
+    response={204: None, 404:ScimErrorSchema})
+def delete_user(
+        request, id: str, scim_user: DeleteUserRequest
+) -> int | tuple[int, Profile | dict]:
+    return 204
