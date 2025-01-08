@@ -194,6 +194,21 @@ def test_update(sso_profile):
     )
 
 
+def test_delete_from_database(sso_profile):
+    obj_repr = str(sso_profile)
+    sso_profile.refresh_from_db()
+    staff_sso_services.delete_from_database(sso_profile)
+    with pytest.raises(sso_profile.DoesNotExist):
+        staff_sso_services.get_by_id(sso_profile.sso_email_id)
+
+    assert LogEntry.objects.count() == 1
+    log = LogEntry.objects.first()
+    assert log.is_deletion()
+    assert log.user.pk == "via-api"
+    assert log.object_repr == obj_repr
+    assert log.get_change_message() == "Deleting Staff SSO Profile record"
+
+
 def test_set_email_details(sso_profile):
     email = Email.objects.create(address="andy@adams.com")
     second_email = Email.objects.create(address="barney@bates.com")
