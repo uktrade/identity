@@ -77,8 +77,9 @@ def update_from_sso(
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,
 ) -> Profile:
+    sso_profile = staff_sso.get_by_id(sso_email_id)
     staff_sso.update(
-        sso_email_id=sso_email_id,
+        staff_sso_profile=sso_profile,
         first_name=first_name,
         last_name=last_name,
         all_emails=all_emails,
