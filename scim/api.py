@@ -6,7 +6,6 @@ from profiles.models.combined import Profile
 from scim.schemas import (
     CreateUserRequest,
     CreateUserResponse,
-    DeleteUserRequest,
     GetUserResponse,
     UpdateUserRequest,
     UpdateUserResponse,
