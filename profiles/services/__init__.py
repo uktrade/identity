@@ -2,6 +2,8 @@
 # If in doubt about what to use, you should probably be using this
 from typing import Optional
 
+from django.db import models
+
 from profiles.models.combined import Profile
 from profiles.services import combined, staff_sso
 from profiles.types import Unset
@@ -109,7 +111,10 @@ def delete_from_sso(profile: Profile) -> None:
     sso_profile = staff_sso.get_by_id(profile.sso_email_id)
     staff_sso.delete_from_database(sso_profile=sso_profile)
 
-    if not non_combined_profile_exists(sso_email_id=profile.sso_email_id):
+    all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
+
+    # check if combined profile is the only profile left for user
+    if [key for key in all_profiles] == ["combined"]:
         combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
         combined.delete_from_database(profile=combined_profile)
 
@@ -117,10 +122,17 @@ def delete_from_sso(profile: Profile) -> None:
         user_services.delete_from_database(user=user)
 
 
-def non_combined_profile_exists(sso_email_id: str) -> bool:
-    """
-    This checks for the presence of any other non sso profile for the user.
-    This check is necessary to decide whether to delete the combined profile or not
-    TODO - This is a stub at the moment, as we currently do not have any non-sso profile implemented
-    """
-    return False
+def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
+    all_profile = dict()
+    try:
+        all_profile["combined"] = get_combined_by_id(sso_email_id=sso_email_id)
+    except:
+        # no combined profile found
+        pass
+    try:
+        all_profile["sso"] = staff_sso.get_by_id(sso_email_id=sso_email_id)
+    except:
+        # no sso profile found
+        pass
+    # TODO - more profiles to be added here as we implement more
+    return all_profile
