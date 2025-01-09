@@ -7,8 +7,6 @@ from django.db import models
 from profiles.models.combined import Profile
 from profiles.services import combined, staff_sso
 from profiles.types import Unset
-from user import services as user_services
-from user.models import User
 
 from .combined import get_by_id as get_combined_by_id
 
@@ -117,9 +115,6 @@ def delete_from_sso(profile: Profile) -> None:
     if [key for key in all_profiles] == ["combined"]:
         combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
         combined.delete_from_database(profile=combined_profile)
-
-        user = User.objects.get(sso_email_id=profile.sso_email_id)
-        user_services.delete_from_database(user=user)
 
 
 def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
