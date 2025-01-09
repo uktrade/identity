@@ -12,10 +12,6 @@ class MinimalUserRequest(ScimUserSchema):
     user data.
     """
 
-    active: bool
-    name: Name
-    emails: list[Email]
-
     def get_primary_email(self) -> str | None:
         primary_email = None
         if self.emails:
@@ -60,13 +56,19 @@ class MinimalUserResponse(ScimUserSchemaRequired):
         return [Email(value=obj.email, type="verified", primary=True)]
 
 
-class CreateUserRequest(MinimalUserRequest): ...
+class CreateUserRequest(MinimalUserRequest):
+    name: Name
+    active: bool
+    emails: list[Email]
 
 
 class CreateUserResponse(MinimalUserResponse): ...
 
 
-class UpdateUserRequest(MinimalUserRequest): ...
+class UpdateUserRequest(MinimalUserRequest):
+    name: Name
+    active: bool
+    emails: list[Email]
 
 
 class UpdateUserResponse(MinimalUserResponse):
