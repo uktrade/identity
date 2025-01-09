@@ -114,14 +114,14 @@ class MinimalUserRequest(ScimUserSchema):
         if self.emails:
             for email in self.emails:
                 if email.primary:
-                    primary_email = str(email)
+                    primary_email = str(email.value)
         return primary_email
 
     def get_contact_email(self) -> str | None:
         if self.emails:
             for email in self.emails:
                 if email.type == "contact":
-                    return str(email)
+                    return str(email.value)
         return None
 
 
