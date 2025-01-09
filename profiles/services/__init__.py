@@ -109,7 +109,7 @@ def delete_from_sso(profile: Profile) -> None:
     sso_profile = staff_sso.get_by_id(profile.sso_email_id)
     staff_sso.delete_from_database(sso_profile=sso_profile)
 
-    if not non_sso_profile_exists(sso_email_id=profile.sso_email_id):
+    if not non_combined_profile_exists(sso_email_id=profile.sso_email_id):
         combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
         combined.delete_from_database(profile=combined_profile)
 
@@ -117,7 +117,7 @@ def delete_from_sso(profile: Profile) -> None:
         user_services.delete_from_database(user=user)
 
 
-def non_sso_profile_exists(sso_email_id: str) -> bool:
+def non_combined_profile_exists(sso_email_id: str) -> bool:
     """
     This checks for the presence of any other non sso profile for the user.
     This check is necessary to decide whether to delete the combined profile or not
