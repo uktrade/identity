@@ -181,21 +181,21 @@ LOGGING = {
             "handlers": [
                 "asim",
             ],
-            "level": "DEBUG",
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "django.request": {
             "handlers": [
                 "asim",
             ],
-            "level": "DEBUG",
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "requestlogs": {
             "handlers": [
                 "asim",
             ],
-            "level": "INFO",
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "ddtrace": {
