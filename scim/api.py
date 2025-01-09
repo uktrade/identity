@@ -101,7 +101,8 @@ def update_user(
 
 @router.delete("{id}", response={204: None, 404: ScimErrorSchema})
 def delete_user(
-    request, id: str, scim_user: DeleteUserRequest
+    request,
+    id: str,
 ) -> int | tuple[int, dict]:
     profile = core_services.get_by_id(id=id)
     try:
