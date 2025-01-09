@@ -53,3 +53,27 @@ def test_update_identity() -> None:
     assert profile.first_name == "Joe"
     assert profile.last_name == "Bobby"
     assert not User.objects.get(sso_email_id="new_user@gov.uk").is_active
+
+
+def test_delete_identity() -> None:
+    profile = services.create_identity(
+        "new_user@gov.uk",
+        "Billy",
+        "Bob",
+        ["new_user@email.gov.uk"],
+    )
+
+    services.delete_identity(
+        profile,
+    )
+    with pytest.raises(Profile.DoesNotExist) as pex:
+        services.get_by_id(
+            id=profile.sso_email_id,
+        )
+
+    assert str(pex.value.args[0]) == "Profile matching query does not exist."
+
+    with pytest.raises(User.DoesNotExist) as uex:
+        User.objects.get(sso_email_id="new_user@gov.uk")
+
+    assert str(uex.value.args[0]) == "User matching query does not exist."

@@ -46,8 +46,6 @@ def update_identity(
 ) -> None:
     """
     Function for updating an existing user (archive / unarchive) and their profile information.
-
-    Returns the combined Profile
     """
 
     profile_services.update_from_sso(
@@ -67,8 +65,9 @@ def update_identity(
             user_services.archive(user)
 
 
-def delete_identity(
-    profile: Profile,
-) -> None:
-    # TODO: implement delete_identity function
-    raise NotImplementedError
+def delete_identity(profile: Profile) -> None:
+    """
+    Function for deleting an existing user and their profile information.
+    """
+
+    profile_services.delete_from_sso(profile=profile)

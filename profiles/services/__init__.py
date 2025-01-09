@@ -5,6 +5,8 @@ from typing import Optional
 from profiles.models.combined import Profile
 from profiles.services import combined, staff_sso
 from profiles.types import Unset
+from user import services as user_services
+from user.models import User
 
 from .combined import get_by_id as get_combined_by_id
 
@@ -101,3 +103,24 @@ def update_from_sso(
         contact_email=combined_profile_data["contact_email"],
         all_emails=combined_profile_data["emails"],
     )
+
+
+def delete_from_sso(profile: Profile) -> None:
+    sso_profile = staff_sso.get_by_id(profile.sso_email_id)
+    staff_sso.delete_from_database(sso_profile=sso_profile)
+
+    if not non_sso_profile_exists(sso_email_id=profile.sso_email_id):
+        combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
+        combined.delete_from_database(profile=combined_profile)
+
+        user = User.objects.get(sso_email_id=profile.sso_email_id)
+        user_services.delete_from_database(user=user)
+
+
+def non_sso_profile_exists(sso_email_id: str) -> bool:
+    """
+    This checks for the presence of any other non sso profile for the user.
+    This check is necessary to decide whether to delete the combined profile or not
+    TODO - This is a stub at the moment, as we currently do not have any non-sso profile implemented
+    """
+    return False

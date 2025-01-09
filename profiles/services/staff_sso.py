@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from django.contrib.admin.models import ADDITION, CHANGE, LogEntry
+from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
@@ -158,6 +158,29 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
+
+
+def delete_from_database(
+    sso_profile: StaffSSOProfile,
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
+) -> None:
+    """Really delete a Staff SSO Profile. Useful for data cleaning (i.e. non-standard) operations"""
+    if reason is None:
+        reason = "Deleting Staff SSO Profile record"
+    requesting_user_id = "via-api"
+    if requesting_user is not None:
+        requesting_user_id = requesting_user.pk
+    LogEntry.objects.log_action(
+        user_id=requesting_user_id,
+        content_type_id=get_content_type_for_model(sso_profile).pk,
+        object_id=sso_profile.pk,
+        object_repr=str(sso_profile),
+        change_message=reason,
+        action_flag=DELETION,
+    )
+
+    sso_profile.delete()
 
 
 ###############################################################
