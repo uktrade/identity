@@ -12,8 +12,8 @@ class MinimalUserRequest(ScimUserSchema):
     user data.
     """
 
-    active: bool
     name: Name
+    active: bool
     emails: list[Email]
 
     def get_primary_email(self) -> str | None:

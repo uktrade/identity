@@ -65,3 +65,10 @@ def update_identity(
             user_services.unarchive(user)
         else:
             user_services.archive(user)
+
+
+def delete_identity(
+    profile: Profile,
+) -> None:
+    # TODO: implement delete_identity function
+    raise NotImplementedError

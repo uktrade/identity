@@ -2,7 +2,6 @@ import pytest
 
 from core import services
 from profiles.models.combined import Profile
-from profiles.types import UNSET
 from user.exceptions import UserExists
 from user.models import User
 
