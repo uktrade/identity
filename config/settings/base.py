@@ -90,7 +90,6 @@ INSTALLED_APPS: list[str] = [
     "simple_history",
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
-    "scim.apps.ScimConfig",
     "profiles.apps.ProfileConfig",
 ]
 
