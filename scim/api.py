@@ -1,7 +1,6 @@
 from ninja import Router
 
 from core import services as core_services
-from profiles import services as profile_services
 from profiles.models.combined import Profile
 from scim.schemas import (
     CreateUserRequest,
@@ -28,7 +27,7 @@ router = Router()
 def get_user(request, id: str):
     """In fact returns the combined Profile"""
     try:
-        return profile_services.get_by_id(id)
+        return core_services.get_by_id(id)
     except Profile.DoesNotExist:
         return 404, {
             "status": "404",
