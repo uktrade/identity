@@ -1,15 +1,16 @@
 from ninja import Router
 
 from core import services as core_services
-from profiles.models.combined import Profile
-from scim.schemas import (
+from core.schemas.scim import (
     CreateUserRequest,
     CreateUserResponse,
     GetUserResponse,
+    ScimErrorSchema,
     UpdateUserRequest,
     UpdateUserResponse,
 )
-from scim.schemas.scim import ScimErrorSchema
+from profiles import services as profile_services
+from profiles.models.combined import Profile
 from user.exceptions import UserExists
 from user.models import User
 
@@ -27,7 +28,7 @@ router = Router()
 def get_user(request, id: str):
     """In fact returns the combined Profile"""
     try:
-        return core_services.get_by_id(id)
+        return profile_services.get_by_id(id)
     except Profile.DoesNotExist:
         return 404, {
             "status": "404",
@@ -73,6 +74,7 @@ def update_user(
     all_emails = [email.value for email in scim_user.emails]
     primary_email = (scim_user.get_primary_email(),)
     contact_email = (scim_user.get_contact_email(),)
+    is_active = scim_user.active
     profile = core_services.get_by_id(id=id)
     try:
         core_services.update_identity(
@@ -82,34 +84,13 @@ def update_user(
             all_emails=all_emails,
             primary_email=str(primary_email) if primary_email else core_services.UNSET,
             contact_email=str(contact_email) if contact_email else core_services.UNSET,
-            is_active=scim_user.active,
+            is_active=is_active,
         )
         return 200, profile
     except User.DoesNotExist:
-        return 404, {
-            "status": "404",
-            "detail": "User does not exist",
-        }
+        return 404, {"status": "404", "detail": "User does not exist"}
     except ValueError as e:
         return 400, {
             "status": "400",
             "detail": e.args[0],
-        }
-
-
-@router.delete("{id}", response={204: None, 404: ScimErrorSchema})
-def delete_user(
-    request,
-    id: str,
-) -> int | tuple[int, dict]:
-    profile = core_services.get_by_id(id=id)
-    try:
-        core_services.delete_identity(
-            profile=profile,
-        )
-        return 204
-    except User.DoesNotExist:
-        return 404, {
-            "status": "404",
-            "detail": "User does not exist",
         }
