@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from core.api import protected_apis
+from core.api.sso_profile import router as sso_profile_router
 from scim.api import router as scim_router
-
-from .api import protected_apis
 
 
 protected_apis.add_router("scim/v2/Users/", scim_router)
+protected_apis.add_router("sso/", sso_profile_router)
 
 urlpatterns = [
     path("", include("core.urls")),

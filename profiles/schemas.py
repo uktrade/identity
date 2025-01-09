@@ -11,5 +11,6 @@ class ProfileMinimal(ModelSchema):
         fields = [
             "first_name",
             "last_name",
-            "preferred_email",
+            "primary_email",
+            "contact_email",
         ]

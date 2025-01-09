@@ -4,7 +4,7 @@ The Identity service exposes different APIs for different purposes, split along 
 
 The most restricted, highest risk API is for [user management](./user-management.md) and encompasses creation, archiving and merging.
 
-The most optimisation-prioritised API is for [basic profile retrieval](./basic-profile.md); this is on the "hot path" for the Staff SSO auth process during user authentication.
+The most optimisation-prioritised API is for [Staff SSO profile retrieval](./sso-profile.md); this is on the "hot path" for the Staff SSO auth process during user authentication.
 
 ## Infrastructure "services" and authentication
 
