@@ -1,5 +1,6 @@
 from profiles import services as profile_services
 from profiles.models.combined import Profile
+from profiles.services import get_all_profiles
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 from user.models import User
@@ -71,3 +72,9 @@ def delete_identity(profile: Profile) -> None:
     """
 
     profile_services.delete_from_sso(profile=profile)
+
+    # delete user if no profile exists for user
+    all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
+    if not all_profiles:
+        user = User.objects.get(sso_email_id=profile.sso_email_id)
+        user_services.delete_from_database(user=user)
