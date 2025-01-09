@@ -161,7 +161,7 @@ def update(
 
 
 def delete_from_database(
-    staff_sso_profile: StaffSSOProfile,
+    sso_profile: StaffSSOProfile,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
@@ -173,14 +173,14 @@ def delete_from_database(
         requesting_user_id = requesting_user.pk
     LogEntry.objects.log_action(
         user_id=requesting_user_id,
-        content_type_id=get_content_type_for_model(staff_sso_profile).pk,
-        object_id=staff_sso_profile.pk,
-        object_repr=str(staff_sso_profile),
+        content_type_id=get_content_type_for_model(sso_profile).pk,
+        object_id=sso_profile.pk,
+        object_repr=str(sso_profile),
         change_message=reason,
         action_flag=DELETION,
     )
 
-    staff_sso_profile.delete()
+    sso_profile.delete()
 
 
 ###############################################################
