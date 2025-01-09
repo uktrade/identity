@@ -178,7 +178,7 @@ def delete_from_database(
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
-    """Really delete a Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
+    """Really delete a Profile. Useful for data cleaning (i.e. non-standard) operations"""
     if reason is None:
         reason = "Deleting Profile record"
     requesting_user_id = "via-api"

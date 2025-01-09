@@ -165,7 +165,7 @@ def delete_from_database(
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
-    """Really delete a Staff SSO Profile. Only to be used in data cleaning (i.e. non-standard) operations"""
+    """Really delete a Staff SSO Profile. Useful for data cleaning (i.e. non-standard) operations"""
     if reason is None:
         reason = "Deleting Staff SSO Profile record"
     requesting_user_id = "via-api"
