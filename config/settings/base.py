@@ -164,9 +164,9 @@ LOGGING = {
         "asim": {
             "class": "logging.StreamHandler",
             "formatter": "asim_formatter",
-            "filters": ["request_id_context"],
+            # "filters": ["request_id_context"],
         },
-        "stdout": {            
+        "stdout": {
             "class": "logging.StreamHandler",
             "formatter": "asim_formatter",
             "stream": sys.stdout,
@@ -199,18 +199,16 @@ LOGGING = {
             "propagate": False,
         },
         "ddtrace": {
-            "handlers": [
-                "asim"
-            ],
+            "handlers": ["asim"],
             "level": "DEBUG",
             "propagate": False,
         },
     },
-    "filters": {
-        "request_id_context": {
-            "()": "requestlogs.logging.RequestIdContext",
-        },
-    },
+    # "filters": {
+    #     "request_id_context": {
+    #         "()": "requestlogs.logging.RequestIdContext",
+    #     },
+    # },
 }
 
 # Sentry
