@@ -25,6 +25,8 @@ from sentry_sdk import set_tag
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
+from config.asim_formatter import DDASIMFormatter
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
@@ -152,9 +154,20 @@ DJANGO_HAWK = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "asim_formatter": {
+            "()": DDASIMFormatter,
+        },
+    },
     "handlers": {
+        "asim": {
+            "class": "logging.StreamHandler",
+            "formatter": "asim_formatter",
+            # "filters": ["request_id_context"],
+        },
         "stdout": {
             "class": "logging.StreamHandler",
+            "formatter": "asim_formatter",
             "stream": sys.stdout,
         },
     },
@@ -165,26 +178,36 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": [
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": True,
-        },
-        "django.request": {
-            "handlers": [
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": True,
-        },
-        "requestlogs": {
-            "handlers": [
-                "stdout",
+                "asim",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
+        "django.request": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "requestlogs": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "ddtrace": {
+            "handlers": ["asim"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
+    # "filters": {
+    #     "request_id_context": {
+    #         "()": "requestlogs.logging.RequestIdContext",
+    #     },
+    # },
 }
 
 # Sentry
