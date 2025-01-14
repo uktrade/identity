@@ -113,10 +113,13 @@ check: # Run project checks
 
 # Tests
 test: # Run pytest, use the optional arg `tests` to run specific tests, eg: `make test tests=path/to/test.py::ClassName::test_func_name`
-	$(web) python -m pytest $(tests)
+	$(web) python -m pytest -m "not e2e" $(tests)
 
 test-fresh: # The same as `make test` but with a fresh db
-	$(web) python -m pytest --create-db $(tests)
+	$(web) python -m pytest -m "not e2e" --create-db $(tests)
+
+test-e2e:
+	$(web) python -m pytest -m "e2e" $(tests)
 
 coverage: # Run test with pytest and generate coverage report
 	$(web) coverage run -m pytest --create-db $(tests)
