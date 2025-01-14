@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.e2e,]
 
 
 def test_authorised_access(state):

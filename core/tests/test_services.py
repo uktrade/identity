@@ -9,6 +9,45 @@ from user.models import User
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.parametrize("basic_user", [None])
+def test_create_identity(mocker):
+    mock_user_create = mocker.patch("user.services.create")
+    mock_profiles_create = mocker.patch(
+        "profiles.services.create_from_sso",
+        return_value="__profile__",
+    )
+    # User is created
+    profile = services.create_identity(
+        id="john.sso.email.id@gov.uk",
+        first_name="Billy",
+        last_name="Bob",
+        all_emails=[
+            "test@test.com",
+            "test2@test.com",
+            "test3@test.com",
+        ],
+        primary_email="test2@test.com",
+        contact_email="test3@test.com",
+    )
+    mock_user_create.assert_called_once_with(
+        sso_email_id="john.sso.email.id@gov.uk",
+    )
+    mock_profiles_create.assert_called_once_with(
+        sso_email_id="john.sso.email.id@gov.uk",
+        first_name="Billy",
+        last_name="Bob",
+        all_emails=[
+            "test@test.com",
+            "test2@test.com",
+            "test3@test.com",
+        ],
+        primary_email="test2@test.com",
+        contact_email="test3@test.com",
+    )
+    assert profile == "__profile__"
+
+
+
 def test_existing_user(basic_user) -> None:
     with pytest.raises(UserExists):
         services.create_identity(
