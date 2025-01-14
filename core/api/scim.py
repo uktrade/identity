@@ -1,15 +1,15 @@
 from ninja import Router
 
 from core import services as core_services
-from profiles.models.combined import Profile
-from scim.schemas import (
+from core.schemas.scim import (
     CreateUserRequest,
     CreateUserResponse,
     GetUserResponse,
+    ScimErrorSchema,
     UpdateUserRequest,
     UpdateUserResponse,
 )
-from scim.schemas.scim import ScimErrorSchema
+from profiles.models.combined import Profile
 from user.exceptions import UserExists
 from user.models import User
 

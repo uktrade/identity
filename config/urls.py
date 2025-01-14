@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 from core.api import protected_apis
+from core.api.scim import router as scim_router
 from core.api.sso_profile import router as sso_profile_router
-from scim.api import router as scim_router
 
 
 protected_apis.add_router("scim/v2/Users", scim_router)
