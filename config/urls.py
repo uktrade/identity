@@ -7,9 +7,9 @@ from core.api.scim import router as scim_router
 from core.api.sso_profile import router as sso_profile_router
 
 
-if settings.APP_ENV != "prod" or settings.INFRA_SERVICE == "SSO_SCIM":
+if settings.APP_ENV == "local" or settings.INFRA_SERVICE == "SSO_SCIM":
     protected_apis.add_router("/scim/v2/Users", scim_router)
-if settings.APP_ENV != "prod" or settings.INFRA_SERVICE == "SSO_PROFILE":
+if settings.APP_ENV == "local" or settings.INFRA_SERVICE == "SSO_PROFILE":
     protected_apis.add_router("/sso", sso_profile_router)
 
 urlpatterns = [
