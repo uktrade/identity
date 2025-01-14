@@ -2,8 +2,8 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
+from core.schemas.profiles import ProfileMinimal
 from profiles.models.combined import Profile
-from profiles.schemas import ProfileMinimal
 
 
 router = Router()
