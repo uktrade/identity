@@ -71,8 +71,8 @@ def update_user(
 ) -> tuple[int, Profile | dict]:
 
     all_emails = [email.value for email in scim_user.emails]
-    primary_email = (scim_user.get_primary_email(),)
-    contact_email = (scim_user.get_contact_email(),)
+    primary_email = scim_user.get_primary_email()
+    contact_email = scim_user.get_contact_email()
     profile = core_services.get_by_id(id=id)
     try:
         core_services.update_identity(
