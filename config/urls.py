@@ -6,7 +6,7 @@ from core.api.scim import router as scim_router
 from core.api.sso_profile import router as sso_profile_router
 
 
-protected_apis.add_router("scim/v2/Users", scim_router)
+protected_apis.add_router("/scim/v2/Users", scim_router)
 protected_apis.add_router("/sso", sso_profile_router)
 
 urlpatterns = [
