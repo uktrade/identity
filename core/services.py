@@ -78,3 +78,45 @@ def delete_identity(profile: Profile) -> None:
     if not all_profiles:
         user = User.objects.get(sso_email_id=profile.sso_email_id)
         user_services.delete_from_database(user=user)
+
+
+def get_bulk_user_records_from_sso():
+    raise NotImplementedError
+
+
+def process_bulk_sso_users(sso_users) -> None:
+
+    id_users = User.objects.all()
+    for id_user in id_users:
+        for sso_user in sso_users:
+            if id_user.sso_email_id == sso_user.user_id:
+                profile = get_by_id(id=id_user.sso_email_id)
+                update_identity(
+                    profile=profile,
+                    first_name=sso_user.first_name,
+                    last_name=sso_user.last_name,
+                    all_emails=sso_user.emails,
+                    is_active=sso_user.is_active,
+                    primary_email=sso_user.email,
+                    contact_email=sso_user.contact_email,
+                )
+            elif sso_user not in id_users:
+                create_identity(
+                    id=sso_user.user_id,
+                    first_name=sso_user.first_name,
+                    last_name=sso_user.last_name,
+                    all_emails=sso_user.emails,
+                    primary_email=sso_user.email,
+                    contact_email=sso_user.contact_email,
+                )
+            elif id_user not in sso_users:
+                profile = get_by_id(id_user.sso_email_id)
+                delete_identity(profile=profile)
+
+
+def sync_bulk_sso_users() -> None:
+    """
+    Retrieves data from the SSO bulk data S3 source and processes it to create, update and delete local ID service Users and related StaffSSOProfile records in bulk.
+    """
+    sso_users = get_bulk_user_records_from_sso()
+    process_bulk_sso_users(sso_users=sso_users)
