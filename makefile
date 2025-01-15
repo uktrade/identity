@@ -4,13 +4,13 @@ help: # List commands and their descriptions
 	@grep -E '^[a-zA-Z0-9_-]+: # .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ": # "; printf "\n\033[93;01m%-30s %-30s\033[0m\n\n", "Command", "Description"}; {split($$1,a,":"); printf "\033[96m%-30s\033[0m \033[92m%s\033[0m\n", a[1], $$2}'
 
 build: # Build the docker images
-	docker compose build
+	docker compose --profile services build
 
 up: # Bring up the docker containers
-	docker compose up
+	docker compose --profile services up
 
 down: # Bring down the docker containers
-	docker compose down
+	docker compose --profile services down
 
 # Run a command in a new container
 run = docker compose run --rm

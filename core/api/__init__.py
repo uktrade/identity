@@ -22,7 +22,7 @@ protected_apis = NinjaAPI(
 )
 
 
-if settings.APP_ENV == "local" or settings.INFRA_SERVICE == "SSO_SCIM":
+if settings.INFRA_SERVICE == "SSO_SCIM":
     protected_apis.add_router("/scim/v2/Users", scim_router)
-if settings.APP_ENV == "local" or settings.INFRA_SERVICE == "SSO_PROFILE":
+if settings.INFRA_SERVICE == "SSO_PROFILE":
     protected_apis.add_router("/sso", sso_profile_router)
