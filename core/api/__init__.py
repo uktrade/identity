@@ -12,9 +12,12 @@ def do_hawk_auth(request):
 
 
 protected_apis = NinjaAPI(
-    auth=do_hawk_auth,
+    # auth=do_hawk_auth,
     docs_decorator=staff_member_required,
+    urls_namespace="api",
 )
 
 if settings.APP_ENV == "local":
-    protected_apis = NinjaAPI()
+    protected_apis = NinjaAPI(
+        urls_namespace="api",
+    )

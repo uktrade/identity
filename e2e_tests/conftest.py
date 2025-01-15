@@ -1,7 +1,6 @@
-import datetime
 import json
 from dataclasses import dataclass
-from uuid import uuid4
+from random import randrange
 
 import pytest
 from django.contrib.auth.models import AbstractUser
@@ -28,33 +27,40 @@ def scim_user_factory():
         factory_faker = faker.Faker()
 
         if id is None:
-            id = str(uuid4())
+            id = factory_faker.email()
         first_name = factory_faker.first_name()
         last_name = factory_faker.last_name()
+        email = factory_faker.email()
+        emails = []
+        num_emails = randrange(1, stop=5)
+        contact_email = randrange(1, stop=num_emails + 1)
+        for i in range(num_emails):
+            value = factory_faker.email()
+            type = "work"
+            primary = False
+
+            if i == 1:
+                value = email
+                primary = True
+
+            if contact_email == i + 1:
+                type = "contact"
+
+            emails.append({"value": value, "type": type, "primary": primary})
+
         return json.dumps(
             {
-                "published": datetime.datetime.today().strftime("%Y%m%dT%H%M%S.%dZ"),
-                "object": {
-                    "id": f"dit:StaffSSO:User:{id}",
-                    "dit:StaffSSO:User:userId": id,
-                    "dit:emailAddress": [factory_faker.email(), factory_faker.email()],
-                    "dit:firstName": first_name,
-                    "dit:lastName": last_name,
-                    "name": factory_faker.name(),
-                    "type": "dit:StaffSSO:User",
-                    "dit:StaffSSO:User:status": "active",
-                    "dit:StaffSSO:User:joined": datetime.datetime.today().strftime(
-                        "%Y%m%dT%H%M%S.%dZ"
-                    ),
-                    "dit:StaffSSO:User:lastAccessed": (
-                        datetime.datetime.today().strftime("%Y%m%dT%H%M%S.%dZ")
-                    ),
-                    "dit:StaffSSO:User:emailUserId": (
-                        f"{first_name}.{last_name}-2b11c60l@id.trade.gov.uk"
-                    ),
-                    "dit:StaffSSO:User:becameInactiveOn": None,
-                    "dit:StaffSSO:User:contactEmailAddress": None,
+                "externalId": id,
+                "id": id,
+                "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+                "userName": email,
+                "name": {
+                    "familyName": last_name,
+                    "givenName": first_name,
                 },
+                "displayName": f"{first_name} {last_name}",
+                "active": True,
+                "emails": emails,
             }
         )
 
