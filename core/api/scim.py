@@ -18,7 +18,7 @@ router = Router()
 
 
 @router.get(
-    "{id}",
+    "/{id}",
     response={
         200: GetUserResponse,
         404: ScimErrorSchema,
@@ -63,7 +63,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 
 
 @router.put(
-    "{id}",
+    "/{id}",
     response={200: UpdateUserResponse, 404: ScimErrorSchema, 400: ScimErrorSchema},
 )
 def update_user(
@@ -71,8 +71,8 @@ def update_user(
 ) -> tuple[int, Profile | dict]:
 
     all_emails = [email.value for email in scim_user.emails]
-    primary_email = (scim_user.get_primary_email(),)
-    contact_email = (scim_user.get_contact_email(),)
+    primary_email = scim_user.get_primary_email()
+    contact_email = scim_user.get_contact_email()
     profile = core_services.get_by_id(id=id)
     try:
         core_services.update_identity(
@@ -97,7 +97,7 @@ def update_user(
         }
 
 
-@router.delete("{id}", response={204: None, 404: ScimErrorSchema})
+@router.delete("/{id}", response={204: None, 404: ScimErrorSchema})
 def delete_user(
     request,
     id: str,

@@ -158,12 +158,20 @@ LOGGING = {
         "asim_formatter": {
             "()": DDASIMFormatter,
         },
+        "simple": {
+            "format": "{asctime} {levelname} {message}",
+            "style": "{",
+        },
     },
     "handlers": {
         "asim": {
             "class": "logging.StreamHandler",
             "formatter": "asim_formatter",
             # "filters": ["request_id_context"],
+        },
+        "simple": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
         "stdout": {
             "class": "logging.StreamHandler",
@@ -188,6 +196,20 @@ LOGGING = {
                 "asim",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "django.server": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "requestlogs": {
