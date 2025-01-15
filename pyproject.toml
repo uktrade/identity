@@ -24,6 +24,7 @@ django-simple-history = "^3.7.0"
 django-hawk = "^1.2.3"
 django-log-formatter-asim = "^0.0.6"
 ddtrace = "^2.18.1"
+smart-open = "^7.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
