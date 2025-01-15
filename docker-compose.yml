@@ -19,6 +19,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.developer
       - INFRA_SERVICE=MAIN
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
     stdin_open: true
     tty: true
 
