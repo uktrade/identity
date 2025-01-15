@@ -10,6 +10,7 @@ def do_hawk_auth(request):
     except DjangoHawkAuthenticationFailed:
         return False
 
+
 protected_apis = NinjaAPI(
     auth=do_hawk_auth,
     docs_decorator=staff_member_required,

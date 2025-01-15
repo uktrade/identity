@@ -1,13 +1,12 @@
-from dataclasses import dataclass
 import datetime
 import json
+from dataclasses import dataclass
 from uuid import uuid4
 
 import pytest
-from factory.faker import faker
-
 from django.contrib.auth.models import AbstractUser
 from django.test.client import Client
+from factory.faker import faker
 
 
 @dataclass
@@ -21,7 +20,6 @@ def state(db, basic_user):
     client = Client()
     client.force_login(basic_user)
     return State(client=client, user=basic_user)
-
 
 
 @pytest.fixture

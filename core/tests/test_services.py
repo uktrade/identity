@@ -47,7 +47,6 @@ def test_create_identity(mocker):
     assert profile == "__profile__"
 
 
-
 def test_existing_user(basic_user) -> None:
     with pytest.raises(UserExists):
         services.create_identity(

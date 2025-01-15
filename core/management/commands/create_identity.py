@@ -1,5 +1,5 @@
-from factory.faker import faker
 from django.core.management.base import BaseCommand, CommandParser
+from factory.faker import faker
 
 from core import services
 from user import services as user_services
@@ -13,8 +13,12 @@ class Command(BaseCommand):
         parser.add_argument("-e", "--email", type=str)
         parser.add_argument("-f", "--first_name", type=str)
         parser.add_argument("-l", "--last_name", type=str)
-        parser.add_argument("-s", "--staff", action="store_true", help="Set user to staff")
-        parser.add_argument("-ss", "--superuser", action="store_true", help="Set user to Superuser")
+        parser.add_argument(
+            "-s", "--staff", action="store_true", help="Set user to staff"
+        )
+        parser.add_argument(
+            "-ss", "--superuser", action="store_true", help="Set user to Superuser"
+        )
         parser.add_argument("-d", "--dry_run", action="store_true")
 
     def handle(self, *args, **kwargs):
@@ -61,6 +65,8 @@ class Command(BaseCommand):
 
         if staff or superuser:
             self.stdout.write(msg="Setting permissions")
-            user_services.update_by_id(sso_email_id=p.sso_email_id, is_staff=staff, is_superuser=superuser)
+            user_services.update_by_id(
+                sso_email_id=p.sso_email_id, is_staff=staff, is_superuser=superuser
+            )
 
         self.stdout.write(msg="Creation complete")

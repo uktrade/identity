@@ -72,7 +72,7 @@ check_untyped_defs = true
 ignore_missing_imports = false
 
 [[tool.mypy.overrides]]
-module = ["django.*", "environ.*", "dbt_copilot_python.*", "debugpy.*", "django_hawk.*", "django_log_formatter_asim.*", ]
+module = ["django.*", "environ.*", "dbt_copilot_python.*", "debugpy.*", "django_hawk.*", "django_log_formatter_asim.*", "factory.faker.*"]
 ignore_missing_imports = true
 
 [build-system]
