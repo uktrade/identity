@@ -1,0 +1,36 @@
+name: E2E tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: Create a .env file
+        run: cp .env.ci .env
+
+      - name: Install poetry
+        run: pip install poetry
+
+      - name: Install python dependencies
+        run: poetry install --no-root
+
+      - name: Run tests
+        run: make test-e2e
+
+      - name: Docker compose down
+        run: docker compose down
