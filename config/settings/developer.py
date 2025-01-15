@@ -8,3 +8,8 @@ INSTALLED_APPS.append(
 )
 
 MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")
+
+LOGGING['loggers']["django"]["handlers"] = ["simple"]
+LOGGING['loggers']["django.request"]["handlers"] = ["simple"]
+LOGGING['loggers']["django.server"]["handlers"] = ["simple"]
+LOGGING['loggers']["django.db.backends"]["handlers"] = ["simple"]
