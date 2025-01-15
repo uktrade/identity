@@ -75,7 +75,10 @@ manage-groups: # Set permissions across the app
 	$(web) $(manage) manage_groups
 
 superuser: # Creates a superuser
-	$(web) $(manage) createsuperuser
+	$(web) $(manage) create_identity -ss -i $(id)
+
+localuser: # Creates a local user / profile ID
+	$(web) $(manage) create_identity
 
 dumpdata: # Run django `dumpdata` command and output to a file
 	$(web) $(manage) dumpdata $(model) --indent 4 -o $(output)

@@ -8,12 +8,12 @@ def do_hawk_auth(request):
     try:
         authenticate_request(request)
     except DjangoHawkAuthenticationFailed:
-        if settings.APP_ENV == "local":
-            return True
         return False
-
 
 protected_apis = NinjaAPI(
     auth=do_hawk_auth,
     docs_decorator=staff_member_required,
 )
+
+if settings.APP_ENV == "local":
+    protected_apis = NinjaAPI()
