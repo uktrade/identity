@@ -84,34 +84,50 @@ def get_bulk_user_records_from_sso():
     raise NotImplementedError
 
 
+def bulk_delete_identity_users_from_sso(sso_users):
+    """
+    Deletes Identity users that are not in the Staff SSO database
+    """
+    id_users = User.objects.all()
+    sso_user_ids = [sso_user["id"] for sso_user in sso_users]
+
+    id_users_to_delete = id_users.exclude(sso_email_id__in=sso_user_ids)
+    id_users_to_delete.delete()
+
+
+def bulk_create_and_update_identity_users_from_sso(sso_users):
+    """
+    Creates and updates existing Staff SSO users in the Identity database
+    """
+    id_user_ids = User.objects.all().values_list("sso_email_id", flat=True)
+
+    for sso_user in sso_users:
+        if sso_user["id"] not in id_user_ids:
+            create_identity(
+                id=sso_user["id"],
+                first_name=sso_user["first_name"],
+                last_name=sso_user["last_name"],
+                all_emails=sso_user["emails"],
+                primary_email=sso_user["email"],
+                contact_email=sso_user["contact_email"],
+            )
+        else:
+            profile = get_by_id(id=sso_user["id"])
+            update_identity(
+                profile=profile,
+                first_name=sso_user["first_name"],
+                last_name=sso_user["last_name"],
+                all_emails=sso_user["emails"],
+                is_active=sso_user["is_active"],
+                primary_email=sso_user["email"],
+                contact_email=sso_user["contact_email"],
+            )
+
+
 def process_bulk_sso_users(sso_users) -> None:
 
-    id_users = User.objects.all()
-    for id_user in id_users:
-        for sso_user in sso_users:
-            if id_user.sso_email_id == sso_user.user_id:
-                profile = get_by_id(id=id_user.sso_email_id)
-                update_identity(
-                    profile=profile,
-                    first_name=sso_user.first_name,
-                    last_name=sso_user.last_name,
-                    all_emails=sso_user.emails,
-                    is_active=sso_user.is_active,
-                    primary_email=sso_user.email,
-                    contact_email=sso_user.contact_email,
-                )
-            elif sso_user not in id_users:
-                create_identity(
-                    id=sso_user.user_id,
-                    first_name=sso_user.first_name,
-                    last_name=sso_user.last_name,
-                    all_emails=sso_user.emails,
-                    primary_email=sso_user.email,
-                    contact_email=sso_user.contact_email,
-                )
-            elif id_user not in sso_users:
-                profile = get_by_id(id_user.sso_email_id)
-                delete_identity(profile=profile)
+    bulk_delete_identity_users_from_sso(sso_users=sso_users)
+    bulk_create_and_update_identity_users_from_sso(sso_users=sso_users)
 
 
 def sync_bulk_sso_users() -> None:
