@@ -35,17 +35,19 @@ def get_user(request, id: str):
         }
 
 
-@router.post("", response={201: CreateUserResponse, 409: ScimErrorSchema})
+@router.post(
+    "", response={201: CreateUserResponse, 400: ScimErrorSchema, 409: ScimErrorSchema}
+)
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
-    if not scim_user.active:
-        raise ValueError("Cannot create inactive profile via SCIM")
-
-    if not scim_user.emails:
-        raise ValueError("Cannot create profile with no email")
-
-    emails = [email.value for email in scim_user.emails]
-
     try:
+        if not scim_user.active:
+            raise ValueError("Cannot create inactive profile via SCIM")
+
+        if not scim_user.emails:
+            raise ValueError("Cannot create profile with no email")
+
+        emails = [email.value for email in scim_user.emails]
+
         user = core_services.create_identity(
             id=scim_user.externalId,
             first_name=scim_user.name.givenName,
@@ -55,6 +57,11 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             contact_email=scim_user.get_contact_email(),
         )
         return 201, user
+    except ValueError as e:
+        return 400, {
+            "status": "400",
+            "detail": e.args[0],
+        }
     except UserExists as e:
         return 409, {
             "status": "409",
@@ -64,17 +71,21 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 
 @router.put(
     "/{id}",
-    response={200: UpdateUserResponse, 404: ScimErrorSchema, 400: ScimErrorSchema},
+    response={200: UpdateUserResponse, 400: ScimErrorSchema, 404: ScimErrorSchema},
 )
 def update_user(
     request, id: str, scim_user: UpdateUserRequest
 ) -> tuple[int, Profile | dict]:
-
-    all_emails = [email.value for email in scim_user.emails]
-    primary_email = scim_user.get_primary_email()
-    contact_email = scim_user.get_contact_email()
-    profile = core_services.get_by_id(id=id)
     try:
+        if not scim_user.emails:
+            raise ValueError("Cannot create profile with no email")
+
+        all_emails = [email.value for email in scim_user.emails]
+        primary_email = scim_user.get_primary_email()
+        contact_email = scim_user.get_contact_email()
+
+        profile = core_services.get_by_id(id=id)
+
         core_services.update_identity(
             profile=profile,
             first_name=scim_user.name.givenName,
@@ -85,15 +96,15 @@ def update_user(
             is_active=scim_user.active,
         )
         return 200, profile
-    except User.DoesNotExist:
-        return 404, {
-            "status": "404",
-            "detail": "User does not exist",
-        }
     except ValueError as e:
         return 400, {
             "status": "400",
             "detail": e.args[0],
+        }
+    except User.DoesNotExist:
+        return 404, {
+            "status": "404",
+            "detail": "User does not exist",
         }
 
 
@@ -102,8 +113,8 @@ def delete_user(
     request,
     id: str,
 ) -> int | tuple[int, dict]:
-    profile = core_services.get_by_id(id=id)
     try:
+        profile = core_services.get_by_id(id=id)
         core_services.delete_identity(
             profile=profile,
         )
