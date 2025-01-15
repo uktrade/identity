@@ -51,6 +51,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.developer
       - INFRA_SERVICE=SSO_SCIM
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
 
   api-sso-profile:
     image: identity/main:latest
@@ -67,3 +69,5 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.developer
       - INFRA_SERVICE=SSO_PROFILE
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False

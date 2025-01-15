@@ -3,6 +3,7 @@ from django.urls import include, path
 
 from core.api import protected_apis
 
+
 urlpatterns = [
     path("", include("core.urls")),
     path("api/", protected_apis.urls),
