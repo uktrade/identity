@@ -36,13 +36,31 @@ services:
     ports:
       - "6379:6379"
 
-  api-scim:
+  peoplefinder:
     image: identity/main:latest
     command: python manage.py runserver 0.0.0.0:8000
     profiles:
       - services
     ports:
       - "8001:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.developer
+      - INFRA_SERVICE=PEOPLEFINDER
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
+
+  api-scim:
+    image: identity/main:latest
+    command: python manage.py runserver 0.0.0.0:8000
+    profiles:
+      - services
+    ports:
+      - "8002:8000"
     volumes:
       - .:/app
     depends_on:
@@ -60,7 +78,7 @@ services:
     profiles:
       - services
     ports:
-      - "8002:8000"
+      - "8003:8000"
     volumes:
       - .:/app
     depends_on:
