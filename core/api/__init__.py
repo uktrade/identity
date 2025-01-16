@@ -61,4 +61,3 @@ if settings.APP_ENV not in ("local", "test"):
     sso_profile_api.docs_decorator = staff_member_required
     people_finder_api.auth = [do_hawk_auth]
     people_finder_api.docs_decorator = staff_member_required
-
