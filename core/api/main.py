@@ -7,9 +7,12 @@ from profiles.models.combined import Profile
 
 
 router = Router()
+identity_router = Router()
+router.add_router("identity", identity_router)
 
 
-@router.get(
+# NB this is a placeholder to get the router running, it may need editing or deleting etc.
+@identity_router.get(
     "{id}",
     response={
         200: ProfileMinimal,
@@ -17,7 +20,7 @@ router = Router()
     },
 )
 def get_user(request, id: str):
-    """Optimised, low-flexibility endpoint to return a minimal Identity record (internally: Profile)"""
+    """Just a demo, do not build against this."""
     try:
         return core_services.get_by_id(id)
     except Profile.DoesNotExist:

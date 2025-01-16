@@ -1,18 +1,16 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from core.api import protected_apis
-from core.api.scim import router as scim_router
-from core.api.sso_profile import router as sso_profile_router
+from core.api import main_api, people_finder_api, scim_api, sso_profile_api
 
-
-protected_apis.add_router("/scim/v2/Users", scim_router)
-protected_apis.add_router("/sso", sso_profile_router)
 
 urlpatterns = [
-    path("", include("core.urls")),
-    path("api/", protected_apis.urls),
+    path("api/scim/", scim_api.urls),
+    path("api/sso/", sso_profile_api.urls),
+    path("api/peoplefinder/", people_finder_api.urls),
+    path(route="api/", view=main_api.urls),
     path("admin/", admin.site.urls),
     path("auth/", include("authbroker_client.urls")),
     path("pingdom/", include("pingdom.urls")),
+    path("", include("core.urls")),
 ]
