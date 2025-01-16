@@ -35,14 +35,22 @@ def get_user(request, id: str):
         }
 
 
-@router.post("", response={201: CreateUserResponse, 409: ScimErrorSchema})
+@router.post(
+    "", response={201: CreateUserResponse, 400: ScimErrorSchema, 409: ScimErrorSchema}
+)
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     """Creates the given Identity record; will not update"""
     if not scim_user.active:
-        raise ValueError("Cannot create inactive profile via SCIM")
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create inactive user via SCIM",
+        }
 
     if not scim_user.emails:
-        raise ValueError("Cannot create profile with no email")
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create user with no email",
+        }
 
     emails = [email.value for email in scim_user.emails]
 
@@ -56,6 +64,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             contact_email=scim_user.get_contact_email(),
         )
         return 201, user
+
     except UserExists as e:
         return 409, {
             "status": "409",
@@ -65,17 +74,25 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 
 @router.put(
     "/{id}",
-    response={200: UpdateUserResponse, 404: ScimErrorSchema, 400: ScimErrorSchema},
+    response={200: UpdateUserResponse, 400: ScimErrorSchema, 404: ScimErrorSchema},
 )
 def update_user(
     request, id: str, scim_user: UpdateUserRequest
 ) -> tuple[int, Profile | dict]:
     """Updates the given Identity record; will not create. Use this for status changes e.g. archiving."""
+    if not scim_user.emails:
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create profile with no email",
+        }
     all_emails = [email.value for email in scim_user.emails]
-    primary_email = scim_user.get_primary_email()
-    contact_email = scim_user.get_contact_email()
-    profile = core_services.get_by_id(id=id)
+
     try:
+        primary_email = scim_user.get_primary_email()
+        contact_email = scim_user.get_contact_email()
+
+        profile = core_services.get_by_id(id=id)
+
         core_services.update_identity(
             profile=profile,
             first_name=scim_user.name.givenName,
@@ -91,11 +108,6 @@ def update_user(
             "status": "404",
             "detail": "User does not exist",
         }
-    except ValueError as e:
-        return 400, {
-            "status": "400",
-            "detail": e.args[0],
-        }
 
 
 @router.delete("/{id}", response={204: None, 404: ScimErrorSchema})
@@ -104,8 +116,8 @@ def delete_user(
     id: str,
 ) -> int | tuple[int, dict]:
     """Deleted the Identity record with the given ID"""
-    profile = core_services.get_by_id(id=id)
     try:
+        profile = core_services.get_by_id(id=id)
         core_services.delete_identity(
             profile=profile,
         )
