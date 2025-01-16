@@ -39,15 +39,21 @@ def get_user(request, id: str):
     "", response={201: CreateUserResponse, 400: ScimErrorSchema, 409: ScimErrorSchema}
 )
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
+    if not scim_user.active:
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create inactive user via SCIM",
+        }
+
+    if not scim_user.emails:
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create user with no email",
+        }
+
+    emails = [email.value for email in scim_user.emails]
+
     try:
-        if not scim_user.active:
-            raise ValueError("Cannot create inactive profile via SCIM")
-
-        if not scim_user.emails:
-            raise ValueError("Cannot create profile with no email")
-
-        emails = [email.value for email in scim_user.emails]
-
         user = core_services.create_identity(
             id=scim_user.externalId,
             first_name=scim_user.name.givenName,
@@ -57,11 +63,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             contact_email=scim_user.get_contact_email(),
         )
         return 201, user
-    except ValueError as e:
-        return 400, {
-            "status": "400",
-            "detail": e.args[0],
-        }
+
     except UserExists as e:
         return 409, {
             "status": "409",
@@ -76,11 +78,15 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 def update_user(
     request, id: str, scim_user: UpdateUserRequest
 ) -> tuple[int, Profile | dict]:
-    try:
-        if not scim_user.emails:
-            raise ValueError("Cannot create profile with no email")
+    if not scim_user.emails:
+        return 400, {
+            "status": "400",
+            "detail": "Cannot create profile with no email",
+        }
 
-        all_emails = [email.value for email in scim_user.emails]
+    all_emails = [email.value for email in scim_user.emails]
+
+    try:
         primary_email = scim_user.get_primary_email()
         contact_email = scim_user.get_contact_email()
 
@@ -96,11 +102,6 @@ def update_user(
             is_active=scim_user.active,
         )
         return 200, profile
-    except ValueError as e:
-        return 400, {
-            "status": "400",
-            "detail": e.args[0],
-        }
     except User.DoesNotExist:
         return 404, {
             "status": "404",
