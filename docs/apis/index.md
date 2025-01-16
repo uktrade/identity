@@ -2,9 +2,15 @@
 
 The Identity service exposes different APIs for different purposes, split along lines related to different purposes.
 
+> NB All APIs are self-documenting, at [/api/docs](/api/docs), [/api/sso/docs](/api/sso/docs), [/api/peoplefinder/docs](/api/peoplefinder/docs), and [/api/scim/docs](/api/scim/docs).
+
 The most restricted, highest risk API is for [user management](./user-management.md) and encompasses creation, archiving and merging.
 
 The most optimisation-prioritised API is for [Staff SSO profile retrieval](./sso-profile.md); this is on the "hot path" for the Staff SSO auth process during user authentication.
+
+[PeopleFinder has a dedicated API](./people-finder.md) since it needs to retrieve and edit a specific provider profile.
+
+The [most general use API](./main.md) is for most use cases.
 
 ## Infrastructure "services" and authentication
 
