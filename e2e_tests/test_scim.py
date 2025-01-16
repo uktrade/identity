@@ -18,7 +18,7 @@ def test_create(scim_user_factory):
     client = Client()
     scim_user = scim_user_factory()
     scim_user_dict = json.loads(scim_user)
-    url = reverse("api:create_user")
+    url = reverse("scim:create_user")
 
     with pytest.raises(Profile.DoesNotExist):
         services.get_by_id(scim_user_dict["id"])
