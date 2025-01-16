@@ -6,7 +6,7 @@ Project documentation is available [here](https://uktrade.github.io/identity/).
 
 Add environment variable in your .env file
 
-    ENABLE_DEBUGPY=True
+    DEBUGPY_ENABLED=True
 
 Create launch.json file inside .vscode directory
 
