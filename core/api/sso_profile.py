@@ -17,7 +17,7 @@ router = Router()
     },
 )
 def get_user(request, id: str):
-    """In fact returns the combined Profile"""
+    """Optimised, low-flexibility endpoint to return a minimal Identity record (internally: Profile)"""
     try:
         return core_services.get_by_id(id)
     except Profile.DoesNotExist:
