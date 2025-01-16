@@ -20,7 +20,7 @@ router.add_router("person", profile_router)
     },
 )
 def get_user(request, id: str):
-    """Returns the combined Profile"""
+    """Just a demo, do not build against this"""
     try:
         return core_services.get_by_id(id)
     except Profile.DoesNotExist:
