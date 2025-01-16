@@ -1,4 +1,4 @@
-# SSO profile retrieval
+# SSO fast profile retrieval
 
 > This API is available at `/api/sso/`
 

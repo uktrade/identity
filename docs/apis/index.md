@@ -6,6 +6,8 @@ The most restricted, highest risk API is for [user management](./user-management
 
 The most optimisation-prioritised API is for [Staff SSO profile retrieval](./sso-profile.md); this is on the "hot path" for the Staff SSO auth process during user authentication.
 
+The [most general use API](./main.md) is for most use cases.
+
 ## Infrastructure "services" and authentication
 
 The ID service at runtime will be split into a running "service" (in AWS ECS terminology) per API, allowing infrastructure-level security to be applied per API.
