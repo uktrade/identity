@@ -48,25 +48,24 @@ def test_create(scim_user_factory):
     )
     assert response.status_code == 409
 
-    # @TODO get these in when the error codes PR is merged
-    # no_email = scim_user_dict
-    # no_email["emails"] = []
-    # scim_no_email = json.dumps(no_email)
+    no_email = scim_user_dict
+    no_email["emails"] = []
+    scim_no_email = json.dumps(no_email)
 
-    # response = client.post(
-    #     url,
-    #     data=scim_no_email,
-    #     content_type="application/json",
-    # )
-    # assert response.status_code == 400
+    response = client.post(
+        url,
+        data=scim_no_email,
+        content_type="application/json",
+    )
+    assert response.status_code == 400
 
-    # inactive = scim_user_dict
-    # inactive["is_active"] = False
-    # scim_inactive = json.dumps(inactive)
+    inactive = scim_user_dict
+    inactive["is_active"] = False
+    scim_inactive = json.dumps(inactive)
 
-    # response = client.post(
-    #     url,
-    #     data=scim_inactive,
-    #     content_type="application/json",
-    # )
-    # assert response.status_code == 400
+    response = client.post(
+        url,
+        data=scim_inactive,
+        content_type="application/json",
+    )
+    assert response.status_code == 400
