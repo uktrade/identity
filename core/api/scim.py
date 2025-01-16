@@ -25,7 +25,7 @@ router = Router()
     },
 )
 def get_user(request, id: str):
-    """In fact returns the combined Profile"""
+    """Returns the Identity record (internally: Profile) with the given ID"""
     try:
         return core_services.get_by_id(id)
     except Profile.DoesNotExist:
@@ -37,6 +37,7 @@ def get_user(request, id: str):
 
 @router.post("", response={201: CreateUserResponse, 409: ScimErrorSchema})
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
+    """Creates the given Identity record; will not update"""
     if not scim_user.active:
         raise ValueError("Cannot create inactive profile via SCIM")
 
@@ -69,7 +70,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
 def update_user(
     request, id: str, scim_user: UpdateUserRequest
 ) -> tuple[int, Profile | dict]:
-
+    """Updates the given Identity record; will not create. Use this for status changes e.g. archiving."""
     all_emails = [email.value for email in scim_user.emails]
     primary_email = scim_user.get_primary_email()
     contact_email = scim_user.get_contact_email()
@@ -102,6 +103,7 @@ def delete_user(
     request,
     id: str,
 ) -> int | tuple[int, dict]:
+    """Deleted the Identity record with the given ID"""
     profile = core_services.get_by_id(id=id)
     try:
         core_services.delete_identity(
