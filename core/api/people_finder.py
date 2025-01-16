@@ -7,9 +7,12 @@ from profiles.models.combined import Profile
 
 
 router = Router()
+profile_router = Router()
+router.add_router("person", profile_router)
 
 
-@router.get(
+# NB this is a placeholder to get the router running, it may need editing or deleting etc.
+@profile_router.get(
     "{id}",
     response={
         200: ProfileMinimal,
