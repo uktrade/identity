@@ -85,7 +85,7 @@ def get_bulk_user_records_from_sso():
     raise NotImplementedError
 
 
-def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]):
+def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None:
     """
     Deletes Identity users that are not in the Staff SSO database
     """
