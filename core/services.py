@@ -98,7 +98,9 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]):
         delete_identity(profile=profile)
 
 
-def bulk_create_and_update_identity_users_from_sso(sso_users):
+def bulk_create_and_update_identity_users_from_sso(
+    sso_users: list[dict[str, Any]]
+) -> None:
     """
     Creates and updates existing Staff SSO users in the Identity database
     """
