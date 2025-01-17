@@ -134,7 +134,6 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
         last_name="Bob",
         all_emails=["user@email.gov.uk"],
     )
-    print("prof:", services.get_by_id(id))
 
     mock_delete_identity = mocker.patch(
         "core.services.delete_identity", return_value=None
