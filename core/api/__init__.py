@@ -22,7 +22,8 @@ main_api = NinjaAPI(
     description="General API for ID retrieval",
     urls_namespace="api",
 )
-main_api.add_router("", main_router)
+if settings.INFRA_SERVICE == "MAIN":
+    main_api.add_router("", main_router)
 
 scim_api = NinjaAPI(
     title="SCIM User Management API",
@@ -30,7 +31,8 @@ scim_api = NinjaAPI(
     description="SSO-limited API for management of User status",
     urls_namespace="scim",
 )
-scim_api.add_router("/v2/Users", scim_router)
+if settings.INFRA_SERVICE == "SSO_SCIM":
+    scim_api.add_router("/v2/Users", scim_router)
 
 sso_profile_api = NinjaAPI(
     title="SSO Fast Profile API",
@@ -38,7 +40,8 @@ sso_profile_api = NinjaAPI(
     description="Optimised minimal profile retrieval API for SSO 'hot-path'",
     urls_namespace="sso-profile",
 )
-sso_profile_api.add_router("", sso_profile_router)
+if settings.INFRA_SERVICE == "SSO_PROFILE":
+    sso_profile_api.add_router("", sso_profile_router)
 
 people_finder_api = NinjaAPI(
     title="PeopleFinder API",
@@ -46,7 +49,8 @@ people_finder_api = NinjaAPI(
     description="PeopleFinder specific API",
     urls_namespace="people-finder",
 )
-people_finder_api.add_router("", people_finder_router)
+if settings.INFRA_SERVICE == "PEOPLEFINDER":
+    people_finder_api.add_router("", people_finder_router)
 
 if settings.APP_ENV not in ("local", "test"):
     main_api.auth = [do_hawk_auth]
