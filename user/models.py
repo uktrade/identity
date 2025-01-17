@@ -10,6 +10,15 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
+    def __init__(self):
+        super().__init__()
+        self.via_api_id = "via-api"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Exclude via-api user from the Identity Users
+        return queryset.exclude(pk=self.via_api_id)
+
     def _create_user(
         self, sso_email_id: str, password: str | None = None, **extra_fields
     ) -> "User":
