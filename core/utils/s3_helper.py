@@ -28,7 +28,7 @@ def get_file_path(export_directory: str):
     return f"{BUCKET_PATH}/{export_directory}"
 
 
-def get_files_to_ingest(export_directory: str):
+def get_sorted_files_in_export_directory(export_directory: str):
     """
     Get all the files that "could" be ingested and order them by last
     modified date (oldest first)
@@ -49,7 +49,7 @@ def get_files_to_ingest(export_directory: str):
 
 def get_data_to_ingest(export_directory: str):
     # Get all files in the export directory
-    files_to_process = get_files_to_ingest(export_directory=export_directory)
+    files_to_process = get_sorted_files_in_export_directory(export_directory=export_directory)
 
     if not len(files_to_process):
         return
@@ -75,9 +75,9 @@ def get_data_to_ingest(export_directory: str):
 
 def cleanup(export_directory: str):
     """
-    Delete ingested file and other files in the export directory
+    Delete other files in the export directory
     """
-    files_to_process = get_files_to_ingest(export_directory=export_directory)
+    files_to_process = get_sorted_files_in_export_directory(export_directory=export_directory)
 
     files_to_delete = files_to_process[:-1]
 
