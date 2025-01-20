@@ -95,7 +95,7 @@ def get_bulk_user_records_from_sso():
     for item in get_data_to_ingest(sso_export_directory):
         sso_users.append(item)
 
-    cleanup()
+    cleanup(export_directory=sso_export_directory)
     return sso_users
 
 
