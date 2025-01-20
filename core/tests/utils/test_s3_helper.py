@@ -6,8 +6,8 @@ from django.utils import timezone
 from core.utils.s3_helper import (
     cleanup,
     get_file_path,
-    get_sorted_files_in_export_directory,
     get_s3_resource,
+    get_sorted_files_in_export_directory,
 )
 
 
@@ -49,7 +49,9 @@ class TestJSONLIngest(TestCase):
     ):
         export_directory = "test/"
 
-        self.assertEqual(get_sorted_files_in_export_directory(export_directory=export_directory), [])
+        self.assertEqual(
+            get_sorted_files_in_export_directory(export_directory=export_directory), []
+        )
 
     @mock.patch("boto3.resource")
     def test_get_sorted_files_in_export_directory(

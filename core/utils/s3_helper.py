@@ -49,7 +49,9 @@ def get_sorted_files_in_export_directory(export_directory: str):
 
 def get_data_to_ingest(export_directory: str):
     # Get all files in the export directory
-    files_to_process = get_sorted_files_in_export_directory(export_directory=export_directory)
+    files_to_process = get_sorted_files_in_export_directory(
+        export_directory=export_directory
+    )
 
     if not len(files_to_process):
         return
@@ -77,7 +79,9 @@ def cleanup(export_directory: str):
     """
     Delete other files in the export directory
     """
-    files_to_process = get_sorted_files_in_export_directory(export_directory=export_directory)
+    files_to_process = get_sorted_files_in_export_directory(
+        export_directory=export_directory
+    )
 
     files_to_delete = files_to_process[:-1]
 
