@@ -43,6 +43,10 @@ INFRA_SERVICE: str = env.str("INFRA_SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 
+# Boto
+DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
+DATA_FLOW_UPLOADS_BUCKET_PATH = env("DATA_FLOW_UPLOADS_BUCKET_PATH", default="")
+
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
 SECRET_KEY: str = env.str("SECRET_KEY")
