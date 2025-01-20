@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
@@ -39,7 +40,7 @@ class TestJSONLIngest(TestCase):
 
         self.assertEqual(
             get_file_path(export_directory=export_directory),
-            "data-flow/exports/local-development/test/",
+            f"{settings.DATA_FLOW_UPLOADS_BUCKET_PATH}/test/",
         )
 
     @mock.patch("boto3.resource")
