@@ -1,6 +1,8 @@
 from .base import *
 
 
+HOST_ALL_APIS = True
+
 DEBUG = True
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "*"]
 INSTALLED_APPS.append(

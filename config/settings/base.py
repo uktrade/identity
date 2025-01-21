@@ -41,6 +41,7 @@ ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
 APP_ENV: str = env.str("APP_ENV")
 INFRA_SERVICE: str = env.str("INFRA_SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
+HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
@@ -150,6 +151,7 @@ DJANGO_HAWK = {
     "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
     "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
 }
+
 
 LOGGING = {
     "version": 1,

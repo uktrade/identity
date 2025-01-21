@@ -22,7 +22,7 @@ main_api = NinjaAPI(
     description="General API for ID retrieval",
     urls_namespace="api",
 )
-if settings.INFRA_SERVICE == "MAIN":
+if settings.INFRA_SERVICE == "MAIN" or settings.HOST_ALL_APIS:
     main_api.add_router("", main_router)
 
 scim_api = NinjaAPI(
@@ -31,7 +31,7 @@ scim_api = NinjaAPI(
     description="SSO-limited API for management of User status",
     urls_namespace="scim",
 )
-if settings.INFRA_SERVICE == "SSO_SCIM":
+if settings.INFRA_SERVICE == "SSO_SCIM" or settings.HOST_ALL_APIS:
     scim_api.add_router("/v2/Users", scim_router)
 
 sso_profile_api = NinjaAPI(
@@ -40,7 +40,7 @@ sso_profile_api = NinjaAPI(
     description="Optimised minimal profile retrieval API for SSO 'hot-path'",
     urls_namespace="sso-profile",
 )
-if settings.INFRA_SERVICE == "SSO_PROFILE":
+if settings.INFRA_SERVICE == "SSO_PROFILE" or settings.HOST_ALL_APIS:
     sso_profile_api.add_router("", sso_profile_router)
 
 people_finder_api = NinjaAPI(
@@ -49,7 +49,7 @@ people_finder_api = NinjaAPI(
     description="PeopleFinder specific API",
     urls_namespace="people-finder",
 )
-if settings.INFRA_SERVICE == "PEOPLEFINDER":
+if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
     people_finder_api.add_router("", people_finder_router)
 
 if settings.APP_ENV not in ("local", "test"):

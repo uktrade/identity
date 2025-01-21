@@ -36,7 +36,12 @@ def get_user(request, id: str):
 
 
 @router.post(
-    "", response={201: CreateUserResponse, 400: ScimErrorSchema, 409: ScimErrorSchema}
+    "",
+    response={
+        201: CreateUserResponse,
+        400: ScimErrorSchema,
+        409: ScimErrorSchema,
+    },
 )
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     """Creates the given Identity record; will not update"""
