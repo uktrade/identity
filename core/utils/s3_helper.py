@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import boto3
 from django.conf import settings
@@ -11,7 +12,7 @@ EXPORT_BUCKET: str = settings.DATA_FLOW_UPLOADS_BUCKET
 BUCKET_PATH: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
 
 
-def get_s3_resource():
+def get_s3_resource() -> Any:
     if local_endpoint := getattr(settings, "S3_LOCAL_ENDPOINT_URL", None):
         logger.debug("using local S3 endpoint %s", local_endpoint)
         return boto3.resource(
@@ -24,11 +25,11 @@ def get_s3_resource():
     return boto3.resource("s3")
 
 
-def get_file_path(export_directory: str):
+def get_file_path(export_directory: str) -> str:
     return f"{BUCKET_PATH}/{export_directory}"
 
 
-def get_sorted_files_in_export_directory(export_directory: str):
+def get_sorted_files_in_export_directory(export_directory: str) -> list[Any]:
     """
     Get all the files that "could" be ingested and order them by last
     modified date (oldest first)
@@ -47,7 +48,7 @@ def get_sorted_files_in_export_directory(export_directory: str):
     return sorted_files
 
 
-def get_data_to_ingest(files_to_process: list):
+def get_data_to_ingest(files_to_process: list) -> Any:
     if not len(files_to_process):
         return
 
@@ -70,7 +71,7 @@ def get_data_to_ingest(files_to_process: list):
             yield line
 
 
-def cleanup(files_to_process: list):
+def cleanup(files_to_process: list) -> None:
     """
     Delete other files in the export directory
     """
