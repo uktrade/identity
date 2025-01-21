@@ -82,14 +82,9 @@ class TestJSONLIngest(TestCase):
         file1 = mock.MagicMock(last_modified=timezone.now().isoformat())
         file2 = mock.MagicMock(last_modified=timezone.now().isoformat())
         file3 = mock.MagicMock(last_modified=timezone.now().isoformat())
-        mock_boto3_resource.return_value.Bucket.return_value.objects.filter.return_value = [
-            file3,
-            file2,
-            file1,
-        ]
-        export_directory = "test/"
+        files = [file1, file2, file3]
 
-        cleanup(export_directory=export_directory)
+        cleanup(files_to_process=files)
 
         mock_boto3_resource.return_value.Bucket.return_value.delete_objects.assert_called_once_with(
             Delete={

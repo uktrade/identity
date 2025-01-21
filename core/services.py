@@ -2,7 +2,11 @@ import logging
 from typing import Any
 
 from config.settings.base import APP_ENV
-from core.utils.s3_helper import cleanup, get_data_to_ingest
+from core.utils.s3_helper import (
+    cleanup,
+    get_data_to_ingest,
+    get_sorted_files_in_export_directory,
+)
 from profiles import services as profile_services
 from profiles.models.combined import Profile
 from profiles.services import get_all_profiles
@@ -92,10 +96,11 @@ def get_bulk_user_records_from_sso():
     sso_export_directory = "StaffSSOUsersPipeline/"
 
     sso_users: list[dict] = []
-    for item in get_data_to_ingest(sso_export_directory):
+    files = get_sorted_files_in_export_directory(sso_export_directory)
+    for item in get_data_to_ingest(files):
         sso_users.append(item)
 
-    cleanup(export_directory=sso_export_directory)
+    cleanup(files)
     return sso_users
 
 

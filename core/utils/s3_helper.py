@@ -47,12 +47,7 @@ def get_sorted_files_in_export_directory(export_directory: str):
     return sorted_files
 
 
-def get_data_to_ingest(export_directory: str):
-    # Get all files in the export directory
-    files_to_process = get_sorted_files_in_export_directory(
-        export_directory=export_directory
-    )
-
+def get_data_to_ingest(files_to_process: list):
     if not len(files_to_process):
         return
 
@@ -75,13 +70,10 @@ def get_data_to_ingest(export_directory: str):
             yield line
 
 
-def cleanup(export_directory: str):
+def cleanup(files_to_process: list):
     """
     Delete other files in the export directory
     """
-    files_to_process = get_sorted_files_in_export_directory(
-        export_directory=export_directory
-    )
 
     files_to_delete = files_to_process[:-1]
 
