@@ -29,6 +29,12 @@ jobs:
       - name: Install python dependencies
         run: poetry install --no-root
 
+      - name: Install node packages
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
       - name: Run tests
         run: make test-e2e
 
