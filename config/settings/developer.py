@@ -9,7 +9,8 @@ INSTALLED_APPS.append(
     "django_extensions",
 )
 
-MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")
+if "authbroker_client.middleware.ProtectAllViewsMiddleware" in MIDDLEWARE:
+    MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")
 
 LOGGING["loggers"]["django"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.request"]["handlers"] = ["simple"]  #  type:ignore
