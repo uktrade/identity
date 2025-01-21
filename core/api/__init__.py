@@ -31,7 +31,7 @@ scim_api = NinjaAPI(
     version="1.0.0",
     description="SSO-limited API for management of User status",
     urls_namespace="scim",
-    auth=do_hawk_auth
+    auth=[do_hawk_auth]
 )
 if settings.INFRA_SERVICE == "SSO_SCIM" or settings.HOST_ALL_APIS:
     scim_api.add_router("/v2/Users", scim_router)
@@ -56,11 +56,11 @@ if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
 
 print(f"SETTINGS APP ENV {settings.APP_ENV} is local {settings.APP_ENV not in ("local", "test")}")
 if settings.APP_ENV not in ("local", "test"):
-    main_api.auth = do_hawk_auth
+    main_api.auth = [do_hawk_auth]
     main_api.docs_decorator = staff_member_required
-    scim_api.auth = do_hawk_auth
+    scim_api.auth = [do_hawk_auth]
     scim_api.docs_decorator = staff_member_required
-    sso_profile_api.auth = do_hawk_auth
+    sso_profile_api.auth = [do_hawk_auth]
     sso_profile_api.docs_decorator = staff_member_required
-    people_finder_api.auth = do_hawk_auth
+    people_finder_api.auth = [do_hawk_auth]
     people_finder_api.docs_decorator = staff_member_required
