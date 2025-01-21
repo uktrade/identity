@@ -105,9 +105,17 @@ MIDDLEWARE: list[str] = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "authbroker_client.middleware.ProtectAllViewsMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware",
 ]
+
+if INFRA_SERVICE == "MAIN":
+    MIDDLEWARE.append(
+        "authbroker_client.middleware.ProtectAllViewsMiddleware",
+    )
+
+# Keep the order of Middleware, history is last.
+MIDDLEWARE.append(
+    "simple_history.middleware.HistoryRequestMiddleware",
+)
 
 TEMPLATES: list[dict[str, Any]] = [
     {
