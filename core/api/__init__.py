@@ -11,7 +11,7 @@ from core.api.sso_profile import router as sso_profile_router
 
 def do_hawk_auth(request):
     try:
-        print(f"AUTH HEADERS: {request.META["HTTP_AUTHORIZATION"]} {request.get_port()}")
+        print(f"AUTH HEADERS: {request.headers} {request.get_port()}")
         return authenticate_request(request)
     except DjangoHawkAuthenticationFailed:
         return False
