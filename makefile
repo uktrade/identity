@@ -128,7 +128,7 @@ test-e2e:
 	$(web) python -m pytest -m "e2e" $(tests)
 
 coverage: # Run test with pytest and generate coverage report
-	$(web) coverage run -m pytest --create-db $(tests)
+	$(web) coverage run -m pytest -m "not e2e" --create-db $(tests)
 	$(web) coverage report --fail-under=75
 
 coverage-html: # Generate a html report of the test coverage

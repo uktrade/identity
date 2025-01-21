@@ -4,6 +4,7 @@ from .base import *  # noqa
 
 
 APP_ENV = "test"
+HOST_ALL_APIS = True
 DEBUG = True
 TEMPLATE_DEBUG = True
 
