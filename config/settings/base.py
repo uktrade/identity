@@ -108,10 +108,14 @@ MIDDLEWARE: list[str] = [
 ]
 
 if INFRA_SERVICE == "MAIN":
-    MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware",)
+    MIDDLEWARE.append(
+        "authbroker_client.middleware.ProtectAllViewsMiddleware",
+    )
 
 # Keep the order of Middleware, history is last.
-MIDDLEWARE.append("simple_history.middleware.HistoryRequestMiddleware",)
+MIDDLEWARE.append(
+    "simple_history.middleware.HistoryRequestMiddleware",
+)
 
 TEMPLATES: list[dict[str, Any]] = [
     {
