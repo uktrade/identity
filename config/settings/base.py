@@ -240,7 +240,7 @@ LOGGING = {
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
-        }
+        },
     },
     # "filters": {
     #     "request_id_context": {
