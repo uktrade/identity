@@ -8,6 +8,9 @@ HOST_ALL_APIS = True
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+if HOST_ALL_APIS and INFRA_SERVICE != "MAIN":
+    exit()
+
 STORAGES["staticfiles"][
     "BACKEND"
 ] = "django.contrib.staticfiles.storage.StaticFilesStorage"

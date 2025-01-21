@@ -9,6 +9,9 @@ INSTALLED_APPS.append(
     "django_extensions",
 )
 
+if HOST_ALL_APIS and INFRA_SERVICE != "MAIN":
+    exit()
+
 MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")
 
 LOGGING["loggers"]["django"]["handlers"] = ["simple"]  #  type:ignore
