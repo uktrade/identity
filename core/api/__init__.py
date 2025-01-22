@@ -9,10 +9,12 @@ from core.api.scim import router as scim_router
 from core.api.sso_profile import router as sso_profile_router
 
 
-def do_hawk_auth(request):
+def do_hawk_auth(request) -> bool:
+    if settings.APP_ENV in ("local", "test"):
+        return True
     try:
-        print(f"AUTH HEADERS: {request.headers} {request.get_port()}")
-        return authenticate_request(request)
+        authenticate_request(request)
+        return True
     except DjangoHawkAuthenticationFailed:
         return False
 
@@ -54,10 +56,6 @@ people_finder_api = NinjaAPI(
 if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
     people_finder_api.add_router("", people_finder_router)
 
-print(
-    f"SETTINGS APP ENV {settings.APP_ENV} is local {settings.APP_ENV not in ("local", "test")}"
-)
-if settings.APP_ENV not in ("local", "test"):
     main_api.auth = [do_hawk_auth]
     main_api.docs_decorator = staff_member_required
     scim_api.auth = [do_hawk_auth]

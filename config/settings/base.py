@@ -238,7 +238,7 @@ LOGGING = {
             "handlers": [
                 "asim",
             ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
             "propagate": False,
         },
     },
