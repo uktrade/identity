@@ -91,14 +91,16 @@ def delete_identity(profile: Profile) -> None:
 
 
 def get_bulk_user_records_from_sso():
-    logger.info("ingest_staff_sso_s3: Starting S3 ingest")
+    logger.info("ingest_staff_sso_s3: Starting S3 data read")
     sso_export_directory = "StaffSSOUsersPipeline/"
 
     sso_users: list[dict] = []
     files = get_sorted_files_in_export_directory(sso_export_directory)
     for item in get_data_to_ingest(files):
         sso_users.append(item)
+        logger.info(f"ingest_staff_sso_s3: Added user data for ingestion - {item}")
 
+    logger.info("ingest_staff_sso_s3: Cleaning up unused data files")
     cleanup(files)
     return sso_users
 
