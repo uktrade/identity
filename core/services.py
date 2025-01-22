@@ -1,11 +1,20 @@
+import logging
 from typing import Any
 
+from core.utils.s3_helper import (
+    cleanup,
+    get_data_to_ingest,
+    get_sorted_files_in_export_directory,
+)
 from profiles import services as profile_services
 from profiles.models.combined import Profile
 from profiles.services import get_all_profiles
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 from user.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_by_id(id: str):
@@ -82,7 +91,18 @@ def delete_identity(profile: Profile) -> None:
 
 
 def get_bulk_user_records_from_sso():
-    raise NotImplementedError
+    logger.info("ingest_staff_sso_s3: Starting S3 data read")
+    sso_export_directory = "StaffSSOUsersPipeline/"
+
+    sso_users: list[dict] = []
+    files = get_sorted_files_in_export_directory(sso_export_directory)
+    for item in get_data_to_ingest(files):
+        sso_users.append(item)
+        logger.info(f"ingest_staff_sso_s3: Added user data for ingestion - {item}")
+
+    logger.info("ingest_staff_sso_s3: Cleaning up unused data files")
+    cleanup(files)
+    return sso_users
 
 
 def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None:
@@ -95,6 +115,9 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None
     id_users_to_delete = id_users.exclude(sso_email_id__in=sso_user_ids)
     for user in id_users_to_delete:
         profile = get_by_id(user.sso_email_id)
+        # log Staff SSO objects that are no longer in the S3 file.
+        logger.info(f"ingest_staff_sso_s3: Deactivating account {user.sso_email_id}")
+
         delete_identity(profile=profile)
 
 
