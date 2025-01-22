@@ -58,6 +58,7 @@ people_finder_api = NinjaAPI(
     description="PeopleFinder specific API",
     urls_namespace="people-finder",
     auth=[do_hawk_auth],
+    docs_decorator=staff_member_required,
 )
 
 if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
