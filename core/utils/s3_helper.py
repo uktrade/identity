@@ -13,7 +13,7 @@ BUCKET_PATH: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
 
 
 def get_s3_resource() -> Any:
-    if local_endpoint := getattr(settings, "S3_LOCAL_ENDPOINT_URL", None):
+    if local_endpoint := settings.S3_LOCAL_ENDPOINT_URL:
         logger.debug("using local S3 endpoint %s", local_endpoint)
         return boto3.resource(
             "s3",

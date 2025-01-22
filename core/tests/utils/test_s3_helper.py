@@ -32,7 +32,7 @@ def test_get_s3_resource_with_endpoint(mocker, monkeypatch):
     )
 
 
-def test_get_s3_resource_no_endpoint(mocker, monkeypatch):
+def test_get_s3_resource_no_endpoint(mocker):
     """Test s3 resource creation based on no S3_LOCAL_ENDPOINT_URL setting."""
     mock_settings = mocker.patch("core.utils.s3_helper.settings")
     mocker.patch.object(mock_settings, "S3_LOCAL_ENDPOINT_URL", None)
@@ -68,6 +68,8 @@ def test_get_sorted_files_in_export_directory_no_files(
     mock_boto3_resource.return_value.Bucket.return_value.objects.filter.return_value = (
         mock_files
     )
+    mock_settings = mocker.patch("core.utils.s3_helper.settings")
+    mocker.patch.object(mock_settings, "S3_LOCAL_ENDPOINT_URL", None)
     assert (
         get_sorted_files_in_export_directory(export_directory=export_directory)
         == expected_result
@@ -77,6 +79,9 @@ def test_get_sorted_files_in_export_directory_no_files(
 def test_get_sorted_files_in_export_directory(mocker):
     """Test sorting of files by last modified."""
     mock_boto3_resource = mocker.patch("boto3.resource")
+
+    mock_settings = mocker.patch("core.utils.s3_helper.settings")
+    mocker.patch.object(mock_settings, "S3_LOCAL_ENDPOINT_URL", None)
 
     export_directory = "test/"
 
@@ -112,6 +117,9 @@ def test_get_sorted_files_in_export_directory(mocker):
 def test_cleanup(files_to_process, expected_keys, mocker):
     """Test cleanup method which deletes files."""
     mock_boto3_resource = mocker.patch("boto3.resource")
+
+    mock_settings = mocker.patch("core.utils.s3_helper.settings")
+    mocker.patch.object(mock_settings, "S3_LOCAL_ENDPOINT_URL", None)
 
     cleanup(files_to_process=files_to_process)
 
