@@ -13,8 +13,7 @@ def do_hawk_auth(request) -> bool:
     if settings.APP_ENV in ("local", "test"):
         return True
     try:
-        authenticate_request(request)
-        return True
+        return authenticate_request(request)
     except DjangoHawkAuthenticationFailed:
         return False
 
