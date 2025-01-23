@@ -1,7 +1,7 @@
 from django.core.validators import EmailValidator
 from django.db import models
 
-from .abstract import AbstractHistoricalModel
+from .abstract import AbstractHistoricalModel, IngestedModel
 
 
 class Email(AbstractHistoricalModel):
@@ -44,4 +44,91 @@ class Country(models.Model):
     end_date = models.DateField(null=True)
 
     def __str__(self):
+        return self.name
+
+
+
+
+class WorkdayQuerySet(models.QuerySet):
+    def all_mon_to_sun(self):
+        codes = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+
+        return sorted(self.all(), key=lambda x: codes.index(x.code))
+
+
+class Workday(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["code"], name="unique_workday_code"),
+            models.UniqueConstraint(fields=["name"], name="unique_workday_name"),
+        ]
+
+    code = models.CharField(max_length=3)
+    name = models.CharField(max_length=9)
+
+    objects = WorkdayQuerySet.as_manager()
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Grade(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["code"], name="unique_grade_code"),
+            models.UniqueConstraint(fields=["name"], name="unique_grade_name"),
+        ]
+        ordering = ["name"]
+
+    code = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class KeySkill(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["code"], name="unique_key_skill_code"),
+            models.UniqueConstraint(fields=["name"], name="unique_key_skill_name"),
+        ]
+        ordering = ["name"]
+
+    code = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Profession(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["code"], name="unique_profession_code"),
+            models.UniqueConstraint(fields=["name"], name="unique_profession_name"),
+        ]
+        ordering = ["name"]
+
+    code = models.CharField(max_length=30)
+    name = models.CharField(max_length=60)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class UkStaffLocation(IngestedModel):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["code"], name="unique_location_code"),
+        ]
+        ordering = ["name"]
+
+    code = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    organisation = models.CharField(max_length=255)
+    building_name = models.CharField(max_length=255, blank=True)
+
+    def __str__(self) -> str:
         return self.name

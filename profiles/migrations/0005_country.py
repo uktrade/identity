@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name="Country",
+            options={"verbose_name_plural": "countries"},
             fields=[
                 (
                     "reference_id",
