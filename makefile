@@ -135,7 +135,7 @@ coverage-html: # Generate a html report of the test coverage
 	$(web) coverage html
 	poetry run python -m webbrowser htmlcov/index.html
 
-# DB
+# DB and data
 db-reset: # Reset the database
 	docker compose stop postgres
 	docker compose rm -f postgres
@@ -151,6 +151,9 @@ db-dump: # Dump the current database, use `DUMP_NAME` to change the name of the 
 
 db-from-dump: # Load a dumpped database, use `DUMP_NAME` to change the name of the dump
 	@PGPASSWORD='postgres' psql -h localhost -U postgres postgres -f ./.dumps/$(DUMP_NAME).dump
+
+data-countries: # Import the countries data
+	$(web) $(manage) loaddata countries.json
 
 # Make Docs
 serve-docs: # Serve mkdocs on port 8002
