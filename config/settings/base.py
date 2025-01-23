@@ -238,6 +238,13 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+        "mohawk": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+            "propagate": False,
+        },
     },
     # "filters": {
     #     "request_id_context": {

@@ -16,3 +16,4 @@ LOGGING["loggers"]["django"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.request"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.server"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.db.backends"]["handlers"] = ["simple"]  #  type:ignore
+LOGGING["loggers"]["mohawk"]["handlers"] = ["simple"]  #  type:ignore
