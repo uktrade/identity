@@ -152,9 +152,6 @@ db-dump: # Dump the current database, use `DUMP_NAME` to change the name of the 
 db-from-dump: # Load a dumpped database, use `DUMP_NAME` to change the name of the dump
 	@PGPASSWORD='postgres' psql -h localhost -U postgres postgres -f ./.dumps/$(DUMP_NAME).dump
 
-data-countries: # Import the countries data
-	$(web) $(manage) loaddata countries.json
-
 # Make Docs
 serve-docs: # Serve mkdocs on port 8002
 	poetry run mkdocs serve -a localhost:8002

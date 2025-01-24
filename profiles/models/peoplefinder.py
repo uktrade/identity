@@ -73,9 +73,6 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         indexes = [
             models.Index(fields=['slug']),
         ]
-        permissions = [
-            ("can_view_inactive_profiles", "Can view inactive profiles"),
-        ]
 
     class RemoteWorking(models.TextChoices):
         OFFICE_WORKER = (
