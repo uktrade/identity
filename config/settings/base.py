@@ -92,12 +92,13 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
-    "core.apps.CoreConfig",
     "authbroker_client",
     "simple_history",
+    "django_chunk_upload_handlers",
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
     "profiles.apps.ProfileConfig",
+    "core.apps.CoreConfig",
 ]
 
 MIDDLEWARE: list[str] = [
@@ -329,3 +330,8 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+CLAM_AV_USERNAME= env.str("CLAM_AV_USERNAME", default=None)
+CLAM_AV_PASSWORD= env.str("CLAM_AV_PASSWORD", default=None)
+CLAM_AV_DOMAIN= env.str("CLAM_AV_DOMAIN", default=None)

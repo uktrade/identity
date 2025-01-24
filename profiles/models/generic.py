@@ -20,6 +20,11 @@ You can update this description, by [updating your team information](https://wor
 
 
 class Team(AbstractHistoricalModel):
+    class Meta:
+        indexes = [
+            models.Index(fields=['slug']),
+        ]
+
     class LeadersOrdering(models.TextChoices):
         ALPHABETICAL = "alphabetical", "Alphabetical"
         CUSTOM = "custom", "Custom"
@@ -69,20 +74,9 @@ class Team(AbstractHistoricalModel):
 
 class Country(models.Model):
     """
-    Country model for use with the Data Workspace country dataset.
-
-    Information about the dataset can be found here:
+    Country model populated by the Data Workspace country datasetfound here:
     https://data.trade.gov.uk/datasets/240d5034-6a83-451b-8307-5755672f881b#countries-territories-and-regions.
-
-    The data required to populate this model can be downloaded from here:
-    https://data.trade.gov.uk/datasets/240d5034-6a83-451b-8307-5755672f881b/grid.
-
-    Use the provided `generate_countries_fixture` management command to produce a
-    fixture which is compatible with this model.
-
-    This model was built against the 5.35 version of the dataset.
     """
-
     class Meta:
         verbose_name_plural = "countries"
 
@@ -117,6 +111,9 @@ class Workday(models.Model):
             models.UniqueConstraint(fields=["code"], name="unique_workday_code"),
             models.UniqueConstraint(fields=["name"], name="unique_workday_name"),
         ]
+        indexes = [
+            models.Index(fields=['code']),
+        ]
 
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=9)
@@ -133,6 +130,9 @@ class Grade(models.Model):
             models.UniqueConstraint(fields=["code"], name="unique_grade_code"),
             models.UniqueConstraint(fields=["name"], name="unique_grade_name"),
         ]
+        indexes = [
+            models.Index(fields=['code']),
+        ]
         ordering = ["name"]
 
     code = models.CharField(max_length=30)
@@ -147,6 +147,9 @@ class KeySkill(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["code"], name="unique_key_skill_code"),
             models.UniqueConstraint(fields=["name"], name="unique_key_skill_name"),
+        ]
+        indexes = [
+            models.Index(fields=['code']),
         ]
         ordering = ["name"]
 
@@ -163,6 +166,9 @@ class Profession(models.Model):
             models.UniqueConstraint(fields=["code"], name="unique_profession_code"),
             models.UniqueConstraint(fields=["name"], name="unique_profession_name"),
         ]
+        indexes = [
+            models.Index(fields=['code']),
+        ]
         ordering = ["name"]
 
     code = models.CharField(max_length=30)
@@ -173,9 +179,16 @@ class Profession(models.Model):
 
 
 class UkStaffLocation(IngestedModel):
+    """
+    UkStaffLocation model populated by the Data Workspace DBT Staff Locations datasetfound here:
+    https://data.trade.gov.uk/datasets/e89b0647-9b83-48ae-9234-0fccd6b90fa4#dit-staff-locations.
+    """
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["code"], name="unique_location_code"),
+        ]
+        indexes = [
+            models.Index(fields=['code']),
         ]
         ordering = ["name"]
 

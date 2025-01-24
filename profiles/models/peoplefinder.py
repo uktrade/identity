@@ -70,6 +70,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
                 check=~Q(id=F("manager")), name="manager_cannot_be_self"
             ),
         ]
+        indexes = [
+            models.Index(fields=['slug']),
+        ]
         permissions = [
             ("can_view_inactive_profiles", "Can view inactive profiles"),
         ]
@@ -175,7 +178,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         "Grade", models.SET_NULL, null=True, blank=True, related_name="+"
     )
     manager = models.ForeignKey(
-        "Person", models.SET_NULL, null=True, blank=True, related_name="direct_reports"
+        "PeopleFinderProfile", models.SET_NULL, null=True, blank=True, related_name="direct_reports"
     )
     do_not_work_for_dit = models.BooleanField(
         "My manager is not listed because I do not work for DBT", default=False
@@ -321,27 +324,6 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     def __str__(self) -> str:
         return self.full_name
 
-    def get_absolute_url(self) -> str:
-        return reverse("profile-view", kwargs={"profile_slug": self.slug})
-
-    def get_all_key_skills(self) -> Iterator[str]:
-        yield from self.key_skills.all()
-
-        if self.other_key_skills:
-            yield self.other_key_skills
-
-    def get_all_learning_interests(self) -> Iterator[str]:
-        yield from self.learning_interests.all()
-
-        if self.other_learning_interests:
-            yield self.other_learning_interests
-
-    def get_all_additional_roles(self) -> Iterator[str]:
-        yield from self.additional_roles.all()
-
-        if self.other_additional_roles:
-            yield self.other_additional_roles
-
     @property
     def full_name(self) -> str:
         first_name = self.get_first_name_display()
@@ -400,18 +382,18 @@ class PeopleFinderProfile(AbstractHistoricalModel):
 
         return mark_safe("<br>".join(location_parts))  # noqa: S308
 
-    def get_manager_display(self) -> Optional[str]:
-        if self.manager:
-            return mark_safe(  # noqa: S308
-                render_to_string(
-                    "peoplefinder/components/profile-link.html",
-                    {
-                        "profile": self.manager,
-                        "data_testid": "manager",
-                    },
-                )
-            )
-        return None
+    # def get_manager_display(self) -> Optional[str]:
+    #     if self.manager:
+    #         return mark_safe(  # noqa: S308
+    #             render_to_string(
+    #                 "peoplefinder/components/profile-link.html",
+    #                 {
+    #                     "profile": self.manager,
+    #                     "data_testid": "manager",
+    #                 },
+    #             )
+    #         )
+    #     return None
 
     # def get_roles_display(self) -> Optional[str]:
     #     output = ""
@@ -426,6 +408,12 @@ class PeopleFinderProfile(AbstractHistoricalModel):
             return self.grade.name
         return None
 
+    def get_all_key_skills(self) -> Iterator[str]:
+        yield from self.key_skills.all()
+
+        if self.other_key_skills:
+            yield self.other_key_skills
+
     def get_key_skills_display(self) -> Optional[str]:
         if self.key_skills.exists() or self.other_key_skills:
             skills_list = []
@@ -435,6 +423,12 @@ class PeopleFinderProfile(AbstractHistoricalModel):
             return ", ".join(skills_list)
 
         return None
+
+    def get_all_learning_interests(self) -> Iterator[str]:
+        yield from self.learning_interests.all()
+
+        if self.other_learning_interests:
+            yield self.other_learning_interests
 
     def get_learning_interests_display(self) -> Optional[str]:
         if self.learning_interests.exists() or self.other_learning_interests:
@@ -451,6 +445,12 @@ class PeopleFinderProfile(AbstractHistoricalModel):
             return ", ".join(self.professions.values_list("name", flat=True))
 
         return None
+
+    def get_all_additional_roles(self) -> Iterator[str]:
+        yield from self.additional_roles.all()
+
+        if self.other_additional_roles:
+            yield self.other_additional_roles
 
     def get_additional_roles_display(self) -> Optional[str]:
         if self.additional_roles.exists() or self.other_additional_roles:
@@ -469,7 +469,7 @@ class PeopleFinderProfileTeam(AbstractHistoricalModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["person", "team", "job_title", "head_of_team"],
+                fields=["peoplefinder_profile", "team", "job_title", "head_of_team"],
                 name="unique_team_member",
             ),
         ]
