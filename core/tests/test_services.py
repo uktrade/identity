@@ -3,6 +3,14 @@ from unittest.mock import call
 import pytest
 
 from core import services
+from core.services import (
+    SSO_CONTACT_EMAIL_ADDRESS,
+    SSO_EMAIL_ADDRESSES,
+    SSO_FIRST_NAME,
+    SSO_LAST_NAME,
+    SSO_USER_EMAIL_ID,
+    SSO_USER_STATUS,
+)
 from profiles.models.combined import Profile
 from user.exceptions import UserExists
 from user.models import User
@@ -141,12 +149,12 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
 
     sso_users = [
         {
-            "dit:StaffSSO:User:emailUserId": "sso_user2@gov.uk",
-            "dit:firstName": "Gilly",
-            "dit:lastName": "Bob",
-            "dit:StaffSSO:User:status": "active",
-            "dit:emailAddress": ["sso_user2@gov.uk"],
-            "dit:StaffSSO:User:contactEmailAddress": "user2@gov.uk",
+            SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+            SSO_FIRST_NAME: "Gilly",
+            SSO_LAST_NAME: "Bob",
+            SSO_USER_STATUS: "active",
+            SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+            SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
         },
     ]
 
@@ -175,20 +183,20 @@ def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
 
     sso_users = [
         {
-            "dit:StaffSSO:User:emailUserId": "sso_user2@gov.uk",
-            "dit:firstName": "Jane",
-            "dit:lastName": "Doe",
-            "dit:StaffSSO:User:status": "active",
-            "dit:emailAddress": ["sso_user2@gov.uk"],
-            "dit:StaffSSO:User:contactEmailAddress": "user2@gov.uk",
+            SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+            SSO_FIRST_NAME: "Jane",
+            SSO_LAST_NAME: "Doe",
+            SSO_USER_STATUS: "active",
+            SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+            SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
         },
         {
-            "dit:StaffSSO:User:emailUserId": "sso_user3@gov.uk",
-            "dit:firstName": "Alice",
-            "dit:lastName": "Smith",
-            "dit:StaffSSO:User:status": "active",
-            "dit:emailAddress": ["sso_user3@gov.uk"],
-            "dit:StaffSSO:User:contactEmailAddress": "user3@gov.uk",
+            SSO_USER_EMAIL_ID: "sso_user3@gov.uk",
+            SSO_FIRST_NAME: "Alice",
+            SSO_LAST_NAME: "Smith",
+            SSO_USER_STATUS: "active",
+            SSO_EMAIL_ADDRESSES: ["sso_user3@gov.uk"],
+            SSO_CONTACT_EMAIL_ADDRESS: "user3@gov.uk",
         },
     ]
     services.bulk_create_and_update_identity_users_from_sso(sso_users=sso_users)
@@ -229,12 +237,12 @@ def test_sync_bulk_sso_users(mocker) -> None:
         "core.services.get_bulk_user_records_from_sso",
         return_value=[
             {
-                "dit:StaffSSO:User:emailUserId": "sso_user2@gov.uk",
-                "dit:firstName": "Gilly",
-                "dit:lastName": "Doe",
-                "dit:StaffSSO:User:status": "active",
-                "dit:emailAddress": ["sso_user2@gov.uk"],
-                "dit:StaffSSO:User:contactEmailAddress": "user2@gov.uk",
+                SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+                SSO_FIRST_NAME: "Gilly",
+                SSO_LAST_NAME: "Doe",
+                SSO_USER_STATUS: "active",
+                SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+                SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
             },
         ],
     )
@@ -251,24 +259,24 @@ def test_sync_bulk_sso_users(mocker) -> None:
     mock_bulk_delete.assert_called_once_with(
         sso_users=[
             {
-                "dit:StaffSSO:User:emailUserId": "sso_user2@gov.uk",
-                "dit:firstName": "Gilly",
-                "dit:lastName": "Doe",
-                "dit:StaffSSO:User:status": "active",
-                "dit:emailAddress": ["sso_user2@gov.uk"],
-                "dit:StaffSSO:User:contactEmailAddress": "user2@gov.uk",
+                SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+                SSO_FIRST_NAME: "Gilly",
+                SSO_LAST_NAME: "Doe",
+                SSO_USER_STATUS: "active",
+                SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+                SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
             },
         ]
     )
     mock_bulk_create_and_update.assert_called_once_with(
         sso_users=[
             {
-                "dit:StaffSSO:User:emailUserId": "sso_user2@gov.uk",
-                "dit:firstName": "Gilly",
-                "dit:lastName": "Doe",
-                "dit:StaffSSO:User:status": "active",
-                "dit:emailAddress": ["sso_user2@gov.uk"],
-                "dit:StaffSSO:User:contactEmailAddress": "user2@gov.uk",
+                SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+                SSO_FIRST_NAME: "Gilly",
+                SSO_LAST_NAME: "Doe",
+                SSO_USER_STATUS: "active",
+                SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+                SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
             },
         ]
     )
