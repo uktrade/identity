@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any
 
@@ -97,7 +98,8 @@ def get_bulk_user_records_from_sso():
     sso_users: list[dict] = []
     files = get_sorted_files_in_export_directory(sso_export_directory)
     for item in get_data_to_ingest(files):
-        sso_users.append(item)
+        json_item = json.loads(item)
+        sso_users.append(json_item["object"])
         logger.info(f"ingest_staff_sso_s3: Added user data for ingestion - {item}")
 
     logger.info("ingest_staff_sso_s3: Cleaning up unused data files")
@@ -110,7 +112,7 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None
     Deletes Identity users that are not in the Staff SSO database
     """
     id_users = User.objects.all()
-    sso_user_ids = [sso_user["id"] for sso_user in sso_users]
+    sso_user_ids = [sso_user["dit:StaffSSO:User:emailUserId"] for sso_user in sso_users]
 
     id_users_to_delete = id_users.exclude(sso_email_id__in=sso_user_ids)
     for user in id_users_to_delete:
@@ -130,26 +132,44 @@ def bulk_create_and_update_identity_users_from_sso(
     id_user_ids = User.objects.all().values_list("sso_email_id", flat=True)
 
     for sso_user in sso_users:
-        if sso_user["id"] not in id_user_ids:
-            create_identity(
-                id=sso_user["id"],
-                first_name=sso_user["first_name"],
-                last_name=sso_user["last_name"],
-                all_emails=sso_user["emails"],
-                primary_email=sso_user["email"],
-                contact_email=sso_user["contact_email"],
-            )
-        else:
-            profile = get_by_id(id=sso_user["id"])
-            update_identity(
-                profile=profile,
-                first_name=sso_user["first_name"],
-                last_name=sso_user["last_name"],
-                all_emails=sso_user["emails"],
-                is_active=sso_user["is_active"],
-                primary_email=sso_user["email"],
-                contact_email=sso_user["contact_email"],
-            )
+        if sso_user["dit:StaffSSO:User:status"] == "active":
+            if sso_user["dit:StaffSSO:User:emailUserId"] not in id_user_ids:
+                primary_email, contact_email, all_emails = extract_emails_from_sso_user(
+                    sso_user
+                )
+                create_identity(
+                    id=sso_user["dit:StaffSSO:User:emailUserId"],
+                    first_name=sso_user["dit:firstName"],
+                    last_name=sso_user["dit:lastName"],
+                    all_emails=all_emails,
+                    primary_email=primary_email,
+                    contact_email=contact_email,
+                )
+            else:
+                profile = get_by_id(id=sso_user["dit:StaffSSO:User:emailUserId"])
+                primary_email, contact_email, all_emails = extract_emails_from_sso_user(
+                    sso_user
+                )
+                update_identity(
+                    profile=profile,
+                    first_name=sso_user["dit:firstName"],
+                    last_name=sso_user["dit:lastName"],
+                    all_emails=all_emails,
+                    is_active=(
+                        True
+                        if sso_user["dit:StaffSSO:User:status"] == "active"
+                        else False
+                    ),
+                    primary_email=primary_email,
+                    contact_email=contact_email,
+                )
+
+
+def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
+    primary_email = sso_user["dit:emailAddress"][0]
+    contact_email = sso_user["dit:StaffSSO:User:contactEmailAddress"]
+    all_emails = sso_user["dit:emailAddress"] + [contact_email]
+    return primary_email, contact_email, all_emails
 
 
 def sync_bulk_sso_users() -> None:

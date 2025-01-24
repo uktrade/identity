@@ -44,8 +44,9 @@ GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 
 # Boto
-DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
-DATA_FLOW_UPLOADS_BUCKET_PATH = env("DATA_FLOW_UPLOADS_BUCKET_PATH", default="")
+S3_LOCAL_ENDPOINT_URL = env("S3_LOCAL_ENDPOINT_URL", default=None)
+DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET")
+DATA_FLOW_UPLOADS_BUCKET_PATH = env("DATA_FLOW_UPLOADS_BUCKET_PATH")
 
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
