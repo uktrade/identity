@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from profiles.models.combined import Profile
-from profiles.models.generic import Email, Country
+from profiles.models.generic import Country, Email
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
 

@@ -1,5 +1,6 @@
 from django.core.validators import EmailValidator
 from django.db import models
+from django.urls import reverse
 
 from .abstract import AbstractHistoricalModel, IngestedModel
 
@@ -9,6 +10,61 @@ class Email(AbstractHistoricalModel):
 
     def __str__(self):
         return self.address
+
+
+# markdown
+DEFAULT_TEAM_DESCRIPTION = """Find out who is in the team and their contact details.
+
+You can update this description, by [updating your team information](https://workspace.trade.gov.uk/working-at-dbt/how-do-i/update-my-team-information-on-people-finder/).
+"""
+
+
+class Team(AbstractHistoricalModel):
+    class LeadersOrdering(models.TextChoices):
+        ALPHABETICAL = "alphabetical", "Alphabetical"
+        CUSTOM = "custom", "Custom"
+
+    slug = models.SlugField(max_length=130, unique=True, editable=True)
+    name = models.CharField(
+        "Team name (required)",
+        max_length=255,
+        help_text="The full name of this team (e.g. Digital, Data and Technology)",
+    )
+    abbreviation = models.CharField(
+        "Team acronym or initials",
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="A short form of the team name, up to 10 characters. For example DDaT.",
+    )
+    description = models.TextField(
+        "Team description",
+        null=False,
+        blank=False,
+        default=DEFAULT_TEAM_DESCRIPTION,
+        help_text="What does this team do? Use Markdown to add lists and links. Enter up to 1500 characters.",
+    )
+    leaders_ordering = models.CharField(
+        max_length=12,
+        choices=LeadersOrdering.choices,
+        default=LeadersOrdering.ALPHABETICAL,
+        blank=True,
+    )
+
+    def __str__(self) -> str:
+        return self.short_name
+
+    def get_absolute_url(self) -> str:
+        return reverse("team-view", kwargs={"slug": self.slug})
+
+    @property
+    def short_name(self) -> str:
+        """Return a short name for the team.
+
+        Returns:
+            str: The team's short name.
+        """
+        return self.abbreviation or self.name
 
 
 class Country(models.Model):
@@ -26,6 +82,7 @@ class Country(models.Model):
 
     This model was built against the 5.35 version of the dataset.
     """
+
     class Meta:
         verbose_name_plural = "countries"
 
@@ -45,8 +102,6 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
-
-
 
 
 class WorkdayQuerySet(models.QuerySet):

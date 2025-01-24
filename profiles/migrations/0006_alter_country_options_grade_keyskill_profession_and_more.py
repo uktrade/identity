@@ -27,6 +27,7 @@ GRADES = (
     ("non_graded_post", "Non graded - post"),
 )
 
+
 def insert_grade_data(apps, schema_editor):
     Grade = apps.get_model("profiles", "Grade")
 
@@ -89,6 +90,7 @@ KEY_SKILLS = (
     ("working_with_govt_depts", "Working with other government departments"),
 )
 
+
 def insert_key_skills_data(apps, schema_editor):
     KeySkill = apps.get_model("peoplefinder", "KeySkill")
 
@@ -148,6 +150,7 @@ WORKDAYS = (
     ("sat", "Saturday"),
     ("sun", "Sunday"),
 )
+
 
 def insert_workday_data(apps, schema_editor):
     Workday = apps.get_model("profiles", "Workday")
