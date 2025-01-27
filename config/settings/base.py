@@ -294,13 +294,14 @@ if is_copilot():
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
 
-CACHES: dict[str, Any] = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": IDENTITY_REDIS_URL,
-        "KEY_PREFIX": "wp_",
-    }
-}
+# Disabled as Ninja calls shouldn't be cached.
+# CACHES: dict[str, Any] = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": IDENTITY_REDIS_URL,
+#         "KEY_PREFIX": "identity_",
+#     }
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
