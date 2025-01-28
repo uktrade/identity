@@ -115,7 +115,7 @@ def get_bulk_user_records_from_sso():
 
 
 def bulk_delete_identity_users_from_sso(
-    sso_users: list[dict[str, Any]], dry_run: bool
+    sso_users: list[dict[str, Any]], dry_run: bool = False
 ) -> None:
     """
     Deletes Identity users that are not in the Staff SSO database
@@ -135,7 +135,7 @@ def bulk_delete_identity_users_from_sso(
 
 
 def bulk_create_and_update_identity_users_from_sso(
-    sso_users: list[dict[str, Any]], dry_run: bool
+    sso_users: list[dict[str, Any]], dry_run: bool = False
 ) -> None:
     """
     Creates and updates existing Staff SSO users in the Identity database
@@ -212,7 +212,7 @@ def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
     return primary_email, contact_email, all_emails
 
 
-def sync_bulk_sso_users(dry_run: bool) -> None:
+def sync_bulk_sso_users(dry_run: bool = False) -> None:
     """
     Retrieves data from the SSO bulk data S3 source and processes it to create, update and delete local ID service Users and related StaffSSOProfile records in bulk.
     """

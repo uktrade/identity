@@ -266,7 +266,8 @@ def test_sync_bulk_sso_users(mocker) -> None:
                 SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
                 SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
             },
-        ]
+        ],
+        dry_run=False,
     )
     mock_bulk_create_and_update.assert_called_once_with(
         sso_users=[
@@ -278,7 +279,8 @@ def test_sync_bulk_sso_users(mocker) -> None:
                 SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
                 SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
             },
-        ]
+        ],
+        dry_run=False,
     )
 
     mock_get_bulk_user_records.assert_called_once()
