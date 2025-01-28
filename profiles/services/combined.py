@@ -82,6 +82,7 @@ def update(
     all_emails: list[str],
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,
+    is_active: Optional[bool] = None,
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
@@ -117,6 +118,12 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
+    if is_active is not None:
+        if is_active:
+            if not profile.is_active:
+                unarchive(profile)
+        else:
+            archive(profile)
 
 
 def archive(
