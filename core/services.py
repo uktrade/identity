@@ -114,7 +114,9 @@ def get_bulk_user_records_from_sso():
     return sso_users
 
 
-def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None:
+def bulk_delete_identity_users_from_sso(
+    sso_users: list[dict[str, Any]], dry_run: bool
+) -> None:
     """
     Deletes Identity users that are not in the Staff SSO database
     """
@@ -125,13 +127,15 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None
     for user in id_users_to_delete:
         profile = get_by_id(user.sso_email_id)
         # log Staff SSO objects that are no longer in the S3 file.
-        logger.info(f"ingest_staff_sso_s3: Deactivating account {user.sso_email_id}")
-
-        delete_identity(profile=profile)
+        logger.info(
+            f"User and profiles will be deleted for the following user {user.sso_email_id}"
+        )
+        if not dry_run:
+            delete_identity(profile=profile)
 
 
 def bulk_create_and_update_identity_users_from_sso(
-    sso_users: list[dict[str, Any]]
+    sso_users: list[dict[str, Any]], dry_run: bool
 ) -> None:
     """
     Creates and updates existing Staff SSO users in the Identity database
@@ -144,36 +148,61 @@ def bulk_create_and_update_identity_users_from_sso(
                 primary_email, contact_email, all_emails = extract_emails_from_sso_user(
                     sso_user
                 )
-                create_identity(
-                    id=sso_user[SSO_USER_EMAIL_ID],
-                    first_name=sso_user[SSO_FIRST_NAME],
-                    last_name=sso_user[SSO_LAST_NAME],
-                    all_emails=all_emails,
-                    primary_email=primary_email,
-                    contact_email=contact_email,
+                logger.info(
+                    f"User and profiles will be created with the following details: \n"
+                    f"id: {sso_user[SSO_USER_EMAIL_ID]} \n "
+                    f"first_name: {sso_user[SSO_FIRST_NAME]} \n"
+                    f"last_name: {sso_user[SSO_LAST_NAME]} \n"
+                    f"all_emails: {all_emails} \n"
+                    f"primary_email: {primary_email} \n"
+                    f"contact_email: {contact_email} \n"
                 )
+                if not dry_run:
+                    create_identity(
+                        id=sso_user[SSO_USER_EMAIL_ID],
+                        first_name=sso_user[SSO_FIRST_NAME],
+                        last_name=sso_user[SSO_LAST_NAME],
+                        all_emails=all_emails,
+                        primary_email=primary_email,
+                        contact_email=contact_email,
+                    )
             else:
                 profile = get_by_id(id=sso_user[SSO_USER_EMAIL_ID])
                 primary_email, contact_email, all_emails = extract_emails_from_sso_user(
                     sso_user
                 )
-                update_identity(
-                    profile=profile,
-                    first_name=sso_user[SSO_FIRST_NAME],
-                    last_name=sso_user[SSO_LAST_NAME],
-                    all_emails=all_emails,
-                    is_active=(
-                        True if sso_user[SSO_USER_STATUS] == "active" else False
-                    ),
-                    primary_email=primary_email,
-                    contact_email=contact_email,
+                logger.info(
+                    f"User and profile Update details: \n"
+                    f"profile: {profile} \n "
+                    f"first_name: {sso_user[SSO_FIRST_NAME]} \n"
+                    f"last_name: {sso_user[SSO_LAST_NAME]} \n"
+                    f"all_emails: {all_emails} \n"
+                    f"is_active: {True if sso_user[SSO_USER_STATUS] == "active" else False} \n"
+                    f"primary_email: {primary_email} \n"
+                    f"contact_email: {contact_email} \n"
                 )
+                if not dry_run:
+                    update_identity(
+                        profile=profile,
+                        first_name=sso_user[SSO_FIRST_NAME],
+                        last_name=sso_user[SSO_LAST_NAME],
+                        all_emails=all_emails,
+                        is_active=(
+                            True if sso_user[SSO_USER_STATUS] == "active" else False
+                        ),
+                        primary_email=primary_email,
+                        contact_email=contact_email,
+                    )
         else:
             # if inactive sso user is currently active in ID, they should be archived
             if sso_user[SSO_USER_EMAIL_ID] in id_user_ids:
                 user = User.objects.get(sso_email_id=sso_user[SSO_USER_EMAIL_ID])
                 if user.is_active:
-                    user_services.archive(user)
+                    logger.info(
+                        f"The following user will be archived: {user.sso_email_id}"
+                    )
+                    if not dry_run:
+                        user_services.archive(user)
 
 
 def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
@@ -183,10 +212,10 @@ def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
     return primary_email, contact_email, all_emails
 
 
-def sync_bulk_sso_users() -> None:
+def sync_bulk_sso_users(dry_run: bool) -> None:
     """
     Retrieves data from the SSO bulk data S3 source and processes it to create, update and delete local ID service Users and related StaffSSOProfile records in bulk.
     """
     sso_users = get_bulk_user_records_from_sso()
-    bulk_delete_identity_users_from_sso(sso_users=sso_users)
-    bulk_create_and_update_identity_users_from_sso(sso_users=sso_users)
+    bulk_delete_identity_users_from_sso(sso_users=sso_users, dry_run=dry_run)
+    bulk_create_and_update_identity_users_from_sso(sso_users=sso_users, dry_run=dry_run)
