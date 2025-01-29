@@ -84,8 +84,7 @@ VITE_DEV: bool = env.bool("VITE_DEV")
 VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
 VITE_MANIFEST_PATH: Path = BASE_DIR / "frontend" / "dist" / "manifest.json"
 
-# Application definition
-INSTALLED_APPS: list[str] = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -93,13 +92,22 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
-    "core.apps.CoreConfig",
+]
+
+THIRD_PARTY_APPS = [
     "authbroker_client",
     "simple_history",
+]
+
+LOCAL_APPS = [
+    "core.apps.CoreConfig",
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
     "profiles.apps.ProfileConfig",
 ]
+
+# Application definition
+INSTALLED_APPS: list[str] = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
 MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
