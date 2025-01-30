@@ -136,16 +136,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     first_name = models.CharField(
         max_length=200,
-        help_text=(
-            "If you enter a preferred name below, this name will be hidden to others"
-        ),
     )
     preferred_first_name = models.CharField(
         max_length=200,
-        help_text=(
-            "This name appears on your profile. Colleagues can search for you"
-            " using either of your first names"
-        ),
         null=True,
         blank=True,
     )
@@ -154,46 +147,31 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     )
     pronouns = models.CharField(max_length=40, null=True, blank=True)
     name_pronunciation = models.CharField(
-        "How to pronounce your full name",
-        help_text=mark_safe(  # noqa: S308
-            "A phonetic representation of your name<br><a class='govuk-link' href='/news-and-views/say-my-name/' target='_blank' rel='noreferrer'>"
-            "Tips for writing your name phonetically</a>"
-        ),
         max_length=200,
         null=True,
         blank=True,
     )
-    # @TODO make a FK
-    email = models.EmailField(
-        "How we contact you",
-        help_text="We will send Digital Workspace notifications to this email",
-    )
-    #  @TODO Make a FK
-    contact_email = models.EmailField(
-        "Email address",
+    email = models.ForeignKey(
+        "profiles.Email",
+        models.SET_NULL,
         null=True,
-        blank=True,
-        help_text="The work email you want people to contact you on",
+        related_name="+",
+    )
+    contact_email = models.ForeignKey(
+        "profiles.Email",
+        models.SET_NULL,
+        null=True,
+        related_name="+",
     )
     primary_phone_number = models.CharField(
-        "Phone number",
         max_length=42,
         null=True,
         blank=True,
-        help_text=(
-            "Enter the country's dialling code in place of the first 0. The"
-            " UK's dialling code is +44."
-        ),
     )
     secondary_phone_number = models.CharField(
-        "Alternative phone number",
         max_length=160,
         null=True,
         blank=True,
-        help_text=(
-            "Enter the country's dialling code in place of the first 0. The"
-            " UK's dialling code is +44."
-        ),
     )
     photo = models.ImageField(
         max_length=255,
@@ -223,14 +201,14 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         related_name="direct_reports",
     )
     not_employee = models.BooleanField(
-        "My manager is not listed because I do not work for DBT", default=False
+        "Non-direct employee, implies no manager listed", default=False
     )
 
     # Working patterns
     #
     workdays = ChoiceArrayField(
         base_field=models.CharField(
-            verbose_name="Which days do you usually work?",
+            verbose_name="Usual work days",
             null=True,
             blank=True,
             max_length=80,
@@ -238,34 +216,29 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         )
     )
     remote_working = models.CharField(
-        verbose_name="Where do you usually work?",
+        verbose_name="Usual working location",
         blank=True,
         null=True,
         max_length=80,
         choices=RemoteWorking.choices,
     )
     usual_office_days = models.CharField(
-        "What days do you usually come in to the office?",
-        help_text=("For example: I usually come in on Mondays and Wednesdays"),
         max_length=200,
         null=True,
         blank=True,
     )
     uk_office_location = models.ForeignKey(
         "UkStaffLocation",
-        verbose_name="What is your office location?",
-        help_text="Your base location as per your contract",
+        verbose_name="Contracted office location",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="+",
     )
     location_in_building = models.CharField(
-        "Location in the building",
         max_length=130,
         null=True,
         blank=True,
-        help_text="If you sit in a particular area, you can let colleagues know here",
     )
     international_building = models.CharField(
         "International location",
@@ -285,76 +258,61 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     professions = ChoiceArrayField(
         base_field=models.CharField(
-            verbose_name="What professions do you belong to?",
             blank=True,
             choices=Profession.choices,
-            help_text="Select all that apply",
         )
     )
     additional_roles = ChoiceArrayField(
         base_field=models.CharField(
-            verbose_name="Do you have any additional roles or responsibilities?",
+            verbose_name="Additional roles or responsibilities",
             blank=True,
             choices=AdditionalRole.choices,
-            help_text="Select all that apply",
         )
     )
     other_additional_roles = models.CharField(
-        "What other additional roles or responsibilities do you have?",
         max_length=400,
         null=True,
         blank=True,
-        help_text="Enter your roles or responsibilities. Use a comma to separate them.",
+        help_text="Use a comma to separate multiple values.",
     )
     key_skills = ChoiceArrayField(
         models.CharField(
-            verbose_name="What are your skills?",
             blank=True,
             choices=KeySkill.choices,
-            help_text="Select all that apply",
         )
     )
     other_key_skills = models.CharField(
-        "What other skills do you have?",
         max_length=700,
         null=True,
         blank=True,
-        help_text="Enter your skills. Use a comma to separate them.",
+        help_text="Use a comma to separate multiple values.",
     )
     learning_interests = ChoiceArrayField(
         models.CharField(
-            verbose_name="What are your learning and development interests?",
             blank=True,
             choices=LearningInterest.choices,
-            help_text="Select all that apply",
         )
     )
     other_learning_interests = models.CharField(
-        "What other learning and development interests do you have?",
         max_length=255,
         null=True,
         blank=True,
-        help_text="Enter your interests. Use a comma to separate them.",
+        help_text="Use a comma to separate multiple values.",
     )
     fluent_languages = models.CharField(
-        "Which languages are you fluent in?",
         max_length=200,
         null=True,
         blank=True,
-        help_text="Use a comma to separate the languages. For example: French, Polish, Ukrainian",
+        help_text="Use a comma to separate multiple values.",
     )
     intermediate_languages = models.CharField(
-        "Which other languages do you speak?",
         max_length=200,
         null=True,
         blank=True,
-        help_text="These are languages you speak and write but are not fluent in",
     )
     previous_experience = models.TextField(
-        "Previous positions I have held",
         null=True,
         blank=True,
-        help_text="List where you have worked before your current role",
     )
 
     # Metadata and status
@@ -417,23 +375,17 @@ class PeopleFinderTeam(AbstractHistoricalModel):
 
     slug = models.SlugField(max_length=130, unique=True, editable=True)
     name = models.CharField(
-        "Team name (required)",
         max_length=255,
-        help_text="The full name of this team (e.g. Digital, Data and Technology)",
     )
     abbreviation = models.CharField(
-        "Team acronym or initials",
         max_length=20,
         null=True,
         blank=True,
-        help_text="A short form of the team name, up to 10 characters. For example DDaT.",
     )
     description = models.TextField(
-        "Team description",
         null=True,
         blank=True,
         default=None,
-        help_text="What does this team do? Use Markdown to add lists and links. Enter up to 1500 characters.",
     )
     leaders_ordering = models.CharField(
         max_length=12,
@@ -481,10 +433,7 @@ class PeopleFinderProfileTeam(AbstractHistoricalModel):
         models.CASCADE,
         related_name="peoplefinder_members",
     )
-
-    job_title = models.CharField(
-        max_length=255, help_text="Enter your role in this team"
-    )
+    job_title = models.CharField(max_length=255)
     head_of_team = models.BooleanField(default=False)
     leaders_position = models.SmallIntegerField(null=True)
 
