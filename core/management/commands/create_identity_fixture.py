@@ -73,6 +73,7 @@ class Command(BaseCommand):
                 sso_email_id=p.sso_email_id, is_staff=staff, is_superuser=superuser
             )
             usr = User.objects.get(sso_email_id=p.sso_email_id)
+            usr.set_password(sso_email_id)
             usr.save()
             self.stdout.write(msg=f"Password set to '{sso_email_id}'")
 
