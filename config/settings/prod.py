@@ -17,3 +17,4 @@ SECURE_SSL_REDIRECT: bool = True
 CSRF_COOKIE_SECURE: bool = True
 SESSION_COOKIE_SECURE: bool = True
 SECURE_PROXY_SSL_HEADER: tuple[str, str] = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_REDIRECT_EXEMPT = [r'^*ping.xml$']
