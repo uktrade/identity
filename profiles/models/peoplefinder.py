@@ -1,58 +1,19 @@
 import uuid
-from typing import Iterator, Optional
+from random import choice
+from typing import Iterator
 
 from django.db import models
 from django.db.models import F, Q
-from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils.html import escape, strip_tags
 from django.utils.safestring import mark_safe
-
 from django_chunk_upload_handlers.clam_av import validate_virus_check_result
 
+from core.models import ChoiceArrayField
 from profiles.models.abstract import AbstractHistoricalModel
+from profiles.models.generic import Grade, Profession, Workday
 
 
 # United Kingdom
 DEFAULT_COUNTRY_PK = "CTHMTC00260"
-
-
-class LearningInterest(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["code"], name="unique_learning_interest_code"
-            ),
-            models.UniqueConstraint(
-                fields=["name"], name="unique_learning_interest_name"
-            ),
-        ]
-        ordering = ["name"]
-
-    code = models.CharField(max_length=30)
-    name = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class AdditionalRole(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["code"], name="unique_additional_role_code"
-            ),
-            models.UniqueConstraint(
-                fields=["name"], name="unique_additional_role_name"
-            ),
-        ]
-        ordering = ["name"]
-
-    code = models.CharField(max_length=40)
-    name = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return self.name
 
 
 def person_photo_path(instance, filename):
@@ -63,6 +24,98 @@ def person_photo_small_path(instance, filename):
     return f"peoplefinder/person/{instance.slug}/photo/small_{filename}"
 
 
+class LearningInterest(models.TextChoices):
+    SHADOWING = "Work shadowing"
+    MENTORING = "Mentoring"
+    RESEARCH = "Research"
+    OVERSEAS_POSTS = "Overseas posts"
+    SECONDMENT = "Secondment"
+    PARLIAMENTARY_WORK = "Parliamentary work"
+    MINISTERIAL_SUBMISSIONS = "Ministerial submissions"
+    CODING = "Coding"
+
+
+class KeySkill(models.TextChoices):
+    ASSET_MANAGEMENT = "Asset management"
+    ASSURANCE = "Assurance"
+    BENEFITS_REALISATION = "Benefits realisation"
+    CHANGE_MANAGEMENT = "Change management"
+    COACHING = "Coaching"
+    COMMERCIAL_SPECIALIST = "Commercial specialist"
+    COMMISSIONING = "Commissioning"
+    CONTRACT_MANAGEMENT = "Contract management"
+    CREDIT_RISK_ANALYSIS = "Credit risk analysis"
+    CUSTOMER_SERVICE = "Customer service"
+    DIGITAL = "Digital"
+    DIGITAL_WORKSPACE_PUBLISHER = "Digital Workspace publisher"
+    ECONOMIST = "Economist"
+    FINANCIAL_REPORTING = "Financial reporting"
+    GRAPHIC_DESIGN = "Graphic Design"
+    HR = "HR"
+    INCOME_GENERATION = "Income generation"
+    INFORMATION_MANAGEMENT = "Information management"
+    INTERVIEWING = "Interviewing"
+    IT = "IT"
+    LAW = "Law"
+    LEAN = "Lean/ Six sigma"
+    LINE_MANAGEMENT = "Line management"
+    MEDIA_TRAINED = "Media trained"
+    MENTORING = "Mentoring"
+    POLICY_DESIGN = "Policy design"
+    POLICY_IMPLEMENTATION = "Policy implementation"
+    PRESENTING = "Presenting"
+    PROJECT_DELIVERY = "Project delivery"
+    PROJECT_MANAGEMENT = "Project management"
+    PROPERTY_ESTATES = "Property / Estates"
+    RESEARCH_OPERATIONAL = "Research - operational"
+    RESEARCH_ECONOMIC = "Research - economic"
+    RESEARCH_STATISTICAL = "Research - statistical"
+    RESEARCH_SOCIAL = "Research - social"
+    RISK_MANAGEMENT = "Risk management"
+    SECURITY = "Security"
+    SERVICE_DESIGN = "Service and process design"
+    SKILLS_AND_CAPABILITY = "Skills and capability management"
+    SPONSORSHIP = "Sponsorship and partnerships"
+    STAKEHOLDER_MANAGEMENT = "Stakeholder management"
+    STATISTICS = "Statistics"
+    STRATEGY = "Strategy"
+    SUBMISSION_WRITING = "Submission writing"
+    TALENT_MANAGEMENT = "Talent Management"
+    TAX = "Tax"
+    TRAINING = "Training"
+    UNDERWRITING = "Underwriting"
+    USER_RESEARCH = "User research"
+    VALUTION = "Valuation"
+    WORKING_WITH_DEVOLVED_ADMIN = "Working with Devolved Administrations"
+    WORKING_WITH_MINISTERS = "Working with Ministers"
+    WORKING_WITH_GOVT_DEPTS = "Working with other government departments"
+
+
+class AdditionalRole(models.TextChoices):
+    FIRE_WARDEN = "Fire warden"
+    FIRST_AIDER = "First aider"
+    MENTAL_HEALTH_FIRST_AIDER = "Mental health first aider"
+    MENTOR = "Mentor"
+    NETWORK_LEAD = "Network lead"
+    NETWORK_DEPUTY_LEAD = "Network deputy lead"
+    CIRRUS_CHAMPION = "Cirrus champion"
+    HEALTH_WELLBEING_CHAMPION = "Health & wellbeing champion"
+    FAST_STREAM_REP = "Fast stream rep"
+    OVERSEAS_STAFF_REP = "Overseas staff rep"
+    DIGITAL_CHAMPION = "Digital champion"
+    INFORMATION_MANAGER = "Information manager"
+    INDEPENDENT_PANEL_MEMBER = "Independent panel member"
+    DIVISIONAL_SECURITY_COORDINATOR = "Divisional security coordinator"
+    DDAT_CHAMPION = "DDaT champion"
+    HONOURS_CHAMPION = "Honours champion"
+
+
+class RemoteWorking(models.TextChoices):
+    OFFICE_WORKER = "office_worker"
+    REMOTE_WORKER = "remote_worker"
+    SPLIT = "split"
+
+
 class PeopleFinderProfile(AbstractHistoricalModel):
     class Meta:
         constraints = [
@@ -71,22 +124,8 @@ class PeopleFinderProfile(AbstractHistoricalModel):
             ),
         ]
         indexes = [
-            models.Index(fields=['slug']),
+            models.Index(fields=["slug"]),
         ]
-
-    class RemoteWorking(models.TextChoices):
-        OFFICE_WORKER = (
-            "office_worker",
-            "I work primarily from the office",
-        )
-        REMOTE_WORKER = (
-            "remote_worker",
-            "I work primarily from home (remote worker)",
-        )
-        SPLIT = (
-            "split",
-            "I split my time between home and the office",
-        )
 
     slug = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     user = models.OneToOneField(
@@ -124,10 +163,12 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         null=True,
         blank=True,
     )
+    # @TODO make a FK
     email = models.EmailField(
         "How we contact you",
         help_text="We will send Digital Workspace notifications to this email",
     )
+    #  @TODO Make a FK
     contact_email = models.EmailField(
         "Email address",
         null=True,
@@ -171,23 +212,30 @@ class PeopleFinderProfile(AbstractHistoricalModel):
 
     # HR information
     #
-    grade = models.ForeignKey(
-        "Grade", models.SET_NULL, null=True, blank=True, related_name="+"
+    grade = models.CharField(
+        null=True, blank=True, max_length=80, choices=Grade.choices
     )
     manager = models.ForeignKey(
-        "PeopleFinderProfile", models.SET_NULL, null=True, blank=True, related_name="direct_reports"
+        "PeopleFinderProfile",
+        models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="direct_reports",
     )
-    do_not_work_for_dit = models.BooleanField(
+    not_employee = models.BooleanField(
         "My manager is not listed because I do not work for DBT", default=False
     )
 
     # Working patterns
     #
-    workdays = models.ManyToManyField(
-        "Workday",
-        verbose_name="Which days do you usually work?",
-        blank=True,
-        related_name="+",
+    workdays = ChoiceArrayField(
+        base_field=models.CharField(
+            verbose_name="Which days do you usually work?",
+            null=True,
+            blank=True,
+            max_length=80,
+            choices=Workday.choices,
+        )
     )
     remote_working = models.CharField(
         verbose_name="Where do you usually work?",
@@ -229,25 +277,27 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     country = models.ForeignKey(
         "profiles.Country",
         models.PROTECT,
-        default=DEFAULT_COUNTRY_PK, #  type: ignore
+        default=DEFAULT_COUNTRY_PK,  #  type: ignore
         related_name="+",
     )
 
     # Supplementary info
     #
-    professions = models.ManyToManyField(
-        "Profession",
-        verbose_name="What professions do you belong to?",
-        blank=True,
-        related_name="+",
-        help_text="Select all that apply",
+    professions = ChoiceArrayField(
+        base_field=models.CharField(
+            verbose_name="What professions do you belong to?",
+            blank=True,
+            choices=Profession.choices,
+            help_text="Select all that apply",
+        )
     )
-    additional_roles = models.ManyToManyField(
-        "AdditionalRole",
-        verbose_name="Do you have any additional roles or responsibilities?",
-        blank=True,
-        related_name="+",
-        help_text="Select all that apply",
+    additional_roles = ChoiceArrayField(
+        base_field=models.CharField(
+            verbose_name="Do you have any additional roles or responsibilities?",
+            blank=True,
+            choices=AdditionalRole.choices,
+            help_text="Select all that apply",
+        )
     )
     other_additional_roles = models.CharField(
         "What other additional roles or responsibilities do you have?",
@@ -256,12 +306,13 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         blank=True,
         help_text="Enter your roles or responsibilities. Use a comma to separate them.",
     )
-    key_skills = models.ManyToManyField(
-        "KeySkill",
-        verbose_name="What are your skills?",
-        blank=True,
-        related_name="+",
-        help_text="Select all that apply",
+    key_skills = ChoiceArrayField(
+        models.CharField(
+            verbose_name="What are your skills?",
+            blank=True,
+            choices=KeySkill.choices,
+            help_text="Select all that apply",
+        )
     )
     other_key_skills = models.CharField(
         "What other skills do you have?",
@@ -270,12 +321,13 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         blank=True,
         help_text="Enter your skills. Use a comma to separate them.",
     )
-    learning_interests = models.ManyToManyField(
-        "LearningInterest",
-        verbose_name="What are your learning and development interests?",
-        blank=True,
-        related_name="+",
-        help_text="Select all that apply",
+    learning_interests = ChoiceArrayField(
+        models.CharField(
+            verbose_name="What are your learning and development interests?",
+            blank=True,
+            choices=LearningInterest.choices,
+            help_text="Select all that apply",
+        )
     )
     other_learning_interests = models.CharField(
         "What other learning and development interests do you have?",
@@ -309,6 +361,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     is_active = models.BooleanField(default=True)
     became_inactive = models.DateTimeField(null=True, blank=True)
+    edited_or_confirmed_at = models.DateTimeField()
     login_count = models.IntegerField(default=0)
     profile_completion = models.IntegerField(default=0)
     ical_token = models.CharField(
@@ -321,9 +374,19 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     def __str__(self) -> str:
         return self.full_name
 
+    def save(self, *args, **kwargs):
+        from profiles.services import peoplefinder
+
+        self.profile_completion = peoplefinder.get_profile_completion(
+            peoplefinder_profile=self
+        )
+        return super().save(*args, **kwargs)
+
     @property
     def full_name(self) -> str:
-        first_name = self.get_first_name_display()
+        first_name = self.first_name
+        if self.preferred_first_name:
+            first_name = self.preferred_first_name
         return f"{first_name} {self.last_name}"
 
     @property
@@ -331,135 +394,72 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         return self.direct_reports.exists()  # type: ignore
 
     @property
-    def all_languages(self) -> str:
-        return ", ".join(
-            filter(None, [self.fluent_languages, self.intermediate_languages])
-        )
-
-    @property
     def has_photo(self) -> bool:
         return bool(self.photo)
 
-    # def save(self, *args, **kwargs):
-    #     from peoplefinder.services.person import PersonService
 
-    #     self.profile_completion = PersonService().get_profile_completion(person=self)
-    #     return super().save(*args, **kwargs)
+class PeopleFinderTeamLeadersOrdering(models.TextChoices):
+    ALPHABETICAL = "alphabetical", "Alphabetical"
+    CUSTOM = "custom", "Custom"
 
-    def get_first_name_display(self) -> str:
-        if self.preferred_first_name:
-            return self.preferred_first_name
-        return self.first_name
 
-    def get_workdays_display(self) -> str:
-        workdays = self.workdays.all_mon_to_sun()  # type: ignore
+class PeopleFinderTeamTypes(models.TextChoices):
+    STANDARD = "Standard"
+    DIRECTORATE = "Directorate"
+    PORTFOLIO = "Portfolio"
 
-        workday_codes = [x.code for x in workdays]
-        mon_to_fri_codes = ["mon", "tue", "wed", "thu", "fri"]
 
-        # "Monday to Friday"
-        if workday_codes == mon_to_fri_codes:
-            return f"{workdays[0]} to {workdays[-1]}"
+class PeopleFinderTeam(AbstractHistoricalModel):
+    class Meta:
+        indexes = [
+            models.Index(fields=["slug"]),
+        ]
 
-        # "Monday, Tuesday, Wednesday, ..."
-        return ", ".join(map(str, workdays))
+    slug = models.SlugField(max_length=130, unique=True, editable=True)
+    name = models.CharField(
+        "Team name (required)",
+        max_length=255,
+        help_text="The full name of this team (e.g. Digital, Data and Technology)",
+    )
+    abbreviation = models.CharField(
+        "Team acronym or initials",
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="A short form of the team name, up to 10 characters. For example DDaT.",
+    )
+    description = models.TextField(
+        "Team description",
+        null=True,
+        blank=True,
+        default=None,
+        help_text="What does this team do? Use Markdown to add lists and links. Enter up to 1500 characters.",
+    )
+    leaders_ordering = models.CharField(
+        max_length=12,
+        choices=PeopleFinderTeamLeadersOrdering.choices,
+        default=PeopleFinderTeamLeadersOrdering.ALPHABETICAL,
+        blank=True,
+    )
+    cost_code = models.CharField(
+        "Financial cost code associated with this team",
+        max_length=20,
+        null=True,
+        blank=True,
+    )
+    team_type = models.CharField(
+        max_length=20,
+        choices=PeopleFinderTeamTypes.choices,
+        default=PeopleFinderTeamTypes.STANDARD,
+        blank=True,
+    )
 
-    def get_office_location_display(self) -> str:
-        if self.international_building:
-            return self.international_building
+    def __str__(self) -> str:
+        return self.short_name
 
-        location_parts = []
-
-        if self.location_in_building:
-            location_parts.append(escape(strip_tags(self.location_in_building)))
-
-        if self.uk_office_location:
-            location_parts.append(self.uk_office_location.building_name)
-            location_parts.append(self.uk_office_location.city)
-
-        return mark_safe("<br>".join(location_parts))  # noqa: S308
-
-    # def get_manager_display(self) -> Optional[str]:
-    #     if self.manager:
-    #         return mark_safe(  # noqa: S308
-    #             render_to_string(
-    #                 "peoplefinder/components/profile-link.html",
-    #                 {
-    #                     "profile": self.manager,
-    #                     "data_testid": "manager",
-    #                 },
-    #             )
-    #         )
-    #     return None
-
-    # def get_roles_display(self) -> Optional[str]:
-    #     output = ""
-    #     for role in self.roles.select_related("team").all():
-    #         output += render_to_string(
-    #             "peoplefinder/components/profile-role.html", {"role": role}
-    #         )
-    #     return mark_safe(output)  # noqa: S308
-
-    def get_grade_display(self) -> Optional[str]:
-        if self.grade:
-            return self.grade.name
-        return None
-
-    def get_all_key_skills(self) -> Iterator[str]:
-        yield from self.key_skills.all()
-
-        if self.other_key_skills:
-            yield self.other_key_skills
-
-    def get_key_skills_display(self) -> Optional[str]:
-        if self.key_skills.exists() or self.other_key_skills:
-            skills_list = []
-            skills_list += self.key_skills.values_list("name", flat=True)
-            if self.other_key_skills:
-                skills_list.append(self.other_key_skills)
-            return ", ".join(skills_list)
-
-        return None
-
-    def get_all_learning_interests(self) -> Iterator[str]:
-        yield from self.learning_interests.all()
-
-        if self.other_learning_interests:
-            yield self.other_learning_interests
-
-    def get_learning_interests_display(self) -> Optional[str]:
-        if self.learning_interests.exists() or self.other_learning_interests:
-            interests_list = []
-            interests_list += self.learning_interests.values_list("name", flat=True)
-            if self.other_learning_interests:
-                interests_list.append(self.other_learning_interests)
-            return ", ".join(interests_list)
-
-        return None
-
-    def get_professions_display(self) -> Optional[str]:
-        if self.professions.exists():
-            return ", ".join(self.professions.values_list("name", flat=True))
-
-        return None
-
-    def get_all_additional_roles(self) -> Iterator[str]:
-        yield from self.additional_roles.all()
-
-        if self.other_additional_roles:
-            yield self.other_additional_roles
-
-    def get_additional_roles_display(self) -> Optional[str]:
-        if self.additional_roles.exists() or self.other_additional_roles:
-            additional_roles_list = []
-            additional_roles_list += self.additional_roles.values_list(
-                "name", flat=True
-            )
-            if self.other_additional_roles:
-                additional_roles_list.append(self.other_additional_roles)
-            return ", ".join(additional_roles_list)
-
-        return None
+    @property
+    def short_name(self) -> str:
+        return self.abbreviation or self.name
 
 
 class PeopleFinderProfileTeam(AbstractHistoricalModel):
@@ -471,8 +471,16 @@ class PeopleFinderProfileTeam(AbstractHistoricalModel):
             ),
         ]
 
-    peoplefinder_profile = models.ForeignKey("PeopleFinderProfile", models.CASCADE, related_name="roles")
-    team = models.ForeignKey("Team", models.CASCADE, related_name="peoplefinder_members")
+    peoplefinder_profile = models.ForeignKey(
+        PeopleFinderProfile,
+        models.CASCADE,
+        related_name="roles",
+    )
+    team = models.ForeignKey(
+        PeopleFinderTeam,
+        models.CASCADE,
+        related_name="peoplefinder_members",
+    )
 
     job_title = models.CharField(
         max_length=255, help_text="Enter your role in this team"
@@ -488,8 +496,16 @@ class PeopleFinderTeamTree(AbstractHistoricalModel):
     class Meta:
         unique_together = [["parent", "child"]]
 
-    parent = models.ForeignKey("Team", models.CASCADE, related_name="parents")
-    child = models.ForeignKey("Team", models.CASCADE, related_name="children")
+    parent = models.ForeignKey(
+        PeopleFinderTeam,
+        models.CASCADE,
+        related_name="parents",
+    )
+    child = models.ForeignKey(
+        PeopleFinderTeam,
+        models.CASCADE,
+        related_name="children",
+    )
 
     depth = models.SmallIntegerField()
 

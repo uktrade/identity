@@ -332,6 +332,6 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
 ]
 
 
-CLAM_AV_USERNAME= env.str("CLAM_AV_USERNAME", default=None)
-CLAM_AV_PASSWORD= env.str("CLAM_AV_PASSWORD", default=None)
-CLAM_AV_DOMAIN= env.str("CLAM_AV_DOMAIN", default=None)
+CLAM_AV_USERNAME = env.str("CLAM_AV_USERNAME", default=None)
+CLAM_AV_PASSWORD = env.str("CLAM_AV_PASSWORD", default=None)
+CLAM_AV_DOMAIN = env.str("CLAM_AV_DOMAIN", default=None)

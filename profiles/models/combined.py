@@ -5,11 +5,6 @@ from .abstract import AbstractHistoricalModel
 
 
 class Profile(AbstractHistoricalModel):
-    class Meta:
-        indexes = [
-            models.Index(fields=['sso_email_id']),
-        ]
-
     sso_email_id = models.CharField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

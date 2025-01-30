@@ -2,7 +2,76 @@ from django.core.validators import EmailValidator
 from django.db import models
 from django.urls import reverse
 
-from .abstract import AbstractHistoricalModel, IngestedModel
+from core.models import IngestedModel
+
+from .abstract import AbstractHistoricalModel
+
+
+class Workday(models.TextChoices):
+    MON = "Monday"
+    TUE = "Tuesday"
+    WED = "Wednesday"
+    THU = "Thursday"
+    FRI = "Friday"
+    SAT = "Saturday"
+    SUN = "Sunday"
+
+
+class Grade(models.TextChoices):
+    FCO_S1 = "FCO S1"
+    FCO_S2 = "FCO S2"
+    FCO_S3 = "FCO S3"
+    ADMIN_ASSISTANT = "Administrative assistant (AA)"
+    ADMIN_OFFICER = "Administrative officer (AO/A2)"
+    EXECUTIVE_OFFICER = "Executive officer (EO/B3)"
+    HIGHER_EXECUTIVE_OFFICER = "Higher executive officer (HEO/C4)"
+    SENIOR_EXECUTIVE_OFFICER = "Senior executive officer (SEO/C5)"
+    GRADE_7 = "Grade 7 (G7/D6)"
+    GRADE_6 = "Grade 6 (G6/D7)"
+    SCS_1 = "Senior civil service 1 (SCS1/SMS1)"
+    SCS_2 = "Senior civil service 2 (SCS2/SMS2)"
+    SCS_3 = "Senior civil service 3 (SCS3/SMS3)"
+    SCS_4 = "Senior civil service 4 (SCS4/SMS4)"
+    FAST_STREAM = "Fast Stream"
+    FAST_TRACK = "Fast Track"
+    APPRENTICE = "Apprentice"
+    NON_GRADED_SPECIAL_ADVISOR = "Non graded - special advisor (SPAD)"
+    NON_GRADED_CONTRACTOR = "Non graded - contractor"
+    NON_GRADED_SECONDEE = "Non graded - secondee"
+    NON_GRADED_POST = "Non graded - post"
+
+
+class Profession(models.TextChoices):
+    COMMERCIAL = "Government commercial and contract management"
+    CORP_FINANCE = "Corporate finance profession"
+    COUNTER_FRAUD = "Counter-fraud standards and profession"
+    DIGITAL_DATA_TECH = "Digital, data and technology profession"
+    GOV_COMMS = "Government communication service"
+    GOV_ECONOMICS = "Government economic service"
+    GOV_FINANCE = "Government finance profession"
+    GOV_IT = "Government IT profession"
+    GOV_KNOWLEDGE = "Government knowledge and information management profession"
+    GOV_LEGAL = "Government legal service"
+    GOV_OCCUPATIONAL = "Government occupational psychology profession"
+    GOV_OPERATIONAL = "Government operational research service"
+    GOV_PLANNING_INSPECTORS = "Government planning inspectors"
+    GOV_PLANNING_PROFESSION = "Government planning profession"
+    GOV_PROPERTY = "Government property profession"
+    GOV_SECURITY = "Government security profession"
+    GOV_SCIENCE = "Government science and engineering profession"
+    GOV_SOCIAL = "Government social research profession"
+    GOV_STATISTICAL = "Government statistical service profession"
+    GOV_TAX = "Government tax profession"
+    GOV_VET = "Government veterinary profession"
+    HUMAN_RESOURCES = "Human resources profession"
+    INTELLIGENCE_ANALYSIS = "Intelligence analysis"
+    INTERNAL_AUDIT = "Internal audit profession"
+    MEDICAL_PROFESSION = "Medical profession"
+    OPERATION_DELIVERY = "Operational delivery profession"
+    POLICY_PROFIESSION = "Policy profession"
+    PROCUREMENT_PROFESSION = "Procurement profession"
+    PROJECT_DELIVERY = "Project delivery profession"
+    INTERNATIONAL_TRADE = "International trade profession"
 
 
 class Email(AbstractHistoricalModel):
@@ -12,71 +81,12 @@ class Email(AbstractHistoricalModel):
         return self.address
 
 
-# markdown
-DEFAULT_TEAM_DESCRIPTION = """Find out who is in the team and their contact details.
-
-You can update this description, by [updating your team information](https://workspace.trade.gov.uk/working-at-dbt/how-do-i/update-my-team-information-on-people-finder/).
-"""
-
-
-class Team(AbstractHistoricalModel):
-    class Meta:
-        indexes = [
-            models.Index(fields=['slug']),
-        ]
-
-    class LeadersOrdering(models.TextChoices):
-        ALPHABETICAL = "alphabetical", "Alphabetical"
-        CUSTOM = "custom", "Custom"
-
-    slug = models.SlugField(max_length=130, unique=True, editable=True)
-    name = models.CharField(
-        "Team name (required)",
-        max_length=255,
-        help_text="The full name of this team (e.g. Digital, Data and Technology)",
-    )
-    abbreviation = models.CharField(
-        "Team acronym or initials",
-        max_length=20,
-        null=True,
-        blank=True,
-        help_text="A short form of the team name, up to 10 characters. For example DDaT.",
-    )
-    description = models.TextField(
-        "Team description",
-        null=False,
-        blank=False,
-        default=DEFAULT_TEAM_DESCRIPTION,
-        help_text="What does this team do? Use Markdown to add lists and links. Enter up to 1500 characters.",
-    )
-    leaders_ordering = models.CharField(
-        max_length=12,
-        choices=LeadersOrdering.choices,
-        default=LeadersOrdering.ALPHABETICAL,
-        blank=True,
-    )
-
-    def __str__(self) -> str:
-        return self.short_name
-
-    def get_absolute_url(self) -> str:
-        return reverse("team-view", kwargs={"slug": self.slug})
-
-    @property
-    def short_name(self) -> str:
-        """Return a short name for the team.
-
-        Returns:
-            str: The team's short name.
-        """
-        return self.abbreviation or self.name
-
-
-class Country(models.Model):
+class Country(IngestedModel):
     """
     Country model populated by the Data Workspace country datasetfound here:
     https://data.trade.gov.uk/datasets/240d5034-6a83-451b-8307-5755672f881b#countries-territories-and-regions.
     """
+
     class Meta:
         verbose_name_plural = "countries"
 
@@ -98,97 +108,18 @@ class Country(models.Model):
         return self.name
 
 
-class WorkdayQuerySet(models.QuerySet):
-    def all_mon_to_sun(self):
-        codes = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-
-        return sorted(self.all(), key=lambda x: codes.index(x.code))
-
-
-class Workday(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["code"], name="unique_workday_code"),
-            models.UniqueConstraint(fields=["name"], name="unique_workday_name"),
-        ]
-        indexes = [
-            models.Index(fields=['code']),
-        ]
-
-    code = models.CharField(max_length=3)
-    name = models.CharField(max_length=9)
-
-    objects = WorkdayQuerySet.as_manager()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Grade(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["code"], name="unique_grade_code"),
-            models.UniqueConstraint(fields=["name"], name="unique_grade_name"),
-        ]
-        indexes = [
-            models.Index(fields=['code']),
-        ]
-        ordering = ["name"]
-
-    code = models.CharField(max_length=30)
-    name = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class KeySkill(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["code"], name="unique_key_skill_code"),
-            models.UniqueConstraint(fields=["name"], name="unique_key_skill_name"),
-        ]
-        indexes = [
-            models.Index(fields=['code']),
-        ]
-        ordering = ["name"]
-
-    code = models.CharField(max_length=30)
-    name = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Profession(models.Model):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["code"], name="unique_profession_code"),
-            models.UniqueConstraint(fields=["name"], name="unique_profession_name"),
-        ]
-        indexes = [
-            models.Index(fields=['code']),
-        ]
-        ordering = ["name"]
-
-    code = models.CharField(max_length=30)
-    name = models.CharField(max_length=60)
-
-    def __str__(self) -> str:
-        return self.name
-
-
 class UkStaffLocation(IngestedModel):
     """
     UkStaffLocation model populated by the Data Workspace DBT Staff Locations datasetfound here:
     https://data.trade.gov.uk/datasets/e89b0647-9b83-48ae-9234-0fccd6b90fa4#dit-staff-locations.
     """
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["code"], name="unique_location_code"),
         ]
         indexes = [
-            models.Index(fields=['code']),
+            models.Index(fields=["code"]),
         ]
         ordering = ["name"]
 

@@ -52,9 +52,6 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
-        indexes = [
-            models.Index(fields=['sso_email_id']),
-        ]
         verbose_name = "user"
         verbose_name_plural = "users"
 
