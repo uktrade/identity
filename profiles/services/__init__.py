@@ -101,6 +101,7 @@ def update_from_sso(
         last_name=combined_profile_data["last_name"],
         primary_email=combined_profile_data["primary_email"],
         contact_email=combined_profile_data["contact_email"],
+        is_active=combined_profile_data["is_active"],
         all_emails=combined_profile_data["emails"],
     )
 
