@@ -59,6 +59,11 @@ people_finder_api = NinjaAPI(
     auth=[do_hawk_auth],
     docs_decorator=staff_member_required,
 )
-
 if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
     people_finder_api.add_router("", people_finder_router)
+
+if settings.APP_ENV == "local":
+    main_api.docs_decorator = None
+    scim_api.docs_decorator = None
+    sso_profile_api.docs_decorator = None
+    people_finder_api.docs_decorator = None

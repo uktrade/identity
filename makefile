@@ -135,7 +135,7 @@ coverage-html: # Generate a html report of the test coverage
 	$(web) coverage html
 	poetry run python -m webbrowser htmlcov/index.html
 
-# DB
+# DB and data
 db-reset: # Reset the database
 	docker compose stop postgres
 	docker compose rm -f postgres
