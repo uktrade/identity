@@ -24,7 +24,7 @@ else:
 
 def get_by_id(sso_email_id: str) -> Profile:
     # NB we're not raising more specific exceptions here because we're optimising this for speed
-    return Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
+    return Profile.objects.get(sso_email_id=sso_email_id)
 
 
 def create(

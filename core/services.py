@@ -175,9 +175,8 @@ def bulk_create_and_update_identity_users_from_sso(
                 primary_email=primary_email,
                 contact_email=contact_email,
             )
-    else:
         # if inactive sso user is currently active in ID, they should be archived
-        if sso_user[SSO_USER_EMAIL_ID] in id_user_ids:
+        if sso_user[SSO_USER_EMAIL_ID] in id_user_ids and sso_user[SSO_USER_STATUS] == "inactive":
             user = User.objects.get(sso_email_id=sso_user[SSO_USER_EMAIL_ID])
             if user.is_active:
                 user_services.archive(user)
