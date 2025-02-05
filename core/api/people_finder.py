@@ -2,8 +2,8 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder import PeopleFinderProfileSchema
-from profiles.models.peoplefinder import PeopleFinderProfile
+from core.schemas.profiles import ProfileMinimal
+from profiles.models.combined import Profile
 
 
 router = Router()
@@ -15,15 +15,15 @@ router.add_router("person", profile_router)
 @profile_router.get(
     "{id}",
     response={
-        200: PeopleFinderProfileSchema,
+        200: ProfileMinimal,
         404: Error,
     },
 )
-def get_people_finder_profile(request, id: str):
-    """Just a demo, do not build against this - still incomplete"""
+def get_user(request, id: str):
+    """Just a demo, do not build against this"""
     try:
         return core_services.get_by_id(id)
-    except PeopleFinderProfile.DoesNotExist:
+    except Profile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",
         }
