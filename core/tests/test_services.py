@@ -28,7 +28,7 @@ def test_create_identity(mocker):
     )
     # User is created
     profile = services.create_identity(
-        id="john.sso.email.id@gov.uk",
+        id="billy.sso.email.id@gov.uk",
         first_name="Billy",
         last_name="Bob",
         all_emails=[
@@ -36,14 +36,16 @@ def test_create_identity(mocker):
             "test2@test.com",
             "test3@test.com",
         ],
+        is_active=False,
         primary_email="test2@test.com",
         contact_email="test3@test.com",
     )
     mock_user_create.assert_called_once_with(
-        sso_email_id="john.sso.email.id@gov.uk",
+        sso_email_id="billy.sso.email.id@gov.uk",
+        is_active=False,
     )
     mock_profiles_create.assert_called_once_with(
-        sso_email_id="john.sso.email.id@gov.uk",
+        sso_email_id="billy.sso.email.id@gov.uk",
         first_name="Billy",
         last_name="Bob",
         all_emails=[
@@ -64,6 +66,7 @@ def test_existing_user(basic_user) -> None:
             first_name="Billy",
             last_name="Bob",
             all_emails=["new_user@email.gov.uk"],
+            is_active=True,
         )
 
 
@@ -73,6 +76,7 @@ def test_new_user() -> None:
         first_name="Billy",
         last_name="Bob",
         all_emails=["new_user@email.gov.uk"],
+        is_active=True,
     )
     assert isinstance(profile, Profile)
     assert profile.pk
@@ -86,6 +90,7 @@ def test_update_identity() -> None:
         "Billy",
         "Bob",
         ["new_user@email.gov.uk"],
+        is_active=True,
     )
     assert User.objects.get(sso_email_id="new_user@gov.uk").is_active
 
@@ -109,6 +114,7 @@ def test_delete_identity() -> None:
         "Billy",
         "Bob",
         ["new_user@email.gov.uk"],
+        is_active=True,
     )
 
     services.delete_identity(
@@ -135,12 +141,14 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
         first_name="Billy",
         last_name="Bob",
         all_emails=["new_user@email.gov.uk"],
+        is_active=True,
     )
     services.create_identity(
         id="sso_user2@gov.uk",
         first_name="Gilly",
         last_name="Bob",
         all_emails=["user@email.gov.uk"],
+        is_active=True,
     )
 
     mock_delete_identity = mocker.patch(
@@ -152,7 +160,7 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
             SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
             SSO_FIRST_NAME: "Gilly",
             SSO_LAST_NAME: "Bob",
-            SSO_USER_STATUS: "active",
+            SSO_USER_STATUS: "inactive",
             SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
             SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
         },
@@ -173,6 +181,7 @@ def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
         first_name="Gilly",
         last_name="Bob",
         all_emails=["user@email.gov.uk"],
+        is_active=True,
     )
     mock_create_identity = mocker.patch(
         "core.services.create_identity", return_value="__profile__"
@@ -194,7 +203,7 @@ def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
             SSO_USER_EMAIL_ID: "sso_user3@gov.uk",
             SSO_FIRST_NAME: "Alice",
             SSO_LAST_NAME: "Smith",
-            SSO_USER_STATUS: "active",
+            SSO_USER_STATUS: "inactive",
             SSO_EMAIL_ADDRESSES: ["sso_user3@gov.uk"],
             SSO_CONTACT_EMAIL_ADDRESS: "user3@gov.uk",
         },
@@ -205,6 +214,7 @@ def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
         first_name="Alice",
         last_name="Smith",
         all_emails=["sso_user3@gov.uk", "user3@gov.uk"],
+        is_active=False,
         primary_email="sso_user3@gov.uk",
         contact_email="user3@gov.uk",
     )
@@ -225,12 +235,14 @@ def test_sync_bulk_sso_users(mocker) -> None:
         first_name="Billy",
         last_name="Bob",
         all_emails=["new_user@email.gov.uk"],
+        is_active=True,
     )
     services.create_identity(
         id="sso_user2@gov.uk",
         first_name="Gilly",
         last_name="Bob",
         all_emails=["user@email.gov.uk"],
+        is_active=True,
     )
 
     mock_get_bulk_user_records = mocker.patch(

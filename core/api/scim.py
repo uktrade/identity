@@ -45,11 +45,6 @@ def get_user(request, id: str):
 )
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     """Creates the given Identity record; will not update"""
-    if not scim_user.active:
-        return 400, {
-            "status": "400",
-            "detail": "Cannot create inactive user via SCIM",
-        }
 
     if not scim_user.emails:
         return 400, {
@@ -67,6 +62,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             all_emails=emails,
             primary_email=scim_user.get_primary_email(),
             contact_email=scim_user.get_contact_email(),
+            is_active=scim_user.active,
         )
         return 201, user
 

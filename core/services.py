@@ -34,6 +34,7 @@ def create_identity(
     first_name: str,
     last_name: str,
     all_emails: list[str],
+    is_active: bool,
     primary_email: str | Unset | None = None,
     contact_email: str | Unset | None = None,
 ) -> Profile:
@@ -43,7 +44,10 @@ def create_identity(
 
     Returns the combined Profile
     """
-    user_services.create(sso_email_id=id)
+    user_services.create(
+        sso_email_id=id,
+        is_active=is_active,
+    )
     return profile_services.create_from_sso(
         sso_email_id=id,
         first_name=first_name,
@@ -137,43 +141,46 @@ def bulk_create_and_update_identity_users_from_sso(
     Creates and updates existing Staff SSO users in the Identity database
     """
     id_user_ids = User.objects.all().values_list("sso_email_id", flat=True)
-
+    is_active = None
     for sso_user in sso_users:
         if sso_user[SSO_USER_STATUS] == "active":
-            if sso_user[SSO_USER_EMAIL_ID] not in id_user_ids:
-                primary_email, contact_email, all_emails = extract_emails_from_sso_user(
-                    sso_user
-                )
-                create_identity(
-                    id=sso_user[SSO_USER_EMAIL_ID],
-                    first_name=sso_user[SSO_FIRST_NAME],
-                    last_name=sso_user[SSO_LAST_NAME],
-                    all_emails=all_emails,
-                    primary_email=primary_email,
-                    contact_email=contact_email,
-                )
-            else:
-                profile = get_by_id(id=sso_user[SSO_USER_EMAIL_ID])
-                primary_email, contact_email, all_emails = extract_emails_from_sso_user(
-                    sso_user
-                )
-                update_identity(
-                    profile=profile,
-                    first_name=sso_user[SSO_FIRST_NAME],
-                    last_name=sso_user[SSO_LAST_NAME],
-                    all_emails=all_emails,
-                    is_active=(
-                        True if sso_user[SSO_USER_STATUS] == "active" else False
-                    ),
-                    primary_email=primary_email,
-                    contact_email=contact_email,
-                )
+            is_active = True
         else:
-            # if inactive sso user is currently active in ID, they should be archived
-            if sso_user[SSO_USER_EMAIL_ID] in id_user_ids:
-                user = User.objects.get(sso_email_id=sso_user[SSO_USER_EMAIL_ID])
-                if user.is_active:
-                    user_services.archive(user)
+            is_active = False
+
+        if sso_user[SSO_USER_EMAIL_ID] not in id_user_ids:
+            primary_email, contact_email, all_emails = extract_emails_from_sso_user(
+                sso_user
+            )
+            create_identity(
+                id=sso_user[SSO_USER_EMAIL_ID],
+                first_name=sso_user[SSO_FIRST_NAME],
+                last_name=sso_user[SSO_LAST_NAME],
+                all_emails=all_emails,
+                is_active=is_active,
+                primary_email=primary_email,
+                contact_email=contact_email,
+            )
+        else:
+            profile = get_by_id(id=sso_user[SSO_USER_EMAIL_ID])
+            primary_email, contact_email, all_emails = extract_emails_from_sso_user(
+                sso_user
+            )
+            update_identity(
+                profile=profile,
+                first_name=sso_user[SSO_FIRST_NAME],
+                last_name=sso_user[SSO_LAST_NAME],
+                all_emails=all_emails,
+                is_active=(True if sso_user[SSO_USER_STATUS] == "active" else False),
+                primary_email=primary_email,
+                contact_email=contact_email,
+            )
+    else:
+        # if inactive sso user is currently active in ID, they should be archived
+        if sso_user[SSO_USER_EMAIL_ID] in id_user_ids:
+            user = User.objects.get(sso_email_id=sso_user[SSO_USER_EMAIL_ID])
+            if user.is_active:
+                user_services.archive(user)
 
 
 def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
