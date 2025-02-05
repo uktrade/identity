@@ -1,8 +1,9 @@
 from ninja import ModelSchema
+
 from profiles.models.peoplefinder import (
     PeopleFinderProfile,
-    PeopleFinderTeam,
     PeopleFinderProfileTeam,
+    PeopleFinderTeam,
     PeopleFinderTeamTree,
 )
 
