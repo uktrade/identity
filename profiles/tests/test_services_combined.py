@@ -16,9 +16,8 @@ def test_get_by_id(combined_profile):
     # Get a soft-deleted profile
     soft_deleted_profile = combined_profile
     soft_deleted_profile.is_active = False
-   
+
     assert soft_deleted_profile == combined_profile
-    
 
     # or a non-existent one
     with pytest.raises(Profile.DoesNotExist) as ex:
