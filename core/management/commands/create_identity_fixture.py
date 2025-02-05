@@ -32,6 +32,7 @@ class Command(BaseCommand):
         last_name = kwargs["last_name"]
         staff = kwargs["staff"]
         superuser = kwargs["superuser"]
+        is_active = kwargs["is_active"]
         dry_run = kwargs["dry_run"]
 
         factory_faker = faker.Faker()
@@ -50,6 +51,9 @@ class Command(BaseCommand):
         if last_name is None:
             last_name = factory_faker.last_name()
 
+        if is_active is None:
+            is_active = factory_faker.is_active()
+
         self.stdout.write(
             f"Creating user with id: {sso_email_id}, email: {email}, first_name: {first_name} and last_name: {last_name}"
         )
@@ -62,6 +66,7 @@ class Command(BaseCommand):
             first_name=first_name,
             last_name=last_name,
             all_emails=[email],
+            is_active=is_active,
         )
 
         if superuser:
