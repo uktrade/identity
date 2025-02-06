@@ -35,3 +35,17 @@ These are rendered as "generic" models, with explicit M2M thrgouh models to the 
 Since there are a lot of models and services in this module, we've further split them into Abstract (non-concrete ancestors of classes), Generic (concrete but non-provider-specific), Specific (e.g. `StaffSSOProfile`), and Combined (`Profile`) submodules, which makes it easier to group related models.
 
 Note that `__init__.py` is used at the higher level services module to provide functionality abstracting away these distinctions.
+
+## User / Profile lifecycle
+
+Every `User` record in Identity should always have a corresponding combined `Profile` record, regardless of which provider-specific profile that user may or may not have.
+
+It should always be safe to (re)generate the combined `Profile` record.
+
+The set of User records in Staff SSO and here should be exactly 1:1; at the moment Staff SSO has the final word on which records ought to exist at all, as well as the `is_active` flag on those users. Staff SSO manages the User lifecycle.
+
+When People Finder has data that conflicts with Staff SSO with regard to `User` records or the `is_active` flag, Staff SSO takes precedence.
+
+> N.B. This means that records that exist in People Finder but not in Staff SSO will _not_ be imported into Identity, and People Finder's `is_active` flag will not be imported at all.
+
+When People Finder and Staff SSO have data the conflicts with regard to profile information (i.e. name, preferred email, etc.), People Finder will take precedence in all cases.
