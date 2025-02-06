@@ -11,22 +11,22 @@ from profiles.models.peoplefinder import (
 class PeopleFinderProfileSchema(ModelSchema):
     class Meta:
         model = PeopleFinderProfile
-        fields = "__all__"
+        exclude = []
 
 
 class PeopleFinderTeamSchema(ModelSchema):
     class Meta:
         model = PeopleFinderTeam
-        fields = "__all__"
+        exclude = []
 
 
 class PeopleFinderProfileTeamSchema(ModelSchema):
     class Meta:
         model = PeopleFinderProfileTeam
-        fields = "__all__"
+        exclude = []
 
 
 class PeopleFinderTeamTreeSchema(ModelSchema):
     class Meta:
         model = PeopleFinderTeamTree
-        fields = "__all__"
+        exclude = []
