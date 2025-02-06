@@ -43,6 +43,11 @@ INFRA_SERVICE: str = env.str("INFRA_SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 
+# Boto
+S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
+DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
+DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
+
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
 SECRET_KEY: str = env.str("SECRET_KEY")
@@ -79,8 +84,7 @@ VITE_DEV: bool = env.bool("VITE_DEV")
 VITE_DEV_SERVER_URL: str = env.str("VITE_DEV_SERVER_URL")
 VITE_MANIFEST_PATH: Path = BASE_DIR / "frontend" / "dist" / "manifest.json"
 
-# Application definition
-INSTALLED_APPS: list[str] = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -88,13 +92,23 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
-    "core.apps.CoreConfig",
+]
+
+THIRD_PARTY_APPS = [
     "authbroker_client",
+    "django_chunk_upload_handlers",
     "simple_history",
+]
+
+LOCAL_APPS = [
     "pingdom.apps.PingdomConfig",
     "user.apps.UserConfig",
     "profiles.apps.ProfileConfig",
+    "core.apps.CoreConfig",
 ]
+
+# Application definition
+INSTALLED_APPS: list[str] = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
 MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
@@ -234,6 +248,13 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+        "mohawk": {
+            "handlers": [
+                "asim",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+            "propagate": False,
+        },
     },
     # "filters": {
     #     "request_id_context": {
@@ -282,11 +303,12 @@ if is_copilot():
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
 
+# Disabled as Ninja calls shouldn't be cached.
 CACHES: dict[str, Any] = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": IDENTITY_REDIS_URL,
-        "KEY_PREFIX": "wp_",
+        "KEY_PREFIX": "identity_",
     }
 }
 
@@ -318,3 +340,8 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+CLAM_AV_USERNAME = env.str("CLAM_AV_USERNAME", default=None)
+CLAM_AV_PASSWORD = env.str("CLAM_AV_PASSWORD", default=None)
+CLAM_AV_DOMAIN = env.str("CLAM_AV_DOMAIN", default=None)

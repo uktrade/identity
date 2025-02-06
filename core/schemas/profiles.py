@@ -13,4 +13,5 @@ class ProfileMinimal(ModelSchema):
             "last_name",
             "primary_email",
             "contact_email",
+            "emails",
         ]
