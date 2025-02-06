@@ -8,9 +8,9 @@ pytestmark = pytest.mark.django_db
 
 def test_get_by_id(mocker):
     mock_combined_get = mocker.patch(
-        "profiles.services.get_by_id", return_value="__combined__"
+        "profiles.services.combined.get_by_id", return_value="__combined__"
     )
-    result = services.get_by_id(sso_email_id="sso_id")
+    result = services.get_by_id("sso_id")
     mock_combined_get.assert_called_once_with(sso_email_id="sso_id")
     assert result == "__combined__"
 

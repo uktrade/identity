@@ -29,8 +29,8 @@ def get_by_id(id: str):
     return profile_services.get_by_id(sso_email_id=id)
 
 
-def get_active_profile_by_id(sso_email_id: str) -> Profile:
-    return profile_services.get_active_profile_by_id(sso_email_id)
+def get_active_profile_by_id(id: str) -> Profile:
+    return profile_services.get_active_profile_by_id(sso_email_id=id)
 
 
 def create_identity(
