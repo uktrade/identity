@@ -22,7 +22,7 @@ router.add_router("person", profile_router)
 def get_user(request, id: str):
     """Just a demo, do not build against this"""
     try:
-        return core_services.get_by_id(id)
+        return core_services.get_active_profile_by_id(id)
     except Profile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",

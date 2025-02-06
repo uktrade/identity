@@ -29,6 +29,10 @@ def get_by_id(id: str):
     return profile_services.get_by_id(sso_email_id=id)
 
 
+def get_active_profile_by_id(sso_email_id: str) -> Profile:
+    return profile_services.get_active_profile_by_id(sso_email_id)
+
+
 def create_identity(
     id: str,
     first_name: str,
@@ -71,6 +75,13 @@ def update_identity(
     Function for updating an existing user (archive / unarchive) and their profile information.
     """
 
+    user = User.objects.get(sso_email_id=profile.sso_email_id)
+    if user.is_active != is_active:
+        if user.is_active == False:
+            user_services.unarchive(user)
+        else:
+            user_services.archive(user)
+
     profile_services.update_from_sso(
         profile=profile,
         first_name=first_name,
@@ -79,13 +90,6 @@ def update_identity(
         primary_email=primary_email,
         contact_email=contact_email,
     )
-
-    user = User.objects.get(sso_email_id=profile.sso_email_id)
-    if user.is_active != is_active:
-        if is_active:
-            user_services.unarchive(user)
-        else:
-            user_services.archive(user)
 
 
 def delete_identity(profile: Profile) -> None:

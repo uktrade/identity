@@ -8,11 +8,13 @@ from profiles.models.combined import Profile
 from profiles.services import combined, staff_sso
 from profiles.types import Unset
 
-from .combined import get_by_id as get_combined_by_id
-
 
 def get_by_id(sso_email_id: str) -> Profile:
-    return get_combined_by_id(sso_email_id=sso_email_id)
+    return combined.get_by_id(sso_email_id=sso_email_id)
+
+
+def get_active_profile_by_id(sso_email_id: str) -> Profile:
+    return combined.get_active_profile_by_id(sso_email_id=sso_email_id)
 
 
 def generate_combined_profile_data(sso_email_id: str):
@@ -69,6 +71,7 @@ def create_from_sso(
         primary_email=combined_profile_data["primary_email"],
         contact_email=combined_profile_data["contact_email"],
         all_emails=combined_profile_data["emails"],
+        is_active=combined_profile_data["is_active"],
     )
 
 
@@ -90,7 +93,7 @@ def update_from_sso(
         contact_email=contact_email,
     )
 
-    combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
+    combined_profile = combined.get_by_id(sso_email_id=profile.sso_email_id)
     combined_profile_data = generate_combined_profile_data(
         sso_email_id=profile.sso_email_id
     )
@@ -101,8 +104,8 @@ def update_from_sso(
         last_name=combined_profile_data["last_name"],
         primary_email=combined_profile_data["primary_email"],
         contact_email=combined_profile_data["contact_email"],
-        is_active=combined_profile_data["is_active"],
         all_emails=combined_profile_data["emails"],
+        is_active=combined_profile_data["is_active"],
     )
 
 
@@ -114,14 +117,14 @@ def delete_from_sso(profile: Profile) -> None:
 
     # check if combined profile is the only profile left for user
     if [key for key in all_profiles] == ["combined"]:
-        combined_profile = get_by_id(sso_email_id=profile.sso_email_id)
+        combined_profile = combined.get_by_id(sso_email_id=profile.sso_email_id)
         combined.delete_from_database(profile=combined_profile)
 
 
 def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
     all_profile = dict()
     try:
-        all_profile["combined"] = get_combined_by_id(sso_email_id=sso_email_id)
+        all_profile["combined"] = combined.get_by_id(sso_email_id=sso_email_id)
     except:
         # no combined profile found
         pass

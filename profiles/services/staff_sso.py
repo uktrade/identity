@@ -23,6 +23,13 @@ else:
 
 def get_by_id(sso_email_id: str) -> StaffSSOProfile:
     """
+    Retrieve a profile by its User ID.
+    """
+    return StaffSSOProfile.objects.get(user__sso_email_id=sso_email_id)
+
+
+def get_active_sso_profile_by_id(sso_email_id: str) -> StaffSSOProfile:
+    """
     Retrieve a profile by its User ID, only if the user is not soft-deleted.
     """
     return StaffSSOProfile.objects.get(

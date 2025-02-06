@@ -19,7 +19,7 @@ router = Router()
 def get_user(request, id: str):
     """Optimised, low-flexibility endpoint to return a minimal Identity record (internally: Profile)"""
     try:
-        return core_services.get_by_id(id)
+        return core_services.get_active_profile_by_id(id)
     except Profile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",

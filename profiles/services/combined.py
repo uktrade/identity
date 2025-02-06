@@ -27,11 +27,17 @@ def get_by_id(sso_email_id: str) -> Profile:
     return Profile.objects.get(sso_email_id=sso_email_id)
 
 
+def get_active_profile_by_id(sso_email_id: str) -> Profile:
+    # NB we're not raising more specific exceptions here because we're optimising this for speed
+    return Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
+
+
 def create(
     sso_email_id: str,
     first_name: str,
     last_name: str,
     all_emails: list[str],
+    is_active: bool,
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,
     reason: Optional[str] = None,
@@ -51,7 +57,7 @@ def create(
             emails=all_emails,
             primary_email=primary_email,
             contact_email=contact_email,
-            is_active=True,
+            is_active=is_active,
         )
 
         if reason is None:
