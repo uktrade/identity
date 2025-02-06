@@ -10,16 +10,19 @@ pytestmark = pytest.mark.django_db
 
 
 def test_get_by_id(combined_profile):
+    # Get an active profile
     get_profile_result = profile_services.get_by_id(combined_profile.sso_email_id)
     assert get_profile_result == combined_profile
+    assert combined_profile.is_active == True
 
     # Get a soft-deleted profile
-    soft_deleted_profile = combined_profile
-    soft_deleted_profile.is_active = False
+    combined_profile.is_active = False
+    combined_profile.save()
 
-    assert soft_deleted_profile == combined_profile
+    soft_deleted_profile = profile_services.get_by_id(combined_profile.sso_email_id)
+    assert soft_deleted_profile.is_active == False
 
-    # or a non-existent one
+    # Try to get a non-existent profile
     with pytest.raises(Profile.DoesNotExist) as ex:
         profile_services.get_by_id("9999")
         assert str(ex.value.args[0]) == "User does not exist"
