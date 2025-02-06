@@ -64,7 +64,7 @@ class PeopleFinderTeamSchema(ModelSchema):
             "description",
             "leaders_ordering",
             "cost_code",
-            "team_type"
+            "team_type",
         ]
 
 
@@ -76,15 +76,11 @@ class PeopleFinderProfileTeamSchema(ModelSchema):
             "team",
             "job_title",
             "head_of_team",
-            "leaders_position"
+            "leaders_position",
         ]
 
 
 class PeopleFinderTeamTreeSchema(ModelSchema):
     class Meta:
         model = PeopleFinderTeamTree
-        fields = [
-            "parent",
-            "child",
-            "depth"
-        ]
+        fields = ["parent", "child", "depth"]
