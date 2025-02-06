@@ -145,13 +145,7 @@ def bulk_create_and_update_identity_users_from_sso(
     Creates and updates existing Staff SSO users in the Identity database
     """
     id_user_ids = User.objects.all().values_list("sso_email_id", flat=True)
-    is_active = None
     for sso_user in sso_users:
-        if sso_user[SSO_USER_STATUS] == "active":
-            is_active = True
-        else:
-            is_active = False
-
         if sso_user[SSO_USER_EMAIL_ID] not in id_user_ids:
             primary_email, contact_email, all_emails = extract_emails_from_sso_user(
                 sso_user
@@ -161,7 +155,7 @@ def bulk_create_and_update_identity_users_from_sso(
                 first_name=sso_user[SSO_FIRST_NAME],
                 last_name=sso_user[SSO_LAST_NAME],
                 all_emails=all_emails,
-                is_active=is_active,
+                is_active=sso_user[SSO_USER_STATUS] == "active",
                 primary_email=primary_email,
                 contact_email=contact_email,
             )
