@@ -11,7 +11,9 @@ def test_get_by_id(mocker):
         "profiles.services.combined.get_by_id", return_value="__combined__"
     )
     result = services.get_by_id("sso_id")
-    mock_combined_get.assert_called_once_with(sso_email_id="sso_id")
+    mock_combined_get.assert_called_once_with(
+        sso_email_id="sso_id", include_inactive=False
+    )
     assert result == "__combined__"
 
 
@@ -19,7 +21,7 @@ def test_generate_combined_profile_data_accesses_profile_records(mocker):
     mock_sso_get = mocker.patch("profiles.services.staff_sso.get_by_id")
     mock_combined_get = mocker.patch("profiles.services.combined.get_by_id")
     services.generate_combined_profile_data(sso_email_id="sso_id")
-    mock_sso_get.assert_called_once_with(sso_email_id="sso_id")
+    mock_sso_get.assert_called_once_with(sso_email_id="sso_id", include_inactive=True)
     mock_combined_get.assert_not_called()
 
 

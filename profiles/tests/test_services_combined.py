@@ -15,38 +15,28 @@ def test_get_by_id(combined_profile):
     assert get_profile_result == combined_profile
     assert combined_profile.is_active == True
 
-    # Get a soft-deleted profile
+    # Get a soft-deleted profile when inactive profiles are included
     combined_profile.is_active = False
     combined_profile.save()
 
-    soft_deleted_profile = profile_services.get_by_id(combined_profile.sso_email_id)
+    soft_deleted_profile = profile_services.get_by_id(
+        combined_profile.sso_email_id, include_inactive=True
+    )
     assert soft_deleted_profile.is_active == False
 
-    # Try to get a non-existent profile
-    with pytest.raises(Profile.DoesNotExist) as ex:
-        profile_services.get_by_id("9999")
-        assert str(ex.value.args[0]) == "User does not exist"
-
-
-def test_get_active_profile_by_id(combined_profile):
-    # Get an active profile
-    get_profile_result = profile_services.get_active_profile_by_id(
-        combined_profile.sso_email_id
-    )
-    assert get_profile_result == combined_profile
-    assert combined_profile.is_active == True
-
-    # Try to get a soft-deleted profile
+    # Try to get a soft-deleted profile when inactive profiles are not included
     combined_profile.is_active = False
     combined_profile.save()
     with pytest.raises(Profile.DoesNotExist) as ex:
         # no custom error to keep overheads low
-        profile_services.get_active_profile_by_id(combined_profile.sso_email_id)
+        profile_services.get_by_id(
+            combined_profile.sso_email_id,
+        )
         assert ex.value.args[0] == "User has been previously deleted"
 
     # Try to get a non-existent profile
     with pytest.raises(Profile.DoesNotExist) as ex:
-        profile_services.get_active_profile_by_id("9999")
+        profile_services.get_by_id("9999")
         assert str(ex.value.args[0]) == "User does not exist"
 
 
@@ -161,7 +151,7 @@ def test_delete_from_database(combined_profile):
     combined_profile.refresh_from_db()
     profile_services.delete_from_database(combined_profile)
     with pytest.raises(combined_profile.DoesNotExist):
-        profile_services.get_by_id(combined_profile.sso_email_id)
+        profile_services.get_by_id(combined_profile.sso_email_id, include_inactive=True)
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()

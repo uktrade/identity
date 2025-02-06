@@ -21,7 +21,7 @@ def test_create(scim_user_factory):
     url = reverse("scim:create_user")
 
     with pytest.raises(Profile.DoesNotExist):
-        services.get_by_id(scim_user_dict["id"])
+        services.get_identity_by_id(scim_user_dict["id"], include_inactive=True)
 
     response = client.post(
         url,
@@ -30,7 +30,7 @@ def test_create(scim_user_factory):
     )
 
     assert response.status_code == 201
-    profile = services.get_by_id(scim_user_dict["id"])
+    profile = services.get_identity_by_id(scim_user_dict["id"], include_inactive=True)
     assert profile.first_name == scim_user_dict["name"]["givenName"]
     assert profile.last_name == scim_user_dict["name"]["familyName"]
     assert len(profile.emails) == len(scim_user_dict["emails"])

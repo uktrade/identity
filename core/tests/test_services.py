@@ -121,8 +121,9 @@ def test_delete_identity() -> None:
         profile,
     )
     with pytest.raises(Profile.DoesNotExist) as pex:
-        services.get_by_id(
+        services.get_identity_by_id(
             id=profile.sso_email_id,
+            include_inactive=True,
         )
 
     assert str(pex.value.args[0]) == "Profile matching query does not exist."
@@ -166,8 +167,10 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
         },
     ]
 
-    profile1_to_delete = services.get_by_id("sso_email_id@email.com")
-    profile2_to_delete = services.get_by_id(id)
+    profile1_to_delete = services.get_identity_by_id(
+        "sso_email_id@email.com", include_inactive=True
+    )
+    profile2_to_delete = services.get_identity_by_id(id, include_inactive=True)
     calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
 
     services.bulk_delete_identity_users_from_sso(sso_users=sso_users)
@@ -219,7 +222,9 @@ def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
         contact_email="user3@gov.uk",
     )
     mock_update_identity.assert_called_once_with(
-        profile=services.get_by_id("sso_user2@gov.uk"),
+        profile=services.get_identity_by_id(
+            id="sso_user2@gov.uk", include_inactive=True
+        ),
         first_name="Jane",
         last_name="Doe",
         all_emails=["sso_user2@gov.uk", "user2@gov.uk"],

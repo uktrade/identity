@@ -25,12 +25,13 @@ SSO_USER_STATUS = "dit:StaffSSO:User:status"
 logger = logging.getLogger(__name__)
 
 
-def get_by_id(id: str):
-    return profile_services.get_by_id(sso_email_id=id)
-
-
-def get_active_profile_by_id(id: str) -> Profile:
-    return profile_services.get_active_profile_by_id(sso_email_id=id)
+def get_identity_by_id(id: str, include_inactive: bool = False) -> Profile:
+    """
+    Retrieve an identity by its User ID.
+    """
+    return profile_services.get_by_id(
+        sso_email_id=id, include_inactive=include_inactive
+    )
 
 
 def create_identity(
@@ -131,7 +132,7 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None
 
     id_users_to_delete = id_users.exclude(sso_email_id__in=sso_user_ids)
     for user in id_users_to_delete:
-        profile = get_by_id(user.sso_email_id)
+        profile = get_identity_by_id(user.sso_email_id, include_inactive=True)
         # log Staff SSO objects that are no longer in the S3 file.
         logger.info(f"ingest_staff_sso_s3: Deactivating account {user.sso_email_id}")
 
@@ -160,7 +161,9 @@ def bulk_create_and_update_identity_users_from_sso(
                 contact_email=contact_email,
             )
         else:
-            profile = get_by_id(id=sso_user[SSO_USER_EMAIL_ID])
+            profile = get_identity_by_id(
+                id=sso_user[SSO_USER_EMAIL_ID], include_inactive=True
+            )
             primary_email, contact_email, all_emails = extract_emails_from_sso_user(
                 sso_user
             )
@@ -169,7 +172,7 @@ def bulk_create_and_update_identity_users_from_sso(
                 first_name=sso_user[SSO_FIRST_NAME],
                 last_name=sso_user[SSO_LAST_NAME],
                 all_emails=all_emails,
-                is_active=(True if sso_user[SSO_USER_STATUS] == "active" else False),
+                is_active=sso_user[SSO_USER_STATUS] == "active",
                 primary_email=primary_email,
                 contact_email=contact_email,
             )

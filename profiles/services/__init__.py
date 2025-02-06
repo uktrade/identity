@@ -9,12 +9,13 @@ from profiles.services import combined, staff_sso
 from profiles.types import Unset
 
 
-def get_by_id(sso_email_id: str) -> Profile:
-    return combined.get_by_id(sso_email_id=sso_email_id)
-
-
-def get_active_profile_by_id(sso_email_id: str) -> Profile:
-    return combined.get_active_profile_by_id(sso_email_id=sso_email_id)
+def get_by_id(sso_email_id: str, include_inactive: bool = False) -> Profile:
+    """
+    Retrieve a profile by its User ID.
+    """
+    return combined.get_by_id(
+        sso_email_id=sso_email_id, include_inactive=include_inactive
+    )
 
 
 def generate_combined_profile_data(sso_email_id: str):
@@ -23,7 +24,7 @@ def generate_combined_profile_data(sso_email_id: str):
     field hierarchy per data type to generate the values for the combined.
     create method
     """
-    sso_profile = staff_sso.get_by_id(sso_email_id=sso_email_id)
+    sso_profile = staff_sso.get_by_id(sso_email_id=sso_email_id, include_inactive=True)
     user = sso_profile.user
 
     primary_email = sso_profile.primary_email
@@ -83,7 +84,9 @@ def update_from_sso(
     primary_email: str | Unset | None = None,
     contact_email: str | Unset | None = None,
 ) -> None:
-    sso_profile = staff_sso.get_by_id(profile.sso_email_id)
+    sso_profile = staff_sso.get_by_id(
+        sso_email_id=profile.sso_email_id, include_inactive=True
+    )
     staff_sso.update(
         staff_sso_profile=sso_profile,
         first_name=first_name,
@@ -93,7 +96,9 @@ def update_from_sso(
         contact_email=contact_email,
     )
 
-    combined_profile = combined.get_by_id(sso_email_id=profile.sso_email_id)
+    combined_profile = combined.get_by_id(
+        sso_email_id=profile.sso_email_id, include_inactive=True
+    )
     combined_profile_data = generate_combined_profile_data(
         sso_email_id=profile.sso_email_id
     )
@@ -110,26 +115,32 @@ def update_from_sso(
 
 
 def delete_from_sso(profile: Profile) -> None:
-    sso_profile = staff_sso.get_by_id(profile.sso_email_id)
+    sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
     staff_sso.delete_from_database(sso_profile=sso_profile)
 
     all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
 
     # check if combined profile is the only profile left for user
     if [key for key in all_profiles] == ["combined"]:
-        combined_profile = combined.get_by_id(sso_email_id=profile.sso_email_id)
+        combined_profile = combined.get_by_id(
+            sso_email_id=profile.sso_email_id, include_inactive=True
+        )
         combined.delete_from_database(profile=combined_profile)
 
 
 def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
     all_profile = dict()
     try:
-        all_profile["combined"] = combined.get_by_id(sso_email_id=sso_email_id)
+        all_profile["combined"] = combined.get_by_id(
+            sso_email_id=sso_email_id, include_inactive=True
+        )
     except:
         # no combined profile found
         pass
     try:
-        all_profile["sso"] = staff_sso.get_by_id(sso_email_id=sso_email_id)
+        all_profile["sso"] = staff_sso.get_by_id(
+            sso_email_id=sso_email_id, include_inactive=True
+        )
     except:
         # no sso profile found
         pass
