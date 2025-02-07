@@ -110,8 +110,6 @@ class PeopleFinderProfileSchema(Schema):
     previous_experience: Optional[str]
 
     # Metadata and status
-    is_active: Optional[bool]
-    became_inactive: Optional[datetime]
     edited_or_confirmed_at: datetime
     login_count: Optional[int]
     profile_completion: Optional[int]
