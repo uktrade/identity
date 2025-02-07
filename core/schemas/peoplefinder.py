@@ -108,6 +108,7 @@ class PeopleFinderProfileSchema(Schema):
     fluent_languages: Optional[str]
     intermediate_languages: Optional[str]
     previous_experience: Optional[str]
+    previous_experience: Optional[str]
 
     # Metadata and status
     edited_or_confirmed_at: datetime
