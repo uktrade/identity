@@ -7,10 +7,10 @@ from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
 
 # Register your models here.
+admin.site.register(Country)
 admin.site.register(Email)
+admin.site.register(PeopleFinderProfile)
+admin.site.register(Profile)
 admin.site.register(StaffSSOProfile)
 admin.site.register(StaffSSOProfileEmail)
-admin.site.register(Profile)
-admin.site.register(Country)
 admin.site.register(UkStaffLocation)
-admin.site.register(PeopleFinderProfile)

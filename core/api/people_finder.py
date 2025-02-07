@@ -32,7 +32,7 @@ def get_user(request, id: str):
 
 
 @profile_router.get(
-    "{id}/2",
+    "{id}",
     response={
         200: PeopleFinderProfileSchema,
         404: Error,
@@ -44,5 +44,5 @@ def get_people_finder(request, id: str):
         return None
     except PeopleFinderProfile.DoesNotExist:
         return 404, {
-            "message": "Unable to find user",
+            "message": "Unable to find people finder profile",
         }
