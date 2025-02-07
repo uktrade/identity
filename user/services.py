@@ -38,6 +38,7 @@ def get_by_id(sso_email_id: str) -> User:
 
 def create(
     sso_email_id: str,
+    is_active: bool,
     is_staff: bool = False,
     is_superuser: bool = False,
     reason: Optional[str] = None,
@@ -49,7 +50,7 @@ def create(
     except User.DoesNotExist:
         user = User.objects.create_user(
             sso_email_id=sso_email_id,
-            is_active=True,
+            is_active=is_active,
             is_staff=is_staff,
             is_superuser=is_superuser,
         )

@@ -27,7 +27,7 @@ router = Router()
 def get_user(request, id: str):
     """Returns the Identity record (internally: Profile) with the given ID"""
     try:
-        return core_services.get_by_id(id)
+        return core_services.get_identity_by_id(id=id, include_inactive=True)
     except Profile.DoesNotExist:
         return 404, {
             "status": "404",
@@ -45,11 +45,6 @@ def get_user(request, id: str):
 )
 def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict]:
     """Creates the given Identity record; will not update"""
-    if not scim_user.active:
-        return 400, {
-            "status": "400",
-            "detail": "Cannot create inactive user via SCIM",
-        }
 
     if not scim_user.emails:
         return 400, {
@@ -67,6 +62,7 @@ def create_user(request, scim_user: CreateUserRequest) -> tuple[int, User | dict
             all_emails=emails,
             primary_email=scim_user.get_primary_email(),
             contact_email=scim_user.get_contact_email(),
+            is_active=scim_user.active,
         )
         return 201, user
 
@@ -96,7 +92,7 @@ def update_user(
         primary_email = scim_user.get_primary_email()
         contact_email = scim_user.get_contact_email()
 
-        profile = core_services.get_by_id(id=id)
+        profile = core_services.get_identity_by_id(id=id, include_inactive=True)
 
         core_services.update_identity(
             profile=profile,
@@ -122,7 +118,7 @@ def delete_user(
 ) -> int | tuple[int, dict]:
     """Deleted the Identity record with the given ID"""
     try:
-        profile = core_services.get_by_id(id=id)
+        profile = core_services.get_identity_by_id(id=id, include_inactive=True)
         core_services.delete_identity(
             profile=profile,
         )

@@ -22,8 +22,14 @@ else:
 #### ID is required - no getting around it ####
 
 
-def get_by_id(sso_email_id: str) -> Profile:
+def get_by_id(sso_email_id: str, include_inactive: bool = False) -> Profile:
+    """
+    Retrieve a profile by its User ID.
+    """
     # NB we're not raising more specific exceptions here because we're optimising this for speed
+    if include_inactive:
+        return Profile.objects.get(sso_email_id=sso_email_id)
+
     return Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
 
 
@@ -32,6 +38,7 @@ def create(
     first_name: str,
     last_name: str,
     all_emails: list[str],
+    is_active: bool,
     primary_email: Optional[str] = None,
     contact_email: Optional[str] = None,
     reason: Optional[str] = None,
@@ -42,7 +49,7 @@ def create(
     in the list of emails if none is provided
     """
     try:
-        get_by_id(sso_email_id)
+        get_by_id(sso_email_id=sso_email_id, include_inactive=True)
     except Profile.DoesNotExist:
         profile = Profile.objects.create(
             sso_email_id=sso_email_id,
@@ -51,7 +58,7 @@ def create(
             emails=all_emails,
             primary_email=primary_email,
             contact_email=contact_email,
-            is_active=True,
+            is_active=is_active,
         )
 
         if reason is None:

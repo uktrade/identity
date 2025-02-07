@@ -11,10 +11,20 @@ pytestmark = pytest.mark.django_db
 
 
 def test_get_by_id(sso_profile):
+    # Get an active profile
     actual = staff_sso_services.get_by_id(sso_profile.user.pk)
     assert actual.user.sso_email_id == sso_profile.user.sso_email_id
 
-    # Try to get a soft-deleted profile
+    # Get a soft-deleted profile when inactive profiles are included
+    sso_profile.user.is_active = False
+    sso_profile.user.save()
+
+    soft_deleted_profile = staff_sso_services.get_by_id(
+        sso_profile.user.pk, include_inactive=True
+    )
+    assert soft_deleted_profile.user.is_active == False
+
+    # Try to get a soft-deleted profile when inactive profiles are not included
     sso_profile.user.is_active = False
     sso_profile.user.save()
     with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
@@ -22,7 +32,7 @@ def test_get_by_id(sso_profile):
         staff_sso_services.get_by_id(sso_profile.user.pk)
         assert ex.value.args[0] == "User has been previously deleted"
 
-    # or a non-existent one
+    # Try to get a non-existent profile
     with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
         staff_sso_services.get_by_id("9999")
         assert str(ex.value.args[0]) == "User does not exist"
