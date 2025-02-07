@@ -26,12 +26,11 @@ def get_by_id(sso_email_id: str, include_inactive: bool = False) -> StaffSSOProf
     Retrieve a profile by its User ID.
     """
     if include_inactive:
-        sso_profile = StaffSSOProfile.objects.get(user__sso_email_id=sso_email_id)
-    else:
-        sso_profile = StaffSSOProfile.objects.get(
-            user__sso_email_id=sso_email_id, user__is_active=True
-        )
-    return sso_profile
+        return StaffSSOProfile.objects.get(user__sso_email_id=sso_email_id)
+
+    return StaffSSOProfile.objects.get(
+        user__sso_email_id=sso_email_id, user__is_active=True
+    )
 
 
 def create(

@@ -28,10 +28,9 @@ def get_by_id(sso_email_id: str, include_inactive: bool = False) -> Profile:
     """
     # NB we're not raising more specific exceptions here because we're optimising this for speed
     if include_inactive:
-        profile = Profile.objects.get(sso_email_id=sso_email_id)
-    else:
-        profile = Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
-    return profile
+        return Profile.objects.get(sso_email_id=sso_email_id)
+
+    return Profile.objects.get(sso_email_id=sso_email_id, is_active=True)
 
 
 def create(
