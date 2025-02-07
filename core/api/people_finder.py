@@ -2,7 +2,9 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
+from core.schemas.peoplefinder import PeopleFinderProfileSchema
 from core.schemas.profiles import ProfileMinimal
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 
 
@@ -24,6 +26,23 @@ def get_user(request, id: str):
     try:
         return core_services.get_by_id(id)
     except Profile.DoesNotExist:
+        return 404, {
+            "message": "Unable to find user",
+        }
+
+
+@profile_router.get(
+    "{id}/2",
+    response={
+        200: PeopleFinderProfileSchema,
+        404: Error,
+    },
+)
+def get_people_finder(request, id: str):
+    """Just a demo, do not build against this"""
+    try:
+        return None
+    except PeopleFinderProfile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",
         }
