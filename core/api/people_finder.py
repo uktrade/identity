@@ -38,7 +38,7 @@ def get_user(request, id: str):
         404: Error,
     },
 )
-def get_people_finder(request, id: str):
+def get_people_finder_profile(request, id: str):
     """Just a demo, do not build against this"""
     try:
         return None
