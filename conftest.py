@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import pytest
 from django.contrib.auth import get_user_model
 
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Email
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
@@ -56,3 +59,19 @@ def combined_profile(sso_profile):
         ],
         is_active=True,
     )
+
+
+@pytest.fixture(scope="function")
+def peoplefinder_profile(basic_user):
+    peoplefinder_profile = PeopleFinderProfile.objects.create(
+        user=basic_user,
+        first_name="John",
+        last_name="Doe",
+        workdays=["Monday, Tuesday"],
+        professions=["COMMERCIAL"],
+        additional_roles=["FIRE_WARDEN"],
+        key_skills=["ASSET_MANAGEMENT"],
+        learning_interests=["SHADOWING"],
+        edited_or_confirmed_at=datetime.now(),
+    )
+    return peoplefinder_profile
