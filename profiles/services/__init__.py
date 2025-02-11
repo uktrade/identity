@@ -114,6 +114,17 @@ def update_from_sso(
     )
 
 
+def update_from_people_finder(profile: Profile) -> None:
+    # 1) How do we link PF profile and combined - primary_email to email?
+    # 2) update_identity is used to update via scim right now, do we call update_from_people_finder()
+    # from update_identity? OR do we have another function in core? OR do we just call update_from_people_finder()
+    # from people_finder API endpoint? OR something else?
+    # 3) How do we regenerate combined profile data when we update the PF profile? -
+    # decision on which fields to update from which profile (sso/pf)?
+    # We will need to add new fields to the combined profile.
+    ...
+
+
 def delete_from_sso(profile: Profile) -> None:
     sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
     staff_sso.delete_from_database(sso_profile=sso_profile)
