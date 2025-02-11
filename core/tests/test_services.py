@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import call
 
 import pytest
@@ -11,6 +12,7 @@ from core.services import (
     SSO_USER_EMAIL_ID,
     SSO_USER_STATUS,
 )
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from user.exceptions import UserExists
 from user.models import User
@@ -115,6 +117,16 @@ def test_delete_identity() -> None:
         "Bob",
         ["new_user@email.gov.uk"],
         is_active=True,
+    )
+
+    PeopleFinderProfile.objects.create(
+        user=User.objects.get(sso_email_id=profile.sso_email_id),
+        workdays=["Monday, Tuesday"],
+        professions=["COMMERCIAL"],
+        additional_roles=["FIRE_WARDEN"],
+        key_skills=["ASSET_MANAGEMENT"],
+        learning_interests=["SHADOWING"],
+        edited_or_confirmed_at=datetime.now(),
     )
 
     services.delete_identity(
