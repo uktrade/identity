@@ -31,6 +31,7 @@ class DataFlowS3Ingest:
     model_uses_baseclass: bool = True
     identifier_field: str
     mapping: dict[str, str]
+    delete_after_import: bool = True
 
     def __init__(self) -> None:
         self.s3_resource: S3BotoResource = self.get_s3_resource()
@@ -99,7 +100,7 @@ class DataFlowS3Ingest:
         defaults = {key: obj[value] for key, value in self.mapping.items()}
 
         if self.model_uses_baseclass:
-            defaults["is_not_deleted_upstream"] = True
+            defaults["exists_in_last_import"] = True
 
         (
             instance,
@@ -160,7 +161,7 @@ class DataFlowS3Ingest:
             imported_pks,
         )
         self.get_model_manager().exclude(pk__in=imported_pks).update(
-            is_not_deleted_upstream=False
+            exists_in_last_import=False
         )
 
     def _get_files_to_ingest(self) -> list:
@@ -230,6 +231,10 @@ class DataFlowS3Ingest:
             files_to_delete.extend(self.other_files)
 
         delete_keys = [{"Key": file.key} for file in files_to_delete]
+
+        if delete_keys and not self.delete_after_import:
+            logger.info("DataFlow S3 {self.__class__}: NOT Deleting keys %s", delete_keys)
+            return
 
         if delete_keys:
             logger.info("DataFlow S3 {self.__class__}: Deleting keys %s", delete_keys)

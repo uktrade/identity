@@ -3,7 +3,7 @@ from django.db import models
 
 class IngestedModelManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(is_not_deleted_upstream=True)
+        return super().get_queryset().filter(exists_in_last_import=True)
 
 
 class IngestedModel(models.Model):
@@ -12,6 +12,6 @@ class IngestedModel(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    is_not_deleted_upstream = models.BooleanField(default=True)
+    exists_in_last_import = models.BooleanField(default=True)
 
     objects = IngestedModelManager()
