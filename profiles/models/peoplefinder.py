@@ -213,7 +213,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
             blank=True,
             max_length=80,
             choices=Workday.choices,
-        )
+        ),
+        null=True,
+        blank=True,
     )
     remote_working = models.CharField(
         verbose_name="Usual working location",
@@ -260,14 +262,18 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         base_field=models.CharField(
             blank=True,
             choices=Profession.choices,
-        )
+        ),
+        null=True,
+        blank=True,
     )
     additional_roles = ChoiceArrayField(
         base_field=models.CharField(
             verbose_name="Additional roles or responsibilities",
             blank=True,
             choices=AdditionalRole.choices,
-        )
+        ),
+        null=True,
+        blank=True,
     )
     other_additional_roles = models.CharField(
         max_length=400,
@@ -279,7 +285,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         models.CharField(
             blank=True,
             choices=KeySkill.choices,
-        )
+        ),
+        null=True,
+        blank=True,
     )
     other_key_skills = models.CharField(
         max_length=700,
@@ -291,7 +299,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         models.CharField(
             blank=True,
             choices=LearningInterest.choices,
-        )
+        ),
+        null=True,
+        blank=True,
     )
     other_learning_interests = models.CharField(
         max_length=255,
