@@ -98,6 +98,7 @@ def delete_identity(profile: Profile) -> None:
     Function for deleting an existing user and their profile information.
     """
 
+    profile_services.delete_from_peoplefinder(profile=profile)
     profile_services.delete_from_sso(profile=profile)
 
     # delete user if no profile exists for user

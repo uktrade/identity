@@ -193,10 +193,7 @@ def update_from_peoplefinder(
     # TODO: Update combined profile here as well
 
 
-def delete_from_sso(profile: Profile) -> None:
-    sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
-    staff_sso.delete_from_database(sso_profile=sso_profile)
-
+def delete_from_peoplefinder(profile: Profile) -> None:
     try:
         peoplefinder_profile = peoplefinder.get_by_id(sso_email_id=profile.sso_email_id)
         peoplefinder.delete_from_database(peoplefinder_profile=peoplefinder_profile)
@@ -209,6 +206,11 @@ def delete_from_sso(profile: Profile) -> None:
             change_message="No People finder profile to delete",
             action_flag=DELETION,
         )
+
+
+def delete_from_sso(profile: Profile) -> None:
+    sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
+    staff_sso.delete_from_database(sso_profile=sso_profile)
 
     all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
 
