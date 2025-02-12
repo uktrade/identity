@@ -2,9 +2,9 @@
 # If in doubt about what to use, you should probably be using this
 from typing import Optional
 
+from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
 
-from django.contrib.admin.models import DELETION, LogEntry
 from profiles.models.combined import Profile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
