@@ -26,7 +26,7 @@ def get_profile_completion(peoplefinder_profile):
 
 
 def get_by_id(sso_email_id: str) -> PeopleFinderProfile:
-    # TODO - This is a temporary implementation just to get tests going. It will be revisited in get PR service ticket
+    # TODO - This is a temporary implementation just to get tests going. It will be revisited in get People Finder service ticket
     user = User.objects.get(sso_email_id=sso_email_id)
     return PeopleFinderProfile.objects.get(user=user)
 
