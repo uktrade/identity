@@ -1,7 +1,7 @@
 from django.core.validators import EmailValidator
 from django.db import models
 
-from core.models import IngestedModel
+from data_flow_s3_import.models import IngestedModel
 
 from .abstract import AbstractHistoricalModel
 

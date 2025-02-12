@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from core.services import sync_bulk_sso_users
+from user.utils import StaffSSOUserS3Ingest
 
 
 class Command(BaseCommand):
@@ -14,4 +14,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         dry_run = kwargs["dry_run"]
 
-        sync_bulk_sso_users()
+        StaffSSOUserS3Ingest()

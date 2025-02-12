@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from core.services import sync_bulk_sso_users
 from user.models import User
+from user.utils import StaffSSOUserS3Ingest
 
 
 # # Register your models here.
@@ -13,4 +13,4 @@ class SSOSyncUserAdmin(admin.ModelAdmin):
 
     @admin.action(description="Sync identity users with Staff SSO")
     def sync_sso_users(self, request, queryset) -> None:
-        sync_bulk_sso_users()
+        StaffSSOUserS3Ingest()
