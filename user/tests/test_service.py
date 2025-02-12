@@ -32,6 +32,7 @@ def test_create():
     assert LogEntry.objects.count() == 0
     user = user_services.create(
         sso_email_id="sso_email_id_new_user@email.com",
+        is_active=True,
     )
 
     assert user.sso_email_id == "sso_email_id_new_user@email.com"
@@ -42,6 +43,7 @@ def test_create():
     with pytest.raises(UserExists) as ex:
         user_services.create(
             sso_email_id="sso_email_id_new_user@email.com",
+            is_active=True,
         )
         assert str(ex.value.args[0]) == "User has been previously created"
 

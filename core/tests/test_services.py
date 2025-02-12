@@ -28,7 +28,7 @@ def test_create_identity(mocker):
     )
     # User is created
     profile = services.create_identity(
-        id="john.sso.email.id@gov.uk",
+        id="billy.sso.email.id@gov.uk",
         first_name="Billy",
         last_name="Bob",
         all_emails=[
@@ -36,14 +36,16 @@ def test_create_identity(mocker):
             "test2@test.com",
             "test3@test.com",
         ],
+        is_active=False,
         primary_email="test2@test.com",
         contact_email="test3@test.com",
     )
     mock_user_create.assert_called_once_with(
-        sso_email_id="john.sso.email.id@gov.uk",
+        sso_email_id="billy.sso.email.id@gov.uk",
+        is_active=False,
     )
     mock_profiles_create.assert_called_once_with(
-        sso_email_id="john.sso.email.id@gov.uk",
+        sso_email_id="billy.sso.email.id@gov.uk",
         first_name="Billy",
         last_name="Bob",
         all_emails=[
@@ -64,6 +66,7 @@ def test_existing_user(basic_user) -> None:
             first_name="Billy",
             last_name="Bob",
             all_emails=["new_user@email.gov.uk"],
+            is_active=True,
         )
 
 
@@ -73,6 +76,7 @@ def test_new_user() -> None:
         first_name="Billy",
         last_name="Bob",
         all_emails=["new_user@email.gov.uk"],
+        is_active=True,
     )
     assert isinstance(profile, Profile)
     assert profile.pk
@@ -86,6 +90,7 @@ def test_update_identity() -> None:
         "Billy",
         "Bob",
         ["new_user@email.gov.uk"],
+        is_active=True,
     )
     assert User.objects.get(sso_email_id="new_user@gov.uk").is_active
 
@@ -109,14 +114,16 @@ def test_delete_identity() -> None:
         "Billy",
         "Bob",
         ["new_user@email.gov.uk"],
+        is_active=True,
     )
 
     services.delete_identity(
         profile,
     )
     with pytest.raises(Profile.DoesNotExist) as pex:
-        services.get_by_id(
+        services.get_identity_by_id(
             id=profile.sso_email_id,
+            include_inactive=True,
         )
 
     assert str(pex.value.args[0]) == "Profile matching query does not exist."
@@ -135,32 +142,36 @@ def test_delete_identity() -> None:
 #         first_name="Billy",
 #         last_name="Bob",
 #         all_emails=["new_user@email.gov.uk"],
+#         is_active=True,
 #     )
 #     services.create_identity(
 #         id="sso_user2@gov.uk",
 #         first_name="Gilly",
 #         last_name="Bob",
 #         all_emails=["user@email.gov.uk"],
+#         is_active=True,
 #     )
 
 #     mock_delete_identity = mocker.patch(
 #         "core.services.delete_identity", return_value=None
 #     )
 
-#     sso_users = [
-#         {
-#             SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#             SSO_FIRST_NAME: "Gilly",
-#             SSO_LAST_NAME: "Bob",
-#             SSO_USER_STATUS: "active",
-#             SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#             SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#         },
-#     ]
+    # sso_users = [
+    #     {
+    #         SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+    #         SSO_FIRST_NAME: "Gilly",
+    #         SSO_LAST_NAME: "Bob",
+    #         SSO_USER_STATUS: "inactive",
+    #         SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+    #         SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
+    #     },
+    # ]
 
-#     profile1_to_delete = services.get_by_id("sso_email_id@email.com")
-#     profile2_to_delete = services.get_by_id(id)
-#     calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
+    # profile1_to_delete = services.get_identity_by_id(
+    #     "sso_email_id@email.com", include_inactive=True
+    # )
+    # profile2_to_delete = services.get_identity_by_id(id, include_inactive=True)
+    # calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
 
 #     services.bulk_delete_identity_users_from_sso(sso_users=sso_users)
 
@@ -173,6 +184,7 @@ def test_delete_identity() -> None:
 #         first_name="Gilly",
 #         last_name="Bob",
 #         all_emails=["user@email.gov.uk"],
+#         is_active=True,
 #     )
 #     mock_create_identity = mocker.patch(
 #         "core.services.create_identity", return_value="__profile__"
@@ -194,7 +206,7 @@ def test_delete_identity() -> None:
 #             SSO_USER_EMAIL_ID: "sso_user3@gov.uk",
 #             SSO_FIRST_NAME: "Alice",
 #             SSO_LAST_NAME: "Smith",
-#             SSO_USER_STATUS: "active",
+#             SSO_USER_STATUS: "inactive",
 #             SSO_EMAIL_ADDRESSES: ["sso_user3@gov.uk"],
 #             SSO_CONTACT_EMAIL_ADDRESS: "user3@gov.uk",
 #         },
@@ -205,11 +217,14 @@ def test_delete_identity() -> None:
 #         first_name="Alice",
 #         last_name="Smith",
 #         all_emails=["sso_user3@gov.uk", "user3@gov.uk"],
+#         is_active=False,
 #         primary_email="sso_user3@gov.uk",
 #         contact_email="user3@gov.uk",
 #     )
 #     mock_update_identity.assert_called_once_with(
-#         profile=services.get_by_id("sso_user2@gov.uk"),
+#         profile=services.get_identity_by_id(
+#             id="sso_user2@gov.uk", include_inactive=True
+#         ),
 #         first_name="Jane",
 #         last_name="Doe",
 #         all_emails=["sso_user2@gov.uk", "user2@gov.uk"],
@@ -225,12 +240,14 @@ def test_delete_identity() -> None:
 #         first_name="Billy",
 #         last_name="Bob",
 #         all_emails=["new_user@email.gov.uk"],
+#         is_active=True,
 #     )
 #     services.create_identity(
 #         id="sso_user2@gov.uk",
 #         first_name="Gilly",
 #         last_name="Bob",
 #         all_emails=["user@email.gov.uk"],
+#         is_active=True,
 #     )
 
 #     mock_get_bulk_user_records = mocker.patch(
