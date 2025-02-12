@@ -156,22 +156,22 @@ def test_delete_identity() -> None:
 #         "core.services.delete_identity", return_value=None
 #     )
 
-    # sso_users = [
-    #     {
-    #         SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-    #         SSO_FIRST_NAME: "Gilly",
-    #         SSO_LAST_NAME: "Bob",
-    #         SSO_USER_STATUS: "inactive",
-    #         SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-    #         SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-    #     },
-    # ]
+# sso_users = [
+#     {
+#         SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
+#         SSO_FIRST_NAME: "Gilly",
+#         SSO_LAST_NAME: "Bob",
+#         SSO_USER_STATUS: "inactive",
+#         SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
+#         SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
+#     },
+# ]
 
-    # profile1_to_delete = services.get_identity_by_id(
-    #     "sso_email_id@email.com", include_inactive=True
-    # )
-    # profile2_to_delete = services.get_identity_by_id(id, include_inactive=True)
-    # calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
+# profile1_to_delete = services.get_identity_by_id(
+#     "sso_email_id@email.com", include_inactive=True
+# )
+# profile2_to_delete = services.get_identity_by_id(id, include_inactive=True)
+# calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
 
 #     services.bulk_delete_identity_users_from_sso(sso_users=sso_users)
 
