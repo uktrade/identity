@@ -146,6 +146,32 @@ def test_delete_identity() -> None:
     assert str(uex.value.args[0]) == "User matching query does not exist."
 
 
+def test_delete_identity_no_peoplefinder_profile() -> None:
+    profile = services.create_identity(
+        "new_user@gov.uk",
+        "Billy",
+        "Bob",
+        ["new_user@email.gov.uk"],
+        is_active=True,
+    )
+
+    services.delete_identity(
+        profile,
+    )
+    with pytest.raises(Profile.DoesNotExist) as pex:
+        services.get_identity_by_id(
+            id=profile.sso_email_id,
+            include_inactive=True,
+        )
+
+    assert str(pex.value.args[0]) == "Profile matching query does not exist."
+
+    with pytest.raises(User.DoesNotExist) as uex:
+        User.objects.get(sso_email_id="new_user@gov.uk")
+
+    assert str(uex.value.args[0]) == "User matching query does not exist."
+
+
 @pytest.mark.usefixtures("sso_profile", "combined_profile")
 def test_bulk_delete_identity_users_from_sso(mocker) -> None:
     id = "sso_user1@gov.uk"
