@@ -26,12 +26,8 @@ class S3BotoResource:
 class DataFlowS3Ingest:
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
-    export_directory: str
-    model: Model.__class__
-    model_uses_baseclass: bool = True
-    identifier_field: str
-    mapping: dict[str, str]
     delete_after_import: bool = True
+
 
     def __init__(self) -> None:
         self.s3_resource: S3BotoResource = self.get_s3_resource()
@@ -39,7 +35,8 @@ class DataFlowS3Ingest:
         self.ingest_file: S3ObjectSummary | None = None
         self.other_files: list[S3ObjectSummary] = []
 
-        return self.init()
+        return self._process_all_workflow()
+
 
     def get_s3_resource(self) -> S3BotoResource:
         """Wrapper for boto resource initialiser allowing for local/test"""
@@ -57,19 +54,13 @@ class DataFlowS3Ingest:
 
         return boto3.resource("s3")
 
+
     def get_export_path(self) -> str:
         """
         Get the bucket key prefix from the combination of env config and imported data type string
         """
         return f"{self.export_path}/{self.export_directory}"
 
-    def get_model(self) -> Model.__class__:
-        """Get model object to create for each row"""
-        return self.model
-
-    def get_model_manager(self) -> BaseManager[Model]:
-        """Get manager to use for Django data creation methods"""
-        return self.get_model().objects
 
     def preprocess_all(self) -> None:
         """
@@ -77,13 +68,27 @@ class DataFlowS3Ingest:
         """
         ...
 
+
+    def process_all(self):
+        for item in self._get_data_to_ingest():
+            self.process_row(item)
+
+
+    def postprocess_all(self) -> None:
+        """
+        A hook for any post-processing required after all row by processing is completed
+        """
+        ...
+
+
     def process_row(self, line: str) -> PrimaryKey:
         """
         Takes a row of the file, retrieves a dict of the instance it refers to and hands that off for processing
         """
         row: dict = json.loads(line)
         obj: dict = row["object"]  # standard for the Data Flow structure
-        return self.process_object(obj)
+        return self._process_object_workflow(obj)
+
 
     def preprocess_object(self, obj: dict) -> None:
         """
@@ -91,49 +96,19 @@ class DataFlowS3Ingest:
         """
         ...
 
-    def process_object(self, obj: dict) -> PrimaryKey:
-        """
-        Takes a dict referring to a single model instance and saves that instance to the DB using the model manager method.
-        """
-        self.preprocess_object(obj=obj)
 
-        defaults = {key: obj[value] for key, value in self.mapping.items()}
+    def process_object(self, obj:dict, **kwargs):
+        raise NotImplementedError()
 
-        if self.model_uses_baseclass:
-            defaults["exists_in_last_import"] = True
 
-        (
-            instance,
-            _,
-        ) = self.get_model_manager().update_or_create(
-            identifier=obj[self.identifier_field],
-            defaults=defaults,
-        )
-
-        self.postprocess_object(obj=obj, instance=instance)
-
-        logger.info(
-            "DataFlow S3 {self.__class__}: Added {self.model} record for %s",
-            instance.pk,
-        )
-        return instance.pk
-
-    def postprocess_object(self, obj: dict, instance: Model) -> None:
+    def postprocess_object(self, obj: dict, **kwargs) -> None:
         """
         A hook for any post-processing required after the main object is written to the DB
         """
         ...
 
-    def postprocess_all(self, imported_pks: list[PrimaryKey]) -> None:
-        """
-        A hook for any post-processing required after all row by processing is completed
-        """
-        ...
 
-    def init(self) -> None:
-        """
-        Triggers the processing of all the data in the most recent file. Main entrypoint for the process.
-        """
+    def _process_all_workflow(self) -> None:
         logger.info("DataFlow S3 {self.__class__}: Starting S3 ingest")
 
         if not self._get_files_to_ingest():
@@ -142,27 +117,23 @@ class DataFlowS3Ingest:
 
         self.preprocess_all()
 
-        created_updated_pks: list[int] = []
-        for item in self._get_data_to_ingest():
-            created_updated_pk: PrimaryKey = self.process_row(item)
-            created_updated_pks.append(created_updated_pk)
+        self.process_all()
 
-        self.postprocess_all(created_updated_pks)
-
-        if self.model_uses_baseclass:
-            self.mark_deleted_upstream(imported_pks=created_updated_pks)
+        self.postprocess_all()
 
         self._cleanup()
 
-    def mark_deleted_upstream(self, imported_pks: list[PrimaryKey]) -> None:
-        """Mark the objects that are no longer in the S3 file."""
-        logger.info(
-            "DataFlow S3 {self.__class__}: Marking models deleted upstream %s",
-            imported_pks,
-        )
-        self.get_model_manager().exclude(pk__in=imported_pks).update(
-            exists_in_last_import=False
-        )
+
+    def _process_object_workflow(self, obj: dict) -> None:
+        """
+        Takes a dict referring to a single model instance and saves that instance to the DB using the model manager method.
+        """
+        self.preprocess_object(obj=obj)
+
+        self.process_object(obj=obj)
+
+        self.postprocess_object(obj=obj)
+
 
     def _get_files_to_ingest(self) -> list:
         """
@@ -190,6 +161,7 @@ class DataFlowS3Ingest:
             return []
 
         return sorted_files
+
 
     def _get_data_to_ingest(self) -> Iterator[str]:
         """Yields row by row from the most recent ingestable file"""
@@ -219,6 +191,7 @@ class DataFlowS3Ingest:
             for line in file_input_stream:
                 yield line
 
+
     def _cleanup(self) -> None:
         """
         Delete ingested file and other files in the export directory
@@ -239,3 +212,74 @@ class DataFlowS3Ingest:
         if delete_keys:
             logger.info("DataFlow S3 {self.__class__}: Deleting keys %s", delete_keys)
             self.bucket.delete_objects(Delete={"Objects": delete_keys})
+
+
+class DataFlowS3IngestToModel(DataFlowS3Ingest):
+    export_directory: str
+    model: Model.__class__
+    model_uses_baseclass: bool = True
+    identifier_field: str
+    mapping: dict[str, str]
+
+    def __init__(self) -> None:
+        self.imported_pks: list[int] = []
+        super().__init__()
+
+
+    def get_model(self) -> Model.__class__:
+        """Get model object to create for each row"""
+        return self.model
+
+
+    def get_model_manager(self) -> BaseManager[Model]:
+        """Get manager to use for Django data creation methods"""
+        return self.get_model().objects
+
+
+    def process_all(self):
+        self.imported_pks = []
+        for item in self._get_data_to_ingest():
+            created_updated_pk: PrimaryKey = self.process_row(item)
+            self.imported_pks.append(created_updated_pk)
+
+
+    def process_object(self, obj: dict, **kwargs) -> PrimaryKey:
+        """
+        Takes a dict referring to a single model instance and saves that instance to the DB using the model manager method.
+        """
+        defaults = {key: obj[value] for key, value in self.mapping.items()}
+
+        if self.model_uses_baseclass:
+            defaults["exists_in_last_import"] = True
+
+        (
+            instance,
+            _,
+        ) = self.get_model_manager().update_or_create(
+            identifier=obj[self.identifier_field],
+            defaults=defaults,
+        )
+
+        logger.info(
+            "DataFlow S3 {self.__class__}: Added {self.model} record for %s",
+            instance.pk,
+        )
+        return instance.pk
+
+
+    def _cleanup(self) -> None:
+        if self.model_uses_baseclass:
+            self.mark_deleted_upstream()
+
+        return super()._cleanup()
+
+
+    def mark_deleted_upstream(self) -> None:
+        """Mark the objects that are no longer in the S3 file."""
+        logger.info(
+            "DataFlow S3 {self.__class__}: Marking models deleted upstream %s",
+            self.imported_pks,
+        )
+        self.get_model_manager().exclude(pk__in=self.imported_pks).update(
+            exists_in_last_import=False
+        )

@@ -1,6 +1,6 @@
 import logging
 
-from data_flow_s3_import.ingest import DataFlowS3Ingest
+from data_flow_s3_import.ingest import DataFlowS3IngestToModel
 from profiles.models.generic import Email
 from user.models import User
 
@@ -8,7 +8,7 @@ from user.models import User
 logger = logging.getLogger(__name__)
 
 
-class StaffSSOUserS3Ingest(DataFlowS3Ingest):
+class StaffSSOUserS3Ingest(DataFlowS3IngestToModel):
     export_directory = "StaffSSOUsersPipeline/"
     model = User
     model_uses_baseclass = False
@@ -27,15 +27,16 @@ class StaffSSOUserS3Ingest(DataFlowS3Ingest):
         "became_inactive_on": "dit:StaffSSO:User:becameInactiveOn",
     }
 
-    def postprocess_object(self, obj, instance):
+    def postprocess_object(self, obj, **kwargs):
+        instance = kwargs["instance"]
         for email in obj["dit:emailAddress"]:
             Email.objects.get_or_create(
                 email_address=email,
                 staff_sso_user=instance,
             )
 
-    def postprocess_all(self, imported_pks):
+    def postprocess_all(self):
         logger.info(
-            "DataFlow S3 {self.__class__}: Deleting deleted users %s", imported_pks
+            "DataFlow S3 {self.__class__}: Deleting deleted users %s", self.imported_pks
         )
-        self.get_model_manager().exclude(pk__in=imported_pks).delete()
+        self.get_model_manager().exclude(pk__in=self.imported_pks).delete()
