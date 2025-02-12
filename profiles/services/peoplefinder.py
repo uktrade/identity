@@ -4,50 +4,51 @@ from profiles.types import UNSET, Unset
 
 
 def get_profile_completion(peoplefinder_profile):
-    # TODO: Implement get_profile_completion() funtion.
-    raise NotImplementedError
+    # TODO: Implement get_profile_completion() function.
+    return 0
 
 
 def update(
     peoplefinder_profile: PeopleFinderProfile,
-    first_name: str,
-    last_name: str,
-    preferred_first_name: str | Unset | None,
-    pronouns: str | Unset | None,
-    name_pronunciation: str | Unset | None,
-    email: str | Unset | None,
-    contact_email: str | Unset | None,
-    primary_phone_number: str | Unset | None,
-    secondary_phone_number: str | Unset | None,
-    photo: str | Unset | None,
-    photo_small: str | Unset | None,
-    grade: str | Unset | None,
-    manager: PeopleFinderProfile | Unset | None,
-    not_employee: bool | Unset | None,
-    workdays: list[str],
-    remote_working: str | Unset | None,
-    usual_office_days: str | Unset | None,
-    uk_office_location: UkStaffLocation | Unset | None,
-    location_in_building: str | Unset | None,
-    international_building: str | Unset | None,
-    country: Country,
-    professions: list[str],
-    additional_roles: list[str],
-    other_additional_roles: str | Unset | None,
-    key_skills: list[str],
-    other_key_skills: str | Unset | None,
-    learning_interests: list[str],
-    other_learning_interests: str | Unset | None,
-    fluent_languages: str | Unset | None,
-    intermediate_languages: str | Unset | None,
-    previous_experience: str | Unset | None,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    preferred_first_name: str | Unset | None = None,
+    pronouns: str | Unset | None = None,
+    name_pronunciation: str | Unset | None = None,
+    email: str | Unset | None = None,
+    contact_email: str | Unset | None = None,
+    primary_phone_number: str | Unset | None = None,
+    secondary_phone_number: str | Unset | None = None,
+    photo: str | Unset | None = None,
+    photo_small: str | Unset | None = None,
+    grade: str | Unset | None = None,
+    manager: PeopleFinderProfile | Unset | None = None,
+    not_employee: bool | Unset | None = None,
+    workdays: list[str] | Unset | None = None,
+    remote_working: str | Unset | None = None,
+    usual_office_days: str | Unset | None = None,
+    uk_office_location: UkStaffLocation | Unset | None = None,
+    location_in_building: str | Unset | None = None,
+    international_building: str | Unset | None = None,
+    country: Country | Unset | None = None,
+    professions: list[str] | Unset | None = None,
+    additional_roles: list[str] | Unset | None = None,
+    other_additional_roles: str | Unset | None = None,
+    key_skills: list[str] | Unset | None = None,
+    other_key_skills: str | Unset | None = None,
+    learning_interests: list[str] | Unset | None = None,
+    other_learning_interests: str | Unset | None = None,
+    fluent_languages: str | Unset | None = None,
+    intermediate_languages: str | Unset | None = None,
+    previous_experience: str | Unset | None = None,
 ) -> None:
-    
+
     update_fields = []
-    if first_name:
+    # first_name and last_name cannot be unset
+    if first_name is not None:
         update_fields.append("first_name")
         peoplefinder_profile.first_name = first_name
-    if last_name:
+    if last_name is not None:
         update_fields.append("last_name")
         peoplefinder_profile.last_name = last_name
     if preferred_first_name is not None:
@@ -56,27 +57,176 @@ def update(
         else:
             peoplefinder_profile.preferred_first_name = preferred_first_name
         update_fields.append("preferred_first_name")
-            
     if pronouns is not None:
+        if pronouns is UNSET:
+            peoplefinder_profile.pronouns = None
+        else:
+            peoplefinder_profile.pronouns = pronouns
         update_fields.append("pronouns")
-        peoplefinder_profile.pronouns = pronouns
+    if pronouns is not None:
+        if pronouns is UNSET:
+            peoplefinder_profile.pronouns = None
+        else:
+            peoplefinder_profile.pronouns = pronouns
+        update_fields.append("pronouns")
     if name_pronunciation is not None:
+        if name_pronunciation is UNSET:
+            peoplefinder_profile.name_pronunciation = None
+        else:
+            peoplefinder_profile.name_pronunciation = name_pronunciation
         update_fields.append("name_pronunciation")
-        peoplefinder_profile.name_pronunciation = name_pronunciation
     if email is not None:
+        if email is UNSET:
+            peoplefinder_profile.email = None
+        else:
+            peoplefinder_profile.email = email
         update_fields.append("email")
-        peoplefinder_profile.email = email
     if contact_email is not None:
+        if contact_email is UNSET:
+            peoplefinder_profile.contact_email = None
+        else:
+            peoplefinder_profile.contact_email = contact_email
         update_fields.append("contact_email")
-        peoplefinder_profile.contact_email = contact_email
     if primary_phone_number is not None:
+        if primary_phone_number is UNSET:
+            peoplefinder_profile.primary_phone_number = None
+        else:
+            peoplefinder_profile.primary_phone_number = primary_phone_number
         update_fields.append("primary_phone_number")
-        peoplefinder_profile.primary_phone_number = primary_phone_number
     if secondary_phone_number is not None:
+        if secondary_phone_number is UNSET:
+            peoplefinder_profile.secondary_phone_number = None
+        else:
+            peoplefinder_profile.secondary_phone_number = secondary_phone_number
         update_fields.append("secondary_phone_number")
-        peoplefinder_profile.secondary_phone_number = secondary_phone_number
     if photo is not None:
+        if photo is UNSET:
+            peoplefinder_profile.photo = None
+        else:
+            peoplefinder_profile.photo = photo
         update_fields.append("photo")
-        peoplefinder_profile.photo = photo
-    
+    if photo_small is not None:
+        if photo_small is UNSET:
+            peoplefinder_profile.photo_small = None
+        else:
+            peoplefinder_profile.photo_small = photo_small
+        update_fields.append("photo_small")
+    if grade is not None:
+        if grade is UNSET:
+            peoplefinder_profile.grade = None
+        else:
+            peoplefinder_profile.grade = grade
+        update_fields.append("grade")
+    if manager is not None:
+        if manager is UNSET:
+            peoplefinder_profile.manager = None
+        else:
+            peoplefinder_profile.manager = manager
+        update_fields.append("manager")
+    if not_employee is not None:
+        if not_employee is UNSET:
+            peoplefinder_profile.not_employee = None
+        else:
+            peoplefinder_profile.not_employee = not_employee
+        update_fields.append("not_employee")
+    if workdays is not None:
+        if workdays is UNSET:
+            peoplefinder_profile.workdays = None  # type: ignore
+        else:
+            peoplefinder_profile.workdays = workdays  # type: ignore
+        update_fields.append("workdays")
+    if remote_working is not None:
+        if remote_working is UNSET:
+            peoplefinder_profile.remote_working = None
+        else:
+            peoplefinder_profile.remote_working = remote_working
+        update_fields.append("remote_working")
+    if usual_office_days is not None:
+        if usual_office_days is UNSET:
+            peoplefinder_profile.usual_office_days = None
+        else:
+            peoplefinder_profile.usual_office_days = usual_office_days
+        update_fields.append("usual_office_days")
+    if uk_office_location is not None:
+        if uk_office_location is UNSET:
+            peoplefinder_profile.uk_office_location = None
+        else:
+            peoplefinder_profile.uk_office_location = uk_office_location
+        update_fields.append("uk_office_location")
+    if location_in_building is not None:
+        if location_in_building is UNSET:
+            peoplefinder_profile.location_in_building = None
+        else:
+            peoplefinder_profile.location_in_building = location_in_building
+        update_fields.append("location_in_building")
+    if international_building is not None:
+        if international_building is UNSET:
+            peoplefinder_profile.international_building = None
+        else:
+            peoplefinder_profile.international_building = international_building
+        update_fields.append("international_building")
+    # Country cannot be unset
+    if country is not None:
+        peoplefinder_profile.country = country
+        update_fields.append("country")
+    if professions is not None:
+        if professions is UNSET:
+            peoplefinder_profile.professions = None  # type: ignore
+        else:
+            peoplefinder_profile.professions = professions  # type: ignore
+        update_fields.append("professions")
+    if additional_roles is not None:
+        if additional_roles is UNSET:
+            peoplefinder_profile.additional_roles = None  # type: ignore
+        else:
+            peoplefinder_profile.additional_roles = additional_roles  # type: ignore
+        update_fields.append("additional_roles")
+    if other_additional_roles is not None:
+        if other_additional_roles is UNSET:
+            peoplefinder_profile.other_additional_roles = None
+        else:
+            peoplefinder_profile.other_additional_roles = other_additional_roles
+        update_fields.append("other_additional_roles")
+    if key_skills is not None:
+        if key_skills is UNSET:
+            peoplefinder_profile.key_skills = None  # type: ignore
+        else:
+            peoplefinder_profile.key_skills = key_skills  # type: ignore
+        update_fields.append("key_skills")
+    if other_key_skills is not None:
+        if other_key_skills is UNSET:
+            peoplefinder_profile.other_key_skills = None
+        else:
+            peoplefinder_profile.other_key_skills = other_key_skills
+        update_fields.append("other_key_skills")
+    if learning_interests is not None:
+        if learning_interests is UNSET:
+            peoplefinder_profile.learning_interests = None  # type: ignore
+        else:
+            peoplefinder_profile.learning_interests = learning_interests  # type: ignore
+        update_fields.append("learning_interests")
+    if other_learning_interests is not None:
+        if other_learning_interests is UNSET:
+            peoplefinder_profile.other_learning_interests = None
+        else:
+            peoplefinder_profile.other_learning_interests = other_learning_interests
+        update_fields.append("other_learning_interests")
+    if fluent_languages is not None:
+        if fluent_languages is UNSET:
+            peoplefinder_profile.fluent_languages = None
+        else:
+            peoplefinder_profile.fluent_languages = fluent_languages
+        update_fields.append("fluent_languages")
+    if intermediate_languages is not None:
+        if intermediate_languages is UNSET:
+            peoplefinder_profile.intermediate_languages = None
+        else:
+            peoplefinder_profile.intermediate_languages = intermediate_languages
+        update_fields.append("intermediate_languages")
+    if previous_experience is not None:
+        if previous_experience is UNSET:
+            peoplefinder_profile.previous_experience = None
+        else:
+            peoplefinder_profile.previous_experience = previous_experience
+        update_fields.append("previous_experience")
     peoplefinder_profile.save(update_fields=update_fields)
