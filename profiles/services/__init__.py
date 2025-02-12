@@ -114,6 +114,11 @@ def update_from_sso(
     )
 
 
+def update_from_people_finder(profile: Profile) -> None:
+    raise NotImplementedError
+    # Update the peoplefinder profile and combined profile
+
+
 def delete_from_sso(profile: Profile) -> None:
     sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
     staff_sso.delete_from_database(sso_profile=sso_profile)
