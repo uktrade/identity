@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import call
 
 import pytest
@@ -11,7 +12,9 @@ from core.services import (
     SSO_USER_EMAIL_ID,
     SSO_USER_STATUS,
 )
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.services import peoplefinder as peoplefinder_service
 from user.exceptions import UserExists
 from user.models import User
 
@@ -109,6 +112,49 @@ def test_update_identity() -> None:
 
 
 def test_delete_identity() -> None:
+    profile = services.create_identity(
+        "new_user@gov.uk",
+        "Billy",
+        "Bob",
+        ["new_user@email.gov.uk"],
+        is_active=True,
+    )
+
+    PeopleFinderProfile.objects.create(
+        user=User.objects.get(sso_email_id=profile.sso_email_id),
+        workdays=["Monday, Tuesday"],
+        professions=["COMMERCIAL"],
+        additional_roles=["FIRE_WARDEN"],
+        key_skills=["ASSET_MANAGEMENT"],
+        learning_interests=["SHADOWING"],
+        edited_or_confirmed_at=datetime.now(),
+    )
+
+    services.delete_identity(
+        profile,
+    )
+    with pytest.raises(Profile.DoesNotExist) as pex:
+        services.get_identity_by_id(
+            id=profile.sso_email_id,
+            include_inactive=True,
+        )
+
+    assert str(pex.value.args[0]) == "Profile matching query does not exist."
+
+    with pytest.raises(User.DoesNotExist) as pfex:
+        PeopleFinderProfile.objects.get(
+            peoplefinder_service.get_by_id(profile.sso_email_id),
+        )
+
+    assert str(pfex.value.args[0]) == "User matching query does not exist."
+
+    with pytest.raises(User.DoesNotExist) as uex:
+        User.objects.get(sso_email_id="new_user@gov.uk")
+
+    assert str(uex.value.args[0]) == "User matching query does not exist."
+
+
+def test_delete_identity_no_peoplefinder_profile() -> None:
     profile = services.create_identity(
         "new_user@gov.uk",
         "Billy",

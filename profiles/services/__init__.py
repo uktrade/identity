@@ -2,10 +2,11 @@
 # If in doubt about what to use, you should probably be using this
 from typing import Optional
 
+from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
 
 from profiles.models.combined import Profile
-from profiles.services import combined, staff_sso
+from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
 
 
@@ -114,6 +115,21 @@ def update_from_sso(
     )
 
 
+def delete_from_peoplefinder(profile: Profile) -> None:
+    try:
+        peoplefinder_profile = peoplefinder.get_by_id(sso_email_id=profile.sso_email_id)
+        peoplefinder.delete_from_database(peoplefinder_profile=peoplefinder_profile)
+    except:
+        LogEntry.objects.log_action(
+            user_id=profile.sso_email_id,
+            content_type_id=None,
+            object_id=None,
+            object_repr=str(profile),
+            change_message="No People finder profile to delete",
+            action_flag=DELETION,
+        )
+
+
 def delete_from_sso(profile: Profile) -> None:
     sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
     staff_sso.delete_from_database(sso_profile=sso_profile)
@@ -143,6 +159,11 @@ def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
         )
     except:
         # no sso profile found
+        pass
+    try:
+        all_profile["peoplefinder"] = peoplefinder.get_by_id(sso_email_id=sso_email_id)
+    except:
+        # no people finder profile found
         pass
     # TODO - more profiles to be added here as we implement more
     return all_profile
