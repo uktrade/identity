@@ -335,9 +335,11 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     def save(self, *args, **kwargs):
         from profiles.services import peoplefinder
 
-        self.profile_completion = peoplefinder.get_profile_completion(
-            peoplefinder_profile=self
-        )
+        self.profile_completion = 10
+        # TODO: Implement get_profile_completion() funtion.
+        # peoplefinder.get_profile_completion(
+        #     peoplefinder_profile=self
+        # )
         return super().save(*args, **kwargs)
 
     @property
