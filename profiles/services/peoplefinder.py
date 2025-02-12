@@ -260,12 +260,6 @@ def delete_from_database(
     reason: Optional[str] = None,
     requesting_user: Optional[User] = None,
 ) -> None:
-
-    if peoplefinder_profile is None:
-        raise PeopleFinderProfile.DoesNotExist(
-            "Please provide peoplefinder_profile to be deleted"
-        )
-
     """Really delete a People Finder Profile"""
     if reason is None:
         reason = "Deleting People Finder Profile record"

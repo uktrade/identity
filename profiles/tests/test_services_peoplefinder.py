@@ -1,7 +1,6 @@
 import pytest
 from django.contrib.admin.models import LogEntry
 
-from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Country
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
@@ -43,10 +42,3 @@ def test_delete_from_database(peoplefinder_profile):
     assert log.user.pk == "via-api"
     assert log.object_repr == obj_repr
     assert log.get_change_message() == "Deleting People Finder Profile record"
-
-
-def test_delete_from_database_no_pf_profile():
-    with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
-        peoplefinder_services.delete_from_database(peoplefinder_profile=None)
-
-    assert "Please provide peoplefinder_profile to be deleted" in str(ex.value)
