@@ -1,6 +1,6 @@
 import uuid
 from random import choice
-from typing import Iterator, Optional
+from typing import Iterator
 
 from django.db import models
 from django.db.models import F, Q
