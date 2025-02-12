@@ -20,7 +20,7 @@ def update(
     secondary_phone_number: str | None,
     photo: str | None,
     photo_small: str | None,
-    grade: str,
+    grade: str | None,
     manager: PeopleFinderProfile | None,
     not_employee: bool | None,
     workdays: list[str],
