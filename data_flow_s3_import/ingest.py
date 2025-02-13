@@ -2,8 +2,6 @@ import json
 import logging
 from typing import Any, Iterable, Iterator
 
-import boto3
-from django.conf import settings
 from django.db.models import Model
 from django.db.models.manager import BaseManager
 from smart_open import open as smart_open
@@ -17,20 +15,25 @@ S3ObjectSummary = Any
 
 
 class S3BotoResource:
-    Bucket: S3Bucket
-
     class meta:
-        client: Any
+        class client: ...
+
+    class Bucket[S3Bucket]:
+        def __init__(self, name: str):
+            self.name = name
 
 
 class DataFlowS3Ingest:
-    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
-    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_bucket: str
+    export_path: str
     export_directory: str
     delete_after_import: bool = True
 
-    def __init__(self) -> None:
-        self.s3_resource: S3BotoResource = self.get_s3_resource()
+    def __init__(
+        self, s3_resource: S3BotoResource | None = None, bucket_name: str | None = None
+    ) -> None:
+        self.s3_resource: S3BotoResource = s3_resource or self.get_s3_resource()
+        self.export_bucket = bucket_name or self.get_export_bucket_name()
         self.bucket: S3Bucket = self.s3_resource.Bucket(self.export_bucket)
         self.ingest_file: S3ObjectSummary | None = None
         self.other_files: list[S3ObjectSummary] = []
@@ -38,20 +41,16 @@ class DataFlowS3Ingest:
         return self._process_all_workflow()
 
     def get_s3_resource(self) -> S3BotoResource:
-        """Wrapper for boto resource initialiser allowing for local/test"""
-        if local_endpoint := getattr(settings, "S3_LOCAL_ENDPOINT_URL", None):
-            logger.debug(
-                f"DataFlow S3 {self.__class__}: using local S3 endpoint %s",
-                local_endpoint,
-            )
-            return boto3.resource(
-                "s3",
-                endpoint_url=local_endpoint,
-                aws_access_key_id="",
-                aws_secret_access_key="",
-            )
+        """
+        Hook for boto resource initialiser. Not required if object is initialised with resource.
+        """
+        raise NotImplementedError()
 
-        return boto3.resource("s3")
+    def get_export_bucket_name(self) -> str:
+        """
+        Get the bucket name if not set on the subclass attribute.
+        """
+        raise NotImplementedError()
 
     def get_export_path(self) -> str:
         """
@@ -66,8 +65,14 @@ class DataFlowS3Ingest:
         ...
 
     def process_all(self):
-        for item in self._get_data_to_ingest():
-            self.process_row(item)
+        data: Iterator[str] | None = self._get_data_to_ingest()
+
+        if data is None:
+            logger.info(f"DataFlow S3 {self.__class__}: No data found to ingest")
+            return
+
+        for item in data:
+            self.process_row(line=item)
 
     def postprocess_all(self) -> None:
         """
@@ -79,9 +84,9 @@ class DataFlowS3Ingest:
         """
         Takes a row of the file, retrieves a dict of the instance it refers to and hands that off for processing
         """
-        row: dict = json.loads(line)
+        row: dict = json.loads(s=line)
         obj: dict = row["object"]  # standard for the Data Flow structure
-        return self._process_object_workflow(obj)
+        return self._process_object_workflow(obj=obj)
 
     def preprocess_object(self, obj: dict) -> None:
         """
@@ -99,10 +104,10 @@ class DataFlowS3Ingest:
         ...
 
     def _process_all_workflow(self) -> None:
-        logger.info("DataFlow S3 {self.__class__}: Starting S3 ingest")
+        logger.info(f"DataFlow S3 {self.__class__}: Starting S3 ingest")
 
         if not self._get_files_to_ingest():
-            logger.info("DataFlow S3 {self.__class__}: No files to ingest")
+            logger.info(f"DataFlow S3 {self.__class__}: No files to ingest")
             return
 
         self.preprocess_all()
@@ -129,7 +134,7 @@ class DataFlowS3Ingest:
         modified date (oldest first)
         """
         logger.info(
-            "DataFlow S3 {self.__class__}: Reading files from bucket %s", self.bucket
+            f"DataFlow S3 {self.__class__}: Reading files from bucket {self.bucket}"
         )
         files: Iterable[S3ObjectSummary] = self.bucket.objects.filter(
             Prefix=self.get_export_path()
@@ -141,8 +146,7 @@ class DataFlowS3Ingest:
         for file in sorted_files:
             file.source_key = f"s3://{file.bucket_name}/{file.key}"
             logger.info(
-                "DataFlow S3 {self.__class__}: Found S3 file with key %s",
-                file.source_key,
+                f"DataFlow S3 {self.__class__}: Found S3 file with key {file.source_key}"
             )
 
         if len(sorted_files) == 0:
@@ -172,8 +176,7 @@ class DataFlowS3Ingest:
             encoding="utf-8",
         ) as file_input_stream:
             logger.info(
-                "DataFlow S3 {self.__class__}: Processing file %s",
-                self.ingest_file.source_key,
+                f"DataFlow S3 {self.__class__}: Processing file {self.ingest_file.source_key}"
             )
             for line in file_input_stream:
                 yield line
@@ -193,12 +196,12 @@ class DataFlowS3Ingest:
 
         if delete_keys and not self.delete_after_import:
             logger.info(
-                "DataFlow S3 {self.__class__}: NOT Deleting keys %s", delete_keys
+                f"DataFlow S3 {self.__class__}: NOT Deleting keys {delete_keys}"
             )
             return
 
         if delete_keys:
-            logger.info("DataFlow S3 {self.__class__}: Deleting keys %s", delete_keys)
+            logger.info(f"DataFlow S3 {self.__class__}: Deleting keys {delete_keys}")
             self.bucket.delete_objects(Delete={"Objects": delete_keys})
 
 
@@ -244,8 +247,7 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
         )
 
         logger.info(
-            "DataFlow S3 {self.__class__}: Added {self.model} record for %s",
-            instance.pk,
+            f"DataFlow S3 {self.__class__}: Added {self.model} record for {instance.pk}"
         )
         return instance.pk
 
@@ -258,8 +260,7 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
     def mark_deleted_upstream(self) -> None:
         """Mark the objects that are no longer in the S3 file."""
         logger.info(
-            "DataFlow S3 {self.__class__}: Marking models deleted upstream %s",
-            self.imported_pks,
+            f"DataFlow S3 {self.__class__}: Marking models deleted upstream {self.imported_pks}"
         )
         self.get_model_manager().exclude(pk__in=self.imported_pks).update(
             exists_in_last_import=False

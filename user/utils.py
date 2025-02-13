@@ -1,5 +1,8 @@
 import logging
 
+import boto3
+from django.conf import settings
+
 from data_flow_s3_import.ingest import DataFlowS3IngestToModel
 from profiles.models.generic import Email
 from user.models import User
@@ -9,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class StaffSSOUserS3Ingest(DataFlowS3IngestToModel):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory = "StaffSSOUsersPipeline/"
     model = User
     model_uses_baseclass = False
@@ -40,3 +45,19 @@ class StaffSSOUserS3Ingest(DataFlowS3IngestToModel):
             "DataFlow S3 {self.__class__}: Deleting deleted users %s", self.imported_pks
         )
         self.get_model_manager().exclude(pk__in=self.imported_pks).delete()
+
+    def get_s3_resource(self):
+        """Wrapper for boto resource initialiser allowing for local/test"""
+        if local_endpoint := getattr(settings, "S3_LOCAL_ENDPOINT_URL", None):
+            logger.debug(
+                f"DataFlow S3 {self.__class__}: using local S3 endpoint %s",
+                local_endpoint,
+            )
+            return boto3.resource(
+                "s3",
+                endpoint_url=local_endpoint,
+                aws_access_key_id="",
+                aws_secret_access_key="",
+            )
+
+        return boto3.resource("s3")
