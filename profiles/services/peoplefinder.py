@@ -43,7 +43,7 @@ def update(
     previous_experience: str | Unset | None = None,
 ) -> None:
 
-    update_fields = []
+    update_fields: list = []
     # first_name and last_name cannot be unset
     if first_name is not None:
         update_fields.append("first_name")
