@@ -124,7 +124,7 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
         first_name="Jackson",
     )
 
-    mock_pf_update.assert_called_with(
+    mock_pf_update.assert_called_once_with(
         peoplefinder_profile=peoplefinder_profile,
         first_name="Jackson",
         last_name=None,
