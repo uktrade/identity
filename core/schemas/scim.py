@@ -137,8 +137,7 @@ class MinimalUserResponse(ScimUserSchemaRequired):
     externalId: str = Field(alias="sso_email_id")
     userName: str = Field(alias="sso_email_id")
     active: bool = Field(alias="is_active")
-    primary_email: str = Field(alias="primary_email")
-    contact_email: str = Field(alias="contact_email")
+    emails: list | None = None
 
     @staticmethod
     def resolve_name(obj: Profile):
