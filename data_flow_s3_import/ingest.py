@@ -13,6 +13,8 @@ PrimaryKey = Any
 S3Bucket = Any
 S3ObjectSummary = Any
 
+class RequiredModelNotSet(Exception): ...
+
 
 class S3BotoResource:
     class meta:
@@ -211,22 +213,26 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
     identifier_field: str
     mapping: dict[str, str]
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self.imported_pks: list[int] = []
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def get_model(self) -> Model.__class__:
         """Get model object to create for each row"""
-        return self.model
+        try:
+            return self.model
+        except AttributeError:
+            raise RequiredModelNotSet()
 
     def get_model_manager(self) -> BaseManager[Model]:
         """Get manager to use for Django data creation methods"""
         return self.get_model().objects
 
+
     def process_all(self):
         self.imported_pks = []
         for item in self._get_data_to_ingest():
-            created_updated_pk: PrimaryKey = self.process_row(item)
+            created_updated_pk: PrimaryKey = self.process_row(line=item)
             self.imported_pks.append(created_updated_pk)
 
     def process_object(self, obj: dict, **kwargs) -> PrimaryKey:

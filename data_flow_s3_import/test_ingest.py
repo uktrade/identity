@@ -1,16 +1,9 @@
 import json
-from tkinter import N
 
 import pytest
 
 from .ingest import DataFlowS3Ingest, S3BotoResource
 
-
-# from django.contrib.admin.models import LogEntry
-
-# from profiles.exceptions import ProfileExists, ProfileIsArchived, ProfileIsNotArchived
-# from profiles.models.combined import Profile
-# from profiles.services import combined as profile_services
 
 # @TODO only needced because of a project fixture, remove when extracting
 pytestmark = pytest.mark.django_db
