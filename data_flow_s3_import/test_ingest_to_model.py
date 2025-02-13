@@ -1,6 +1,6 @@
 import pytest
 
-from .ingest import DataFlowS3IngestToModel, S3BotoResource, RequiredModelNotSet
+from .ingest import DataFlowS3IngestToModel, RequiredModelNotSet, S3BotoResource
 
 
 # @TODO only needced because of a project fixture, remove when extracting
@@ -111,13 +111,13 @@ def test_process_object(mocker):
 
     with pytest.raises(KeyError):
         dfm.process_object(
-        {
-            "first": 34,
-            "second": 992,
-            "three": "Joseph",
-            "pk": "__pk__",
-        },
-    )
+            {
+                "first": 34,
+                "second": 992,
+                "three": "Joseph",
+                "pk": "__pk__",
+            },
+        )
 
     dfm.mapping = {
         "first_field": "first",
@@ -126,22 +126,22 @@ def test_process_object(mocker):
     }
     with pytest.raises(KeyError):
         dfm.process_object(
-        {
-            "first": 34,
-            "second": 992,
-            "pk": "__pk__",
-        },
-    )
+            {
+                "first": 34,
+                "second": 992,
+                "pk": "__pk__",
+            },
+        )
 
     with pytest.raises(AttributeError):
         dfm.process_object(
-        {
-            "first": 34,
-            "second": 992,
-            "three": "Joseph",
-            "pk": "__pk__",
-        },
-    )
+            {
+                "first": 34,
+                "second": 992,
+                "three": "Joseph",
+                "pk": "__pk__",
+            },
+        )
 
     dfm.identifier_field = "pk"
     mock_get_manager.reset_mock()

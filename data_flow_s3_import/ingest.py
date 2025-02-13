@@ -13,6 +13,7 @@ PrimaryKey = Any
 S3Bucket = Any
 S3ObjectSummary = Any
 
+
 class RequiredModelNotSet(Exception): ...
 
 
@@ -227,7 +228,6 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
     def get_model_manager(self) -> BaseManager[Model]:
         """Get manager to use for Django data creation methods"""
         return self.get_model().objects
-
 
     def process_all(self):
         self.imported_pks = []
