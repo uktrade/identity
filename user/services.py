@@ -21,16 +21,16 @@ else:
 #### ID is required - no getting around it ####
 
 
-def get_by_id(sso_email_id: str) -> User:
+def get_by_id(sso_email_id: str, include_inactive=False) -> User:
     """
     Retrieve a user by their ID, only if the user is not soft-deleted.
     """
     try:
         user = User.objects.get(sso_email_id=sso_email_id)
-        if user.is_active:
+        if user.is_active or include_inactive:
             return user
         else:
-            raise UserIsArchived("User has been previously deleted")
+            raise UserIsArchived("User has been previously archived")
 
     except User.DoesNotExist:
         raise User.DoesNotExist("User does not exist")

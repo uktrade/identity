@@ -38,7 +38,7 @@ def get_s3_resource():
 class StaffSSOUserS3Ingest(DataFlowS3Ingest):
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
-    export_directory = "StaffSSOUsersPipeline/"
+    export_directory: str = settings.DATA_FLOW_USERS_DIRECTORY
 
     def get_s3_resource(self):
         return get_s3_resource()
@@ -96,6 +96,7 @@ class StaffSSOUserS3Ingest(DataFlowS3Ingest):
         user_ids_to_delete = User.objects.exclude(
             sso_email_id__in=imported_pks
         ).values_list("sso_email_id", flat=True)
+
         for sso_email_id in user_ids_to_delete:
             profile = get_identity_by_id(id=sso_email_id, include_inactive=True)
             delete_identity(profile=profile)

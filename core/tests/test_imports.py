@@ -1,10 +1,15 @@
 import copy
-import pytest
+import json
 from unittest.mock import call
 
+import boto3
+import pytest
+from django.conf import settings
 from django.test import override_settings
 
-from core.utils import StaffSSOUserS3Ingest, get_s3_resource
+from core.services import create_identity, get_identity_by_id
+from core.utils import StaffSSOUserS3Ingest
+from core.utils import get_s3_resource as util_s3_resource
 from data_flow_s3_import.ingest import S3BotoResource
 from profiles.models.combined import Profile
 
@@ -12,12 +17,119 @@ from profiles.models.combined import Profile
 pytestmark = pytest.mark.django_db
 
 
+@pytest.fixture(autouse=True, scope="function")
+def basic_user(): ...
+
+
+john_smith = {
+    "published": "2024-11-06T15:06:57.880Z",
+    "object": {
+        "id": "dit:StaffSSO:User:1a23b4cd-5e67-8f9d-0gh1-ijkl23mn45op",
+        "type": "dit:StaffSSO:User",
+        "name": "John Smith",
+        "dit:StaffSSO:User:userId": "1a23b4cd-5e67-8f9d-0gh1-ijkl23mn45op",
+        "dit:StaffSSO:User:emailUserId": "johnsmith-09876@example.com",
+        "dit:StaffSSO:User:contactEmailAddress": "johnsmith@example.com",
+        "dit:StaffSSO:User:joined": "2024-11-06T15:06:57.881Z",
+        "dit:StaffSSO:User:lastAccessed": "2024-11-06T15:06:57.881Z",
+        "dit:StaffSSO:User:permittedApplications": [],
+        "dit:StaffSSO:User:status": "active",
+        "dit:StaffSSO:User:becameInactiveOn": "2024-11-06T15:06:57.881Z",
+        "dit:firstName": "John",
+        "dit:lastName": "Smith",
+        "dit:emailAddress": ["johnsmith@example.com"],
+    },
+}
+jane_doe = {
+    "published": "2024-12-06T15:06:57.880Z",
+    "object": {
+        "id": "dit:StaffSSO:User:2a23b4cd-5e67-8f9d-0gh1-ijkl23mn45op",
+        "type": "dit:StaffSSO:User",
+        "name": "Jane Doe",
+        "dit:StaffSSO:User:userId": "2a23b4cd-5e67-8f9d-0gh1-ijkl23mn45op",
+        "dit:StaffSSO:User:emailUserId": "janedoe-12345@example.com",
+        "dit:StaffSSO:User:contactEmailAddress": "janedoe@example.com",
+        "dit:StaffSSO:User:joined": "2024-11-06T15:06:57.881Z",
+        "dit:StaffSSO:User:lastAccessed": "2024-11-06T15:06:57.881Z",
+        "dit:StaffSSO:User:permittedApplications": [],
+        "dit:StaffSSO:User:status": "inactive",
+        "dit:StaffSSO:User:becameInactiveOn": None,
+        "dit:firstName": "Jane",
+        "dit:lastName": "Doe",
+        "dit:emailAddress": ["janedoe@example.gov"],
+    },
+}
+
+
+@pytest.fixture(autouse=False, scope="function")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
+@override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
+def create_ingest_source_files():
+    s3_resource = get_s3_resource()
+    # bucket = s3_resource.Bucket(name=settings.DATA_FLOW_UPLOADS_BUCKET)  #  type: ignore
+    file_prefix = "test-e2e/users/"
+
+    newest = s3_resource.Object(  #  type: ignore
+        bucket_name=settings.DATA_FLOW_UPLOADS_BUCKET, key=f"{file_prefix}newest.jsonl"
+    )  #  type:ignore
+    newest_content = json.dumps(john_smith)
+    newest_content += "\n"
+    newest_content += json.dumps(jane_doe)
+    newest.put(
+        Body=newest_content, Metadata={"last-modified": "2024-11-06T15:06:57.880Z"}
+    )
+
+    middle = s3_resource.Object(  #  type: ignore
+        bucket_name=settings.DATA_FLOW_UPLOADS_BUCKET, key=f"{file_prefix}middle.jsonl"
+    )  #  type:ignore
+    middle_content = json.dumps(john_smith)
+    middle_content += "\n"
+    middle_content += json.dumps(jane_doe)
+    middle_content.replace("John", "Brian")
+    middle_content.replace(
+        "johnsmith-09876@example.com", "briansmith-09876@example.com"
+    )
+    middle_content.replace("Jane", "Beatrice")
+    middle_content.replace("janedoe-12345@example.com", "beatricedoe-12345@example.com")
+    middle.put(
+        Body=middle_content, Metadata={"last-modified": "2024-11-05T15:06:57.880Z"}
+    )
+
+    oldest = s3_resource.Object(  #  type: ignore
+        bucket_name=settings.DATA_FLOW_UPLOADS_BUCKET, key=f"{file_prefix}oldest.jsonl"
+    )  #  type:ignore
+    oldest_content = json.dumps(john_smith)
+    oldest_content += "\n"
+    oldest_content += json.dumps(jane_doe)
+    oldest_content.replace("John", "Adam")
+    middle_content.replace(
+        "adamsmith-09876@example.com", "briansmith-09876@example.com"
+    )
+    oldest_content.replace("Jane", "Africa")
+    middle_content.replace(
+        "africadoe-12345@example.com", "beatricedoe-12345@example.com"
+    )
+    oldest.put(
+        Body=oldest_content, Metadata={"last-modified": "2024-10-06T15:06:57.880Z"}
+    )
+
+
+def get_s3_resource():
+    return boto3.resource(
+        "s3",
+        endpoint_url=settings.S3_LOCAL_ENDPOINT_URL,
+        aws_access_key_id="",
+        aws_secret_access_key="",
+    )
+
+
 @override_settings(S3_LOCAL_ENDPOINT_URL="http://localhost:4566")
 def test_get_s3_resource_with_endpoint(mocker):
     """Test s3 resource creation based on S3_LOCAL_ENDPOINT_URL setting."""
 
     mock_boto3_resource = mocker.patch("boto3.resource")
-    get_s3_resource()
+    util_s3_resource()
 
     mock_boto3_resource.assert_called_once_with(
         "s3",
@@ -32,7 +144,7 @@ def test_get_s3_resource_no_endpoint(mocker):
     """Test s3 resource creation based on no S3_LOCAL_ENDPOINT_URL setting."""
 
     mock_boto3_resource = mocker.patch("boto3.resource")
-    get_s3_resource()
+    util_s3_resource()
 
     mock_boto3_resource.assert_called_once_with("s3")
 
@@ -221,182 +333,104 @@ def test_delete_unimported_profiles(mocker):
 
 
 @pytest.mark.e2e
-def test_new_users_are_added():
-    assert False
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
+@override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
+def test_new_users_are_added(create_ingest_source_files):
+
+    with pytest.raises(Profile.DoesNotExist):
+        get_identity_by_id(id="johnsmith-09876@example.com")
+    with pytest.raises(Profile.DoesNotExist):
+        get_identity_by_id(id="janedoe-12345@example.com")
+
+    StaffSSOUserS3Ingest()
+
+    john = get_identity_by_id(id="johnsmith-09876@example.com", include_inactive=True)
+    assert john.first_name == "John"
+    assert john.last_name == "Smith"
+    assert john.contact_email == "johnsmith@example.com"
+    assert john.is_active == True
+    assert john.emails == [
+        "johnsmith@example.com",
+    ]
+    jane = get_identity_by_id(id="janedoe-12345@example.com", include_inactive=True)
+    assert jane.first_name == "Jane"
+    assert jane.last_name == "Doe"
+    assert jane.contact_email == "janedoe@example.com"
+    assert jane.is_active == False
+    assert jane.emails == ["janedoe@example.gov", "janedoe@example.com"]
 
 
 @pytest.mark.e2e
-def test_changed_users_are_updated():
-    assert False
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
+@override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
+def test_changed_users_are_updated(create_ingest_source_files):
+
+    create_identity(
+        id="johnsmith-09876@example.com",
+        first_name="Billy",
+        last_name="Thornton",
+        all_emails=["billy@joel.com"],
+        is_active=True,
+    )
+    create_identity(
+        id="janedoe-12345@example.com",
+        first_name="Jane",
+        last_name="Doe",
+        all_emails=["janedoe@example.com"],
+        is_active=True,
+    )
+
+    StaffSSOUserS3Ingest()
+
+    john = get_identity_by_id(id="johnsmith-09876@example.com", include_inactive=True)
+    assert john.first_name == "John"
+    assert john.last_name == "Smith"
+    assert john.contact_email == "johnsmith@example.com"
+    assert john.is_active == True
+    assert john.emails == [
+        "johnsmith@example.com",
+    ]
+    jane = get_identity_by_id(id="janedoe-12345@example.com", include_inactive=True)
+    assert jane.first_name == "Jane"
+    assert jane.last_name == "Doe"
+    assert jane.contact_email == "janedoe@example.com"
+    assert jane.is_active == False
+    assert "janedoe@example.gov" in jane.emails
+    assert "janedoe@example.com" in jane.emails
+    assert len(jane.emails) == 2
 
 
 @pytest.mark.e2e
-def test_missing_users_are_deleted():
-    assert False
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
+@override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
+def test_missing_users_are_deleted(create_ingest_source_files):
+    create_identity(
+        id="billy@example.com",
+        first_name="Billy",
+        last_name="Thornton",
+        all_emails=["billy@joel.com"],
+        is_active=True,
+    )
+    create_identity(
+        id="Janet@example.com",
+        first_name="Janet",
+        last_name="Doe",
+        all_emails=["janetdoe@example.com"],
+        is_active=True,
+    )
+    assert Profile.objects.count() == 2
+    get_identity_by_id(id="billy@example.com", include_inactive=True)
+    get_identity_by_id(id="Janet@example.com", include_inactive=True)
 
+    StaffSSOUserS3Ingest()
 
-# @pytest.mark.usefixtures("sso_profile", "combined_profile")
-# def test_bulk_delete_identity_users_from_sso(mocker) -> None:
-#     id = "sso_user1@gov.uk"
-#     services.create_identity(
-#         id=id,
-#         first_name="Billy",
-#         last_name="Bob",
-#         all_emails=["new_user@email.gov.uk"],
-#         is_active=True,
-#     )
-#     services.create_identity(
-#         id="sso_user2@gov.uk",
-#         first_name="Gilly",
-#         last_name="Bob",
-#         all_emails=["user@email.gov.uk"],
-#         is_active=True,
-#     )
-
-#     mock_delete_identity = mocker.patch(
-#         "core.services.delete_identity", return_value=None
-#     )
-
-# sso_users = [
-#     {
-#         SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#         SSO_FIRST_NAME: "Gilly",
-#         SSO_LAST_NAME: "Bob",
-#         SSO_USER_STATUS: "inactive",
-#         SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#         SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#     },
-# ]
-
-# profile1_to_delete = services.get_identity_by_id(
-#     "sso_email_id@email.com", include_inactive=True
-# )
-# profile2_to_delete = services.get_identity_by_id(id, include_inactive=True)
-# calls = [call(profile=profile1_to_delete), call(profile=profile2_to_delete)]
-
-#     services.bulk_delete_identity_users_from_sso(sso_users=sso_users)
-
-#     mock_delete_identity.assert_has_calls(calls)
-
-
-# def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
-#     services.create_identity(
-#         id="sso_user2@gov.uk",
-#         first_name="Gilly",
-#         last_name="Bob",
-#         all_emails=["user@email.gov.uk"],
-#         is_active=True,
-#     )
-#     mock_create_identity = mocker.patch(
-#         "core.services.create_identity", return_value="__profile__"
-#     )
-#     mock_update_identity = mocker.patch(
-#         "core.services.update_identity", return_value=None
-#     )
-
-#     sso_users = [
-#         {
-#             SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#             SSO_FIRST_NAME: "Jane",
-#             SSO_LAST_NAME: "Doe",
-#             SSO_USER_STATUS: "active",
-#             SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#             SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#         },
-#         {
-#             SSO_USER_EMAIL_ID: "sso_user3@gov.uk",
-#             SSO_FIRST_NAME: "Alice",
-#             SSO_LAST_NAME: "Smith",
-#             SSO_USER_STATUS: "inactive",
-#             SSO_EMAIL_ADDRESSES: ["sso_user3@gov.uk"],
-#             SSO_CONTACT_EMAIL_ADDRESS: "user3@gov.uk",
-#         },
-#     ]
-#     services.bulk_create_and_update_identity_users_from_sso(sso_users=sso_users)
-#     mock_create_identity.assert_called_once_with(
-#         id="sso_user3@gov.uk",
-#         first_name="Alice",
-#         last_name="Smith",
-#         all_emails=["sso_user3@gov.uk", "user3@gov.uk"],
-#         is_active=False,
-#         primary_email="sso_user3@gov.uk",
-#         contact_email="user3@gov.uk",
-#     )
-#     mock_update_identity.assert_called_once_with(
-#         profile=services.get_identity_by_id(
-#             id="sso_user2@gov.uk", include_inactive=True
-#         ),
-#         first_name="Jane",
-#         last_name="Doe",
-#         all_emails=["sso_user2@gov.uk", "user2@gov.uk"],
-#         is_active=True,
-#         primary_email="sso_user2@gov.uk",
-#         contact_email="user2@gov.uk",
-#     )
-
-
-# def test_sync_bulk_sso_users(mocker) -> None:
-#     services.create_identity(
-#         id="sso_user1@gov.uk",
-#         first_name="Billy",
-#         last_name="Bob",
-#         all_emails=["new_user@email.gov.uk"],
-#         is_active=True,
-#     )
-#     services.create_identity(
-#         id="sso_user2@gov.uk",
-#         first_name="Gilly",
-#         last_name="Bob",
-#         all_emails=["user@email.gov.uk"],
-#         is_active=True,
-#     )
-
-#     mock_get_bulk_user_records = mocker.patch(
-#         "core.services.get_bulk_user_records_from_sso",
-#         return_value=[
-#             {
-#                 SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#                 SSO_FIRST_NAME: "Gilly",
-#                 SSO_LAST_NAME: "Doe",
-#                 SSO_USER_STATUS: "active",
-#                 SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#                 SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#             },
-#         ],
-#     )
-#     mock_bulk_delete = mocker.patch(
-#         "core.services.bulk_delete_identity_users_from_sso", return_value=None
-#     )
-
-#     mock_bulk_create_and_update = mocker.patch(
-#         "core.services.bulk_create_and_update_identity_users_from_sso",
-#         return_value=None,
-#     )
-#     services.sync_bulk_sso_users()
-
-#     mock_bulk_delete.assert_called_once_with(
-#         sso_users=[
-#             {
-#                 SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#                 SSO_FIRST_NAME: "Gilly",
-#                 SSO_LAST_NAME: "Doe",
-#                 SSO_USER_STATUS: "active",
-#                 SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#                 SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#             },
-#         ]
-#     )
-#     mock_bulk_create_and_update.assert_called_once_with(
-#         sso_users=[
-#             {
-#                 SSO_USER_EMAIL_ID: "sso_user2@gov.uk",
-#                 SSO_FIRST_NAME: "Gilly",
-#                 SSO_LAST_NAME: "Doe",
-#                 SSO_USER_STATUS: "active",
-#                 SSO_EMAIL_ADDRESSES: ["sso_user2@gov.uk"],
-#                 SSO_CONTACT_EMAIL_ADDRESS: "user2@gov.uk",
-#             },
-#         ]
-#     )
-
-#     mock_get_bulk_user_records.assert_called_once()
+    assert Profile.objects.count() == 2
+    with pytest.raises(Profile.DoesNotExist):
+        get_identity_by_id(id="billy@example.com", include_inactive=True)
+    with pytest.raises(Profile.DoesNotExist):
+        get_identity_by_id(id="Janet@example.com", include_inactive=True)
+    get_identity_by_id(id="johnsmith-09876@example.com", include_inactive=True)
+    get_identity_by_id(id="janedoe-12345@example.com", include_inactive=True)

@@ -143,7 +143,8 @@ def test_process_object(mocker):
             },
         )
 
-    dfm.identifier_field = "pk"
+    dfm.identifier_field_name = "pk"
+    dfm.identifier_field_object_mapping = "pk"
     mock_get_manager.reset_mock()
     ret = dfm.process_object(
         {
@@ -156,7 +157,7 @@ def test_process_object(mocker):
     assert ret == instance.pk
     mock_get_manager.assert_called_once()
     manager.update_or_create.assert_called_once_with(
-        identifier="__pk__",
+        pk="__pk__",
         defaults={
             "first_field": 34,
             "second_field": 992,
@@ -177,7 +178,7 @@ def test_process_object(mocker):
         },
     )
     manager.update_or_create.assert_called_once_with(
-        identifier="__pk__",
+        pk="__pk__",
         defaults={
             "first_field": 34,
             "second_field": 992,

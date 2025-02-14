@@ -15,10 +15,6 @@ def test_attributes_and_init(mocker):
         "data_flow_s3_import.ingest.DataFlowS3Ingest.get_s3_resource",
         return_value=s3r_mocked,
     )
-    mock_get_name = mocker.patch(
-        "data_flow_s3_import.ingest.DataFlowS3Ingest.get_export_bucket_name",
-        return_value="__bucket__name__",
-    )
     mock_process_all = mocker.patch(
         "data_flow_s3_import.ingest.DataFlowS3Ingest._process_all_workflow",
         return_value=None,
@@ -32,21 +28,16 @@ def test_attributes_and_init(mocker):
     assert dfi.ingest_file == None
     assert dfi.other_files == []
     mock_get_s3r.assert_not_called()
-    mock_get_name.assert_not_called()
     mock_process_all.assert_called_once()
 
     dfi = DataFlowS3Ingest(bucket_name="bucket_name")
 
     mock_get_s3r.assert_called_once()
-    mock_get_name.assert_not_called()
     assert dfi.s3_resource == s3r_mocked
     assert dfi.bucket.name == "bucket_name"
 
-    dfi = DataFlowS3Ingest()
-
-    mock_get_name.assert_called_once()
-    assert dfi.s3_resource == s3r_mocked
-    assert dfi.bucket.name == "__bucket__name__"
+    with pytest.raises(AttributeError):
+        dfi = DataFlowS3Ingest()
 
 
 def test_get_export_path(mocker):

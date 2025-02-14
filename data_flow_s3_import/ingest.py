@@ -36,7 +36,8 @@ class DataFlowS3Ingest:
         self, s3_resource: S3BotoResource | None = None, bucket_name: str | None = None
     ) -> None:
         self.s3_resource: S3BotoResource = s3_resource or self.get_s3_resource()
-        self.export_bucket = bucket_name or self.get_export_bucket_name()
+        if bucket_name is not None:
+            self.export_bucket = bucket_name
         self.bucket: S3Bucket = self.s3_resource.Bucket(self.export_bucket)
         self.ingest_file: S3ObjectSummary | None = None
         self.other_files: list[S3ObjectSummary] = []
@@ -46,12 +47,6 @@ class DataFlowS3Ingest:
     def get_s3_resource(self) -> S3BotoResource:
         """
         Hook for boto resource initialiser. Not required if object is initialised with resource.
-        """
-        raise NotImplementedError()
-
-    def get_export_bucket_name(self) -> str:
-        """
-        Get the bucket name if not set on the subclass attribute.
         """
         raise NotImplementedError()
 
@@ -121,15 +116,17 @@ class DataFlowS3Ingest:
 
         self._cleanup()
 
-    def _process_object_workflow(self, obj: dict) -> None:
+    def _process_object_workflow(self, obj: dict) -> Any:
         """
         Takes a dict referring to a single model instance and saves that instance to the DB using the model manager method.
         """
         self.preprocess_object(obj=obj)
 
-        self.process_object(obj=obj)
+        output = self.process_object(obj=obj)
 
         self.postprocess_object(obj=obj)
+
+        return output
 
     def _get_files_to_ingest(self) -> list:
         """
@@ -211,7 +208,8 @@ class DataFlowS3Ingest:
 class DataFlowS3IngestToModel(DataFlowS3Ingest):
     model: Model.__class__
     model_uses_baseclass: bool = True
-    identifier_field: str = "id"
+    identifier_field_name: str = "id"
+    identifier_field_object_mapping: str = "id"
     mapping: dict[str, str]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -244,18 +242,18 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
         if self.model_uses_baseclass:
             defaults["exists_in_last_import"] = True
 
+        kwargs = {"defaults": defaults}
+        kwargs[self.identifier_field_name] = obj[self.identifier_field_object_mapping]
+
         (
             instance,
             _,
-        ) = self.get_model_manager().update_or_create(
-            identifier=obj[self.identifier_field],
-            defaults=defaults,
-        )
+        ) = self.get_model_manager().update_or_create(**kwargs)
 
         logger.info(
-            f"DataFlow S3 {self.__class__}: Added {self.model} record for {instance.pk}"
+            f"DataFlow S3 {self.__class__}: Added {self.model} record for {getattr(instance, self.identifier_field_name)}"
         )
-        return instance.pk
+        return getattr(instance, self.identifier_field_name)
 
     def _cleanup(self) -> None:
         if self.model_uses_baseclass:
