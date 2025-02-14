@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from user.utils import StaffSSOUserS3Ingest
+from core.utils import StaffSSOUserS3Ingest
 
 
 class Command(BaseCommand):

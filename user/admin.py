@@ -1,10 +1,7 @@
 from django.contrib import admin
 
+from core.utils import StaffSSOUserS3Ingest
 from user.models import User
-from user.utils import StaffSSOUserS3Ingest
-
-
-# # Register your models here.
 
 
 @admin.register(User)
