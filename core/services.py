@@ -100,16 +100,15 @@ def delete_identity(profile: Profile) -> None:
     """
     Function for deleting an existing user and their profile information.
     """
+    profile_id = profile.sso_email_id
 
     profile_services.delete_sso_profile(profile=profile)
     profile_services.delete_combined_profile(profile=profile)
 
     # delete user if no profile exists for user
-    all_profiles = profile_services.get_all_profiles(sso_email_id=profile.sso_email_id)
+    all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
     if not all_profiles:
-        user = user_services.get_by_id(
-            sso_email_id=profile.sso_email_id, include_inactive=True
-        )
+        user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
 
 

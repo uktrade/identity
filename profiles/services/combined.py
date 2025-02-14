@@ -125,12 +125,6 @@ def update(
         change_message=reason,
         action_flag=CHANGE,
     )
-    if is_active is not None:
-        if is_active:
-            if not profile.is_active:
-                unarchive(profile)
-        else:
-            archive(profile)
 
 
 def archive(

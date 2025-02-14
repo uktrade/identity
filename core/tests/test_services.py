@@ -119,10 +119,10 @@ def test_update_identity() -> None:
 
 def test_delete_identity() -> None:
     profile = services.create_identity(
-        "new_user@gov.uk",
-        "Billy",
-        "Bob",
-        ["new_user@email.gov.uk"],
+        id="new_user@gov.uk",
+        first_name="Billy",
+        last_name="Bob",
+        all_emails=["new_user@email.gov.uk"],
         is_active=True,
     )
 
@@ -143,7 +143,7 @@ def test_delete_identity() -> None:
             include_inactive=True,
         )
 
-    assert str(uex.value.args[0]) == "User matching query does not exist."
+    assert str(uex.value.args[0]) == "User does not exist"
 
 
 @pytest.mark.usefixtures("sso_profile", "combined_profile")
@@ -205,12 +205,12 @@ def test_bulk_delete_identity_users_from_sso(mocker) -> None:
     # Delete user without profile via bulk delete
     mock_delete_user.assert_called_once_with(
         user=user,
-        reason="Bulk delete - SSO profile does not exist",
+        reason="Bulk delete - Profile does not exist",
     )
 
 
-def test_bulk_create_and_update_identity_users_from_sso() -> None:
-    services.create_identity(
+def test_bulk_create_and_update_identity_users_from_sso(mocker) -> None:
+    profile = services.create_identity(
         id="sso_user2@gov.uk",
         first_name="Gilly",
         last_name="Bob",
@@ -237,27 +237,15 @@ def test_bulk_create_and_update_identity_users_from_sso() -> None:
         },
     ]
     services.bulk_create_and_update_identity_users_from_sso(sso_users=sso_users)
-    # mock_create_identity.assert_called_once_with(
-    #     id="sso_user3@gov.uk",
-    #     first_name="Alice",
-    #     last_name="Smith",
-    #     all_emails=["sso_user3@gov.uk", "user3@gov.uk"],
-    #     is_active=False,
-    #     primary_email="sso_user3@gov.uk",
-    #     contact_email="user3@gov.uk",
-    # )
+    # Successfully updated the existing user identity
+    profile.refresh_from_db()
+    assert profile.first_name == "Jane"
 
-    # mock_update_identity.assert_called_once_with(
-    #     profile=services.get_profile_by_id(
-    #         id="sso_user2@gov.uk", include_inactive=True
-    #     ),
-    #     first_name="Jane",
-    #     last_name="Doe",
-    #     all_emails=["sso_user2@gov.uk", "user2@gov.uk"],
-    #     is_active=True,
-    #     primary_email="sso_user2@gov.uk",
-    #     contact_email="user2@gov.uk",
-    # )
+    # Successfully created the new user identity
+    new_user_profile = profile_services.get_by_id(
+        sso_email_id="sso_user3@gov.uk", include_inactive=True
+    )
+    assert new_user_profile.first_name == "Alice"
 
 
 def test_bulk_create_and_update_identity_user_from_sso_without_profile(mocker) -> None:
@@ -287,11 +275,10 @@ def test_bulk_create_and_update_identity_user_from_sso_without_profile(mocker) -
         id=user.sso_email_id,
         include_inactive=True,
     )
-    updated_user = user_services.get_by_id(
-        sso_email_id=user.sso_email_id, include_inactive=True
-    )
+    user.refresh_from_db()
+
     assert profile.sso_email_id == user.sso_email_id
-    assert updated_user.is_active == False
+    assert user.is_active == False
     assert profile.is_active == False
 
 

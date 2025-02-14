@@ -210,7 +210,7 @@ def delete_combined_profile(profile: Profile) -> None:
     if len(all_profiles) == 1 and "combined" in all_profiles:
         combined.delete_from_database(profile=profile)
     else:
-        raise NonCombinedProfileExists(f"All existing profiles: {all_profiles.keys}")
+        raise NonCombinedProfileExists(f"All existing profiles: {all_profiles.keys()}")
 
 
 def delete_sso_profile(profile: Profile) -> None:
