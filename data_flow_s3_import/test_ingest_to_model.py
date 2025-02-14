@@ -133,7 +133,7 @@ def test_process_object(mocker):
             },
         )
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         dfm.process_object(
             {
                 "first": 34,

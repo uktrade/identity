@@ -211,7 +211,7 @@ class DataFlowS3Ingest:
 class DataFlowS3IngestToModel(DataFlowS3Ingest):
     model: Model.__class__
     model_uses_baseclass: bool = True
-    identifier_field: str
+    identifier_field: str = "id"
     mapping: dict[str, str]
 
     def __init__(self, *args, **kwargs) -> None:
