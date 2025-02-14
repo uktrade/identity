@@ -102,21 +102,7 @@ def delete_identity(profile: Profile) -> None:
     """
     profile_id = profile.sso_email_id
 
-    all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
-
-    if "peoplefinder" in all_profiles:
-        profile_services.delete_peoplefinder_profile(
-            profile=all_profiles["peoplefinder"]
-        )
-        del all_profiles["peoplefinder"]
-
-    if "sso" in all_profiles:
-        profile_services.delete_sso_profile(profile=all_profiles["sso"])
-        del all_profiles["sso"]
-
-    if "combined" in all_profiles:
-        profile_services.delete_combined_profile(all_profiles=all_profiles)
-        del all_profiles["combined"]
+    profile_services.delete(profile_id=profile_id)
 
     # delete user if no profile exists for user
     all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
