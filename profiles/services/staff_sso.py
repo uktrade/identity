@@ -51,7 +51,7 @@ def create(
     if contact_email is not None and contact_email not in all_emails:
         raise ValueError("contact_email not in all_emails")
 
-    user = user_services.get_by_id(sso_email_id=sso_email_id)
+    user = user_services.get_by_id(sso_email_id=sso_email_id, include_inactive=True)
     staff_sso_profile = StaffSSOProfile.objects.create(
         user=user,
         first_name=first_name,

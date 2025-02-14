@@ -1,15 +1,22 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
+import logging
 from typing import Optional
 
 from django.db import models
 
+from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
+from user import services as user_services
 from user.models import User
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_by_id(sso_email_id: str, include_inactive: bool = False) -> Profile:
@@ -28,7 +35,11 @@ def generate_combined_profile_data(sso_email_id: str):
     create method
     """
     sso_profile = staff_sso.get_by_id(sso_email_id=sso_email_id, include_inactive=True)
-    user = sso_profile.user
+
+    try:
+        user = sso_profile.user
+    except sso_profile.DoesNotExist:
+        user = user_services.get_by_id(sso_email_id=sso_email_id, include_inactive=True)
 
     primary_email = sso_profile.primary_email
     if primary_email is None:
@@ -117,8 +128,8 @@ def update_from_sso(
     )
 
 
-# TODO: update_from_peoplefinder() needs updating later
 def update_from_peoplefinder(
+    # TODO: update_from_peoplefinder() needs updating later
     profile: Profile,
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
@@ -192,18 +203,24 @@ def update_from_peoplefinder(
     # TODO: Update combined profile here as well
 
 
-def delete_from_sso(profile: Profile) -> None:
-    sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
-    staff_sso.delete_from_database(sso_profile=sso_profile)
-
+def delete_combined_profile(profile: Profile) -> None:
     all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
 
-    # check if combined profile is the only profile left for user
-    if [key for key in all_profiles] == ["combined"]:
-        combined_profile = combined.get_by_id(
-            sso_email_id=profile.sso_email_id, include_inactive=True
+    # check and delete if combined profile is the only profile left for user
+    if len(all_profiles) == 1 and "combined" in all_profiles:
+        combined.delete_from_database(profile=profile)
+    else:
+        raise NonCombinedProfileExists(f"All existing profiles: {all_profiles.keys()}")
+
+
+def delete_sso_profile(profile: Profile) -> None:
+    try:
+        sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
+        staff_sso.delete_from_database(sso_profile=sso_profile)
+    except StaffSSOProfile.DoesNotExist:
+        logger.debug(
+            f"Failed to delete SSO profile for {profile.sso_email_id}. SSO profile is already deleted."
         )
-        combined.delete_from_database(profile=combined_profile)
 
 
 def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
@@ -224,3 +241,27 @@ def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
         pass
     # TODO - more profiles to be added here as we implement more
     return all_profile
+
+
+def archive(
+    profile: Profile,
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
+) -> None:
+    combined.archive(
+        profile=profile,
+        reason=reason,
+        requesting_user=requesting_user,
+    )
+
+
+def unarchive(
+    profile: Profile,
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
+) -> None:
+    combined.unarchive(
+        profile=profile,
+        reason=reason,
+        requesting_user=requesting_user,
+    )
