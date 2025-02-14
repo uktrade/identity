@@ -77,7 +77,9 @@ class Command(BaseCommand):
             user_services.update_by_id(
                 sso_email_id=p.sso_email_id, is_staff=staff, is_superuser=superuser
             )
-            usr = User.objects.get(sso_email_id=p.sso_email_id)
+            usr = user_services.get_by_id(
+                sso_email_id=p.sso_email_id, include_inactive=True
+            )
             usr.set_password(sso_email_id)
             usr.save()
             self.stdout.write(msg=f"Password set to '{sso_email_id}'")
