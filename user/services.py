@@ -21,9 +21,9 @@ else:
 #### ID is required - no getting around it ####
 
 
-def get_by_id(sso_email_id: str, include_inactive=False) -> User:
+def get_by_id(sso_email_id: str, include_inactive: bool = False) -> User:
     """
-    Retrieve a user by their ID, only if the user is not soft-deleted.
+    Retrieve a user by their ID.
     """
     try:
         user = User.objects.get(sso_email_id=sso_email_id)

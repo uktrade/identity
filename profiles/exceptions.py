@@ -11,3 +11,8 @@ class ProfileIsNotArchived(Exception):
 class ProfileExists(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class NonCombinedProfileExists(Exception):
+    def __init__(self, message):
+        self.message = message

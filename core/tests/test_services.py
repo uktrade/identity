@@ -11,7 +11,9 @@ from core.services import (
     SSO_USER_EMAIL_ID,
     SSO_USER_STATUS,
 )
+from profiles import services as profile_services
 from profiles.models.combined import Profile
+from user import services as user_services
 from user.exceptions import UserExists
 from user.models import User
 
@@ -81,7 +83,9 @@ def test_new_user() -> None:
     assert isinstance(profile, Profile)
     assert profile.pk
     assert profile.sso_email_id == "new_user@gov.uk"
-    assert User.objects.get(sso_email_id="new_user@gov.uk")
+    assert user_services.get_by_id(
+        sso_email_id="new_user@gov.uk", include_inactive=True
+    )
 
 
 def test_update_identity() -> None:
@@ -92,7 +96,9 @@ def test_update_identity() -> None:
         ["new_user@email.gov.uk"],
         is_active=True,
     )
-    assert User.objects.get(sso_email_id="new_user@gov.uk").is_active
+    assert user_services.get_by_id(
+        sso_email_id="new_user@gov.uk", include_inactive=True
+    ).is_active
 
     services.update_identity(
         profile,
@@ -105,15 +111,18 @@ def test_update_identity() -> None:
 
     assert profile.first_name == "Joe"
     assert profile.last_name == "Bobby"
-    assert not User.objects.get(sso_email_id="new_user@gov.uk").is_active
+    assert not user_services.get_by_id(
+        sso_email_id="new_user@gov.uk",
+        include_inactive=True,
+    ).is_active
 
 
 def test_delete_identity() -> None:
     profile = services.create_identity(
-        "new_user@gov.uk",
-        "Billy",
-        "Bob",
-        ["new_user@email.gov.uk"],
+        id="new_user@gov.uk",
+        first_name="Billy",
+        last_name="Bob",
+        all_emails=["new_user@email.gov.uk"],
         is_active=True,
     )
 
@@ -129,6 +138,9 @@ def test_delete_identity() -> None:
     assert str(pex.value.args[0]) == "Profile matching query does not exist."
 
     with pytest.raises(User.DoesNotExist) as uex:
-        User.objects.get(sso_email_id="new_user@gov.uk")
+        user_services.get_by_id(
+            sso_email_id="new_user@gov.uk",
+            include_inactive=True,
+        )
 
-    assert str(uex.value.args[0]) == "User matching query does not exist."
+    assert str(uex.value.args[0]) == "User does not exist"

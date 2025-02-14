@@ -1,6 +1,12 @@
+import datetime as dt
+
 import pytest
 
 from profiles import services
+from profiles.exceptions import NonCombinedProfileExists
+from profiles.models.combined import Profile
+from profiles.models.generic import Country
+from profiles.models.staff_sso import StaffSSOProfile
 
 
 pytestmark = pytest.mark.django_db
@@ -110,3 +116,74 @@ def test_create_from_sso(mocker):
         contact_email=mock_data["contact_email"],
     )
     assert result == "__combined__"
+
+
+def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile):
+    mock_pf_update = mocker.patch("profiles.services.peoplefinder.update")
+    Country.objects.create(reference_id="CTHMTC00260")
+
+    services.update_from_peoplefinder(
+        profile=combined_profile,
+        first_name="Jackson",
+    )
+
+    mock_pf_update.assert_called_once_with(
+        peoplefinder_profile=peoplefinder_profile,
+        first_name="Jackson",
+        last_name=None,
+        preferred_first_name=None,
+        pronouns=None,
+        name_pronunciation=None,
+        email=None,
+        contact_email=None,
+        primary_phone_number=None,
+        secondary_phone_number=None,
+        photo=None,
+        photo_small=None,
+        grade=None,
+        manager=None,
+        not_employee=None,
+        workdays=None,
+        remote_working=None,
+        usual_office_days=None,
+        uk_office_location=None,
+        location_in_building=None,
+        international_building=None,
+        country=None,
+        professions=None,
+        additional_roles=None,
+        other_additional_roles=None,
+        key_skills=None,
+        other_key_skills=None,
+        learning_interests=None,
+        other_learning_interests=None,
+        fluent_languages=None,
+        intermediate_languages=None,
+        previous_experience=None,
+    )
+    # TODO: Update test - Check for combined_profile updates after adding the functionality.
+
+
+def test_delete_combined_profile(combined_profile, sso_profile) -> None:
+    all_profiles = services.get_all_profiles(sso_email_id=combined_profile.sso_email_id)
+
+    # Fail to delete a combined profile as the user has other profiles
+    with pytest.raises(NonCombinedProfileExists) as ex:
+        services.delete_combined_profile(combined_profile)
+    assert str(ex.value.args[0]) == f"All existing profiles: {all_profiles.keys()}"
+
+    # Delete the SSO profile, then successfully delete the combined profile.
+    services.delete_sso_profile(sso_profile)
+    services.delete_combined_profile(combined_profile)
+
+    with pytest.raises(Profile.DoesNotExist) as ex:
+        services.get_by_id(combined_profile.sso_email_id)
+    assert str(ex.value.args[0]) == "Profile matching query does not exist."
+
+
+def test_delete_sso_profile(combined_profile) -> None:
+    # Successfully delete a SSO profile
+    services.delete_sso_profile(combined_profile)
+    with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
+        services.staff_sso.get_by_id(combined_profile.sso_email_id)
+    assert str(ex.value.args[0]) == "StaffSSOProfile matching query does not exist."
