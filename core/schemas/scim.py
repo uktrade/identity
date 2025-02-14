@@ -137,6 +137,7 @@ class MinimalUserResponse(ScimUserSchemaRequired):
     externalId: str = Field(alias="sso_email_id")
     userName: str = Field(alias="sso_email_id")
     active: bool = Field(alias="is_active")
+    emails: list = Field(alias="emails")
 
     @staticmethod
     def resolve_name(obj: Profile):
@@ -145,12 +146,6 @@ class MinimalUserResponse(ScimUserSchemaRequired):
             givenName=obj.first_name,
             familyName=obj.last_name,
         )
-
-    @staticmethod
-    def resolve_emails(obj: User):
-        # TODO: We need a better way of getting ALL of a user's emails and
-        # their type/primary status
-        return [Email(value=obj.email, type="verified", primary=True)]
 
 
 class CreateUserRequest(MinimalUserRequest): ...
