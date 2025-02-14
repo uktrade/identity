@@ -158,6 +158,7 @@ def test_delete_identity() -> None:
     with pytest.raises(User.DoesNotExist) as pfex:
         peoplefinder_services.get_by_id(
             sso_email_id=user.sso_email_id,
+            include_inactive=True,
         )
     assert str(pfex.value.args[0]) == "User matching query does not exist."
 

@@ -34,7 +34,9 @@ def test_delete_from_database(peoplefinder_profile):
     peoplefinder_profile.refresh_from_db()
     peoplefinder_services.delete_from_database(peoplefinder_profile)
     with pytest.raises(peoplefinder_profile.DoesNotExist):
-        peoplefinder_services.get_by_id(peoplefinder_profile.user.sso_email_id)
+        peoplefinder_services.get_by_id(
+            sso_email_id=peoplefinder_profile.user.sso_email_id, include_inactive=True
+        )
 
     assert LogEntry.objects.count() == 1
     log = LogEntry.objects.first()

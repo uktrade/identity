@@ -247,7 +247,9 @@ def get_all_profiles(sso_email_id: str) -> dict[str, models.Model]:
         # no sso profile found
         pass
     try:
-        all_profile["peoplefinder"] = peoplefinder.get_by_id(sso_email_id=sso_email_id)
+        all_profile["peoplefinder"] = peoplefinder.get_by_id(
+            sso_email_id=sso_email_id, include_inactive=True
+        )
     except:
         # no people finder profile found
         pass
