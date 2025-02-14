@@ -48,15 +48,20 @@ class StaffSSOUserS3Ingest(DataFlowS3Ingest):
         for item in self._get_data_to_ingest():
             created_updated_pk = self.process_row(line=item)
             imported_pks.append(created_updated_pk)
+        self.delete_unimported_profiles(imported_pks=imported_pks)
 
     def process_object(self, obj, **kwargs):
         sso_email_id = obj["dit:StaffSSO:User:emailUserId"]
-        primary_email, contact_email, all_emails = self.extract_emails_from_sso_user(
-            obj
-        )
+        (
+            primary_email,
+            contact_email,
+            all_emails,
+        ) = self.extract_emails_from_sso_user(obj=obj)
 
         try:
-            profile = get_identity_by_id(id=sso_email_id, include_inactive=True)
+            profile: Profile = get_identity_by_id(
+                id=sso_email_id, include_inactive=True
+            )
         except Profile.DoesNotExist:
             create_identity(
                 id=sso_email_id,
