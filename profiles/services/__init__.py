@@ -204,37 +204,29 @@ def update_from_peoplefinder(
     # TODO: Update combined profile here as well
 
 
-def delete_combined_profile(profile: Profile) -> None:
-    all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
-
+def delete_combined_profile(all_profiles: dict) -> None:
     # check and delete if combined profile is the only profile left for user
     if len(all_profiles) == 1 and "combined" in all_profiles:
-        combined.delete_from_database(profile=profile)
+        combined.delete_from_database(profile=all_profiles["combined"])
     else:
         raise NonCombinedProfileExists(f"All existing profiles: {all_profiles.keys()}")
 
 
-def delete_sso_profile(profile: Profile) -> None:
+def delete_sso_profile(profile: StaffSSOProfile) -> None:
     try:
-        sso_profile = staff_sso.get_by_id(profile.sso_email_id, include_inactive=True)
-        staff_sso.delete_from_database(sso_profile=sso_profile)
+        staff_sso.delete_from_database(sso_profile=profile)
     except StaffSSOProfile.DoesNotExist:
         logger.debug(
             f"Failed to delete SSO profile for {profile.sso_email_id}. SSO profile is already deleted."
         )
 
-def delete_from_peoplefinder(profile: Profile) -> None:
+
+def delete_peoplefinder_profile(profile: PeopleFinderProfile) -> None:
     try:
-        peoplefinder_profile = peoplefinder.get_by_id(sso_email_id=profile.sso_email_id)
-        peoplefinder.delete_from_database(peoplefinder_profile=peoplefinder_profile)
-    except:
-        LogEntry.objects.log_action(
-            user_id=profile.sso_email_id,
-            content_type_id=None,
-            object_id=None,
-            object_repr=str(profile),
-            change_message="No People finder profile to delete",
-            action_flag=DELETION,
+        peoplefinder.delete_from_database(peoplefinder_profile=profile)
+    except PeopleFinderProfile.DoesNotExist:
+        logger.debug(
+            f"Failed to delete People Finder profile for {profile.user.sso_email_id}. people Finder profile is already deleted."
         )
 
 
