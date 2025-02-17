@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any
+from datetime import datetime
+from typing import Any, Optional
 
 from core.utils.s3_helper import (
     cleanup,
@@ -30,6 +31,85 @@ def get_profile_by_id(id: str, include_inactive: bool = False) -> Profile:
     """
     return profile_services.get_by_id(
         sso_email_id=id, include_inactive=include_inactive
+    )
+
+
+def create_peooplefinder(
+    slug: str,
+    sso_email_id: str,
+    became_inactive: Optional[datetime] = None,
+    edited_or_confirmed_at: Optional[datetime] = None,
+    login_count: Optional[int] = None,
+    first_name: Optional[str] = None,
+    preferred_first_name: Optional[str] = None,
+    last_name: Optional[str] = None,
+    pronouns: Optional[str] = None,
+    name_pronunciation: Optional[str] = None,
+    email_address: Optional[str] = None,
+    contact_email_address: Optional[str] = None,
+    primary_phone_number: Optional[str] = None,
+    secondary_phone_number: Optional[str] = None,
+    photo: Optional[str] = None,
+    photo_small: Optional[str] = None,
+    grade: Optional[str] = None,
+    manager_id: Optional[str] = None,
+    workdays: Optional[list[str]] = None,
+    remote_working: Optional[list[str]] = None,
+    usual_office_days: Optional[list[str]] = None,
+    uk_office_location_id: Optional[str] = None,
+    location_in_building: Optional[str] = None,
+    international_building: Optional[str] = None,
+    country_id: Optional[str] = None,
+    professions: Optional[list[str]] = None,
+    additional_roles: Optional[str] = None,
+    key_skills: Optional[list[str]] = None,
+    other_key_skills: Optional[str] = None,
+    learning_interests: Optional[list[str]] = None,
+    other_learning_interests: Optional[str] = None,
+    fluent_languages: Optional[str] = None,
+    intermediate_languages: Optional[str] = None,
+    previous_experience: Optional[str] = None,
+):
+    """
+    Entrypoint for peoplefinder profile creation. Triggers the creation of Peoplefinder record.
+    """
+    user = user_services.get_by_id(sso_email_id=sso_email_id)
+    profile_services.create_from_peoplefinder(
+        slug=slug,
+        user=user,
+        is_active=user.is_active,
+        became_inactive=became_inactive,
+        edited_or_confirmed_at=edited_or_confirmed_at,
+        login_count=login_count,
+        first_name=first_name,
+        preferred_first_name=preferred_first_name,
+        last_name=last_name,
+        pronouns=pronouns,
+        name_pronunciation=name_pronunciation,
+        email_address=email_address,
+        contact_email_address=contact_email_address,
+        primary_phone_number=primary_phone_number,
+        secondary_phone_number=secondary_phone_number,
+        photo=photo,
+        photo_small=photo_small,
+        grade=grade,
+        manager_id=manager_id,
+        workdays=workdays,
+        remote_working=remote_working,
+        usual_office_days=usual_office_days,
+        uk_office_location_id=uk_office_location_id,
+        location_in_building=location_in_building,
+        international_building=international_building,
+        country_id=country_id,
+        professions=professions,
+        additional_roles=additional_roles,
+        key_skills=key_skills,
+        other_key_skills=other_key_skills,
+        learning_interests=learning_interests,
+        other_learning_interests=other_learning_interests,
+        fluent_languages=fluent_languages,
+        intermediate_languages=intermediate_languages,
+        previous_experience=previous_experience,
     )
 
 

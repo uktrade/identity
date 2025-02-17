@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
-from identity.user.models import User
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Email, Grade, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset
+from user.models import User
 
 
 def get_profile_completion(peoplefinder_profile):
@@ -17,7 +17,7 @@ def create(
     user: User,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
-    login_count: Optional[int] = None,
+    login_count: Optional[int] = 0,
     first_name: Optional[str] = None,
     preferred_first_name: Optional[str] = None,
     last_name: Optional[str] = None,
@@ -29,8 +29,8 @@ def create(
     secondary_phone_number: Optional[str] = None,
     photo: Optional[str] = None,
     photo_small: Optional[str] = None,
-    grade_id: Optional[str] = None,
-    manager_id: Optional[str] = None,
+    grade: Optional[str] = None,
+    manager_slug: Optional[str] = None,
     workdays: Optional[list[str]] = None,
     remote_working: Optional[list[str]] = None,
     usual_office_days: Optional[list[str]] = None,
@@ -66,8 +66,8 @@ def create(
         secondary_phone_number=secondary_phone_number,
         photo=photo,
         photo_small=photo_small,
-        grade=set_grade(grade_id=grade_id),
-        manager=set_manager(manager_id=manager_id),
+        grade=grade,
+        manager=set_manager(manager_slug=manager_slug),
         workdays=workdays,
         remote_working=remote_working,
         usual_office_days=usual_office_days,
@@ -322,26 +322,19 @@ def set_email_details(address: str) -> Email:
     return None
 
 
-def set_grade(grade_id: str) -> Grade:
-    if grade_id is not None:
-        return Grade.objects.get(pk=grade_id)
-    return None
-
-
-def set_manager(manager_id: str) -> User:
-    # TODO Talk about this, should this be UUID or SSO.
-    if manager_id is not None:
-        return User.objects.get(pk=manager_id)
+def set_manager(manager_slug: str) -> PeopleFinderProfile:
+    if manager_slug is not None:
+        return PeopleFinderProfile.objects.get(slug=manager_slug)
     return None
 
 
 def set_uk_office_location(uk_office_location_id: str) -> UkStaffLocation:
     if uk_office_location_id is not None:
-        return UkStaffLocation.objects.get(pk=uk_office_location_id)
+        return UkStaffLocation.objects.get(code=uk_office_location_id)
     return None
 
 
 def set_country(country_id: str):
     if country_id is not None:
-        return Country.objects.get(pk=country_id)
+        return Country.objects.get(reference_id=country_id)
     return None
