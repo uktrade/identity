@@ -9,7 +9,6 @@ from core.utils.s3_helper import (
 )
 from profiles import services as profile_services
 from profiles.models.combined import Profile
-from profiles.services import get_all_profiles
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 from user.models import User
@@ -25,9 +24,9 @@ SSO_USER_STATUS = "dit:StaffSSO:User:status"
 logger = logging.getLogger(__name__)
 
 
-def get_identity_by_id(id: str, include_inactive: bool = False) -> Profile:
+def get_profile_by_id(id: str, include_inactive: bool = False) -> Profile:
     """
-    Retrieve an identity by its User ID.
+    Retrieve an profile by its User ID.
     """
     return profile_services.get_by_id(
         sso_email_id=id, include_inactive=include_inactive
@@ -76,12 +75,16 @@ def update_identity(
     Function for updating an existing user (archive / unarchive) and their profile information.
     """
 
-    user = User.objects.get(sso_email_id=profile.sso_email_id)
+    user = user_services.get_by_id(
+        sso_email_id=profile.sso_email_id, include_inactive=True
+    )
     if user.is_active != is_active:
         if user.is_active == False:
             user_services.unarchive(user)
+            profile_services.unarchive(profile=profile)
         else:
             user_services.archive(user)
+            profile_services.archive(profile=profile)
 
     profile_services.update_from_sso(
         profile=profile,
@@ -97,13 +100,15 @@ def delete_identity(profile: Profile) -> None:
     """
     Function for deleting an existing user and their profile information.
     """
+    profile_id = profile.sso_email_id
 
-    profile_services.delete_from_sso(profile=profile)
+    profile_services.delete_sso_profile(profile=profile)
+    profile_services.delete_combined_profile(profile=profile)
 
     # delete user if no profile exists for user
-    all_profiles = get_all_profiles(sso_email_id=profile.sso_email_id)
+    all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
     if not all_profiles:
-        user = User.objects.get(sso_email_id=profile.sso_email_id)
+        user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
 
 
@@ -132,11 +137,22 @@ def bulk_delete_identity_users_from_sso(sso_users: list[dict[str, Any]]) -> None
 
     id_users_to_delete = id_users.exclude(sso_email_id__in=sso_user_ids)
     for user in id_users_to_delete:
-        profile = get_identity_by_id(user.sso_email_id, include_inactive=True)
-        # log Staff SSO objects that are no longer in the S3 file.
-        logger.info(f"ingest_staff_sso_s3: Deactivating account {user.sso_email_id}")
+        try:
+            profile = get_profile_by_id(user.sso_email_id, include_inactive=True)
+            # log Staff SSO objects that are no longer in the S3 file.
+            logger.info(
+                f"ingest_staff_sso_s3: Deactivating account {user.sso_email_id}"
+            )
 
-        delete_identity(profile=profile)
+            delete_identity(profile=profile)
+        except Profile.DoesNotExist:
+            logger.info(
+                f"Profile does not exist for the user, deleting the user record {user.sso_email_id}"
+            )
+            user_services.delete_from_database(
+                user=user,
+                reason="Bulk delete - Profile does not exist",
+            )
 
 
 def bulk_create_and_update_identity_users_from_sso(
@@ -161,26 +177,40 @@ def bulk_create_and_update_identity_users_from_sso(
                 contact_email=contact_email,
             )
         else:
-            profile = get_identity_by_id(
-                id=sso_user[SSO_USER_EMAIL_ID], include_inactive=True
-            )
             primary_email, contact_email, all_emails = extract_emails_from_sso_user(
                 sso_user
             )
-            update_identity(
-                profile=profile,
-                first_name=sso_user[SSO_FIRST_NAME],
-                last_name=sso_user[SSO_LAST_NAME],
-                all_emails=all_emails,
-                is_active=sso_user[SSO_USER_STATUS] == "active",
-                primary_email=primary_email,
-                contact_email=contact_email,
+            try:
+                profile = get_profile_by_id(
+                    id=sso_user[SSO_USER_EMAIL_ID], include_inactive=True
+                )
+                update_identity(
+                    profile=profile,
+                    first_name=sso_user[SSO_FIRST_NAME],
+                    last_name=sso_user[SSO_LAST_NAME],
+                    all_emails=all_emails,
+                    is_active=sso_user[SSO_USER_STATUS] == "active",
+                    primary_email=primary_email,
+                    contact_email=contact_email,
+                )
+            except Profile.DoesNotExist:
+                profile = profile_services.create_from_sso(
+                    sso_email_id=sso_user[SSO_USER_EMAIL_ID],
+                    first_name=sso_user[SSO_FIRST_NAME],
+                    last_name=sso_user[SSO_LAST_NAME],
+                    all_emails=all_emails,
+                    primary_email=primary_email,
+                    contact_email=contact_email,
+                )
+
+        # if inactive sso user is currently active in ID, they should be archived
+        if sso_user[SSO_USER_STATUS] == "inactive":
+            user = user_services.get_by_id(
+                sso_email_id=sso_user[SSO_USER_EMAIL_ID], include_inactive=True
             )
-            # if inactive sso user is currently active in ID, they should be archived
-            if sso_user[SSO_USER_STATUS] == "inactive":
-                user = User.objects.get(sso_email_id=sso_user[SSO_USER_EMAIL_ID])
-                if user.is_active:
-                    user_services.archive(user)
+            if user.is_active:
+                user_services.archive(user)
+                profile_services.archive(profile=profile)
 
 
 def extract_emails_from_sso_user(sso_user) -> tuple[str, str, list[str]]:
