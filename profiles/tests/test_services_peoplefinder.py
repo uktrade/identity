@@ -31,8 +31,9 @@ def test_create(peoplefinder_profile):
     user = User.objects.create(sso_email_id="tom@email.com")
 
     peoplefinder_profile = peoplefinder_services.create(
-        slug=uuid.uuid4(),
+        slug=str(uuid.uuid4()),
         user=user,
+        is_active=user.is_active,
         first_name="Tom",
         last_name="Doe",
         grade="GRADE_7",

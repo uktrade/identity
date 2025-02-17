@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -15,6 +16,7 @@ def get_profile_completion(peoplefinder_profile):
 def create(
     slug: str,
     user: User,
+    is_active: bool,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
     login_count: Optional[int] = 0,
@@ -51,7 +53,7 @@ def create(
     return PeopleFinderProfile.objects.create(
         slug=slug,
         user=user,
-        is_active=user.is_active,
+        is_active=is_active,
         became_inactive=became_inactive,
         edited_or_confirmed_at=edited_or_confirmed_at,
         login_count=login_count,
@@ -316,25 +318,27 @@ def update(
 ###############################################################
 # Email data methods
 ###############################################################
-def set_email_details(address: str) -> Email:
+def set_email_details(address: str | None) -> Optional[Email]:
     if address is not None and len(address.strip()) > 0:
         return Email.objects.get_or_create(address=address)
     return None
 
 
-def set_manager(manager_slug: str) -> PeopleFinderProfile:
+def set_manager(manager_slug: str | None) -> Optional[PeopleFinderProfile]:
     if manager_slug is not None:
         return PeopleFinderProfile.objects.get(slug=manager_slug)
     return None
 
 
-def set_uk_office_location(uk_office_location_id: str) -> UkStaffLocation:
+def set_uk_office_location(
+    uk_office_location_id: str | None,
+) -> Optional[UkStaffLocation]:
     if uk_office_location_id is not None:
         return UkStaffLocation.objects.get(code=uk_office_location_id)
     return None
 
 
-def set_country(country_id: str):
+def set_country(country_id: str | None) -> Optional[Country]:
     if country_id is not None:
         return Country.objects.get(reference_id=country_id)
     return None

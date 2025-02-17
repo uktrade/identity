@@ -1,6 +1,7 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 import logging
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -132,6 +133,7 @@ def update_from_sso(
 def create_from_peoplefinder(
     slug: str,
     user: User,
+    is_active: bool,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
     login_count: Optional[int] = None,
@@ -147,7 +149,7 @@ def create_from_peoplefinder(
     photo: Optional[str] = None,
     photo_small: Optional[str] = None,
     grade: Optional[str] = None,
-    manager_id: Optional[str] = None,
+    manager_slug: Optional[str] = None,
     workdays: Optional[list[str]] = None,
     remote_working: Optional[list[str]] = None,
     usual_office_days: Optional[list[str]] = None,
@@ -168,7 +170,7 @@ def create_from_peoplefinder(
     peoplefinder.create(
         slug=slug,
         user=user,
-        is_active=user.is_active,
+        is_active=is_active,
         became_inactive=became_inactive,
         edited_or_confirmed_at=edited_or_confirmed_at,
         login_count=login_count,
@@ -184,7 +186,7 @@ def create_from_peoplefinder(
         photo=photo,
         photo_small=photo_small,
         grade=grade,
-        manager_id=manager_id,
+        manager_slug=manager_slug,
         workdays=workdays,
         remote_working=remote_working,
         usual_office_days=usual_office_days,
