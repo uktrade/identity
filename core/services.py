@@ -102,11 +102,11 @@ def delete_identity(profile: Profile) -> None:
     """
     profile_id = profile.sso_email_id
 
-    profile_services.delete(profile_id=profile_id)
+    all_remaining_profiles = profile_services.delete(profile_id=profile_id)
 
     # delete user if no profile exists for user
-    all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
-    if not all_profiles:
+    # all_profiles = profile_services.get_all_profiles(sso_email_id=profile_id)
+    if not all_remaining_profiles:
         user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
 

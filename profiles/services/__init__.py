@@ -281,7 +281,7 @@ def unarchive(
     )
 
 
-def delete(profile_id: str) -> None:
+def delete(profile_id: str) -> dict[str, models.Model]:
     all_profiles = get_all_profiles(sso_email_id=profile_id)
 
     if "peoplefinder" in all_profiles:
@@ -295,3 +295,5 @@ def delete(profile_id: str) -> None:
     if "combined" in all_profiles:
         delete_combined_profile(all_profiles=all_profiles)
         del all_profiles["combined"]
+
+    return all_profiles
