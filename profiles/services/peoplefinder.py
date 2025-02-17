@@ -1,13 +1,33 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+from django.contrib.auth import get_user_model
 
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset
 
 
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
+
+
 def get_profile_completion(peoplefinder_profile):
     # TODO: Implement get_profile_completion() function.
     return 0
+
+
+def get_by_id(sso_email_id: str, include_inactive: bool = False) -> PeopleFinderProfile:
+    """
+    Retrieve a profile by its User ID.
+    """
+    if include_inactive:
+        return PeopleFinderProfile.objects.get(user__sso_email_id=sso_email_id)
+
+    return PeopleFinderProfile.objects.get(
+        user__sso_email_id=sso_email_id, user__is_active=True
+    )
 
 
 def update(
