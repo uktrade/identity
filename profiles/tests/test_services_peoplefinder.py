@@ -30,13 +30,14 @@ def test_update(peoplefinder_profile):
 
 
 def test_get_by_id(peoplefinder_profile):
-    # Get an active profile
+    # create the default country
     Country.objects.create(reference_id="CTHMTC00260")
 
+    # Get an active people finder profile
     actual = peoplefinder_services.get_by_id(peoplefinder_profile.user.pk)
     assert actual.user.sso_email_id == peoplefinder_profile.user.sso_email_id
 
-    # Get a soft-deleted profile when inactive profiles are included
+    # Get a soft-deleted people finder profile when inactive profiles are included
     peoplefinder_profile.user.is_active = False
     peoplefinder_profile.user.save()
 
