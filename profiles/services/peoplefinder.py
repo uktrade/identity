@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Optional
 
+from identity.user.models import User
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset
@@ -9,12 +11,13 @@ def get_profile_completion(peoplefinder_profile):
     # TODO: Implement get_profile_completion() function.
     return 0
 
+
 def create(
     slug: str,
-    sso_email_id: str,
-    became_inactive: datetime,
-    edited_or_confirmed_at: datetime,
-    login_count: int,
+    user: User,
+    became_inactive: Optional[datetime] = None,
+    edited_or_confirmed_at: Optional[datetime] = None,
+    login_count: Optional[int] = None,
     first_name: Optional[str] = None,
     preferred_first_name: Optional[str] = None,
     last_name: Optional[str] = None,
@@ -45,51 +48,46 @@ def create(
     intermediate_languages: Optional[str] = None,
     previous_experience: Optional[str] = None,
 ) -> PeopleFinderProfile:
-
-    user = User.objects.get(pk=sso_email_id)
-    
-
-    peoplefinder_profile: dict[str, any] = {
-        "slug": slug,
-        "user": user,
-        "is_active": user.is_active,
-        "became_inactive": became_inactive,
-        "edited_or_confirmed_at": edited_or_confirmed_at,
-        "login_count": login_count,
-        "first_name": first_name,
-        "preferred_first_name": preferred_first_name,
-        "last_name": last_name,
-        "pronouns": pronouns,
-        "name_pronunciation": name_pronunciation,
-        "email": set_email_details(address=email_address),
-        "contact_email": set_email_details(address=contact_email_address),
-        "primary_phone_number": primary_phone_number,
-        "secondary_phone_number": secondary_phone_number,
-        "photo": photo,
-        "photo_small": photo_small,
-        "grade": set_grade(grade_id=grade_id),
-        "manager": set_manager(manager_id=manager_id),
-        "workdays": workdays,
-        "remote_working": remote_working,
-        "usual_office_days": usual_office_days,
-        "uk_office_location": set_uk_office_location(
+    return PeopleFinderProfile.objects.create(
+        slug=slug,
+        user=user,
+        is_active=user.is_active,
+        became_inactive=became_inactive,
+        edited_or_confirmed_at=edited_or_confirmed_at,
+        login_count=login_count,
+        first_name=first_name,
+        preferred_first_name=preferred_first_name,
+        last_name=last_name,
+        pronouns=pronouns,
+        name_pronunciation=name_pronunciation,
+        email=set_email_details(address=email_address),
+        contact_email=set_email_details(address=contact_email_address),
+        primary_phone_number=primary_phone_number,
+        secondary_phone_number=secondary_phone_number,
+        photo=photo,
+        photo_small=photo_small,
+        grade=set_grade(grade_id=grade_id),
+        manager=set_manager(manager_id=manager_id),
+        workdays=workdays,
+        remote_working=remote_working,
+        usual_office_days=usual_office_days,
+        uk_office_location=set_uk_office_location(
             uk_office_location_id=uk_office_location_id
         ),
-        "location_in_building": location_in_building,
-        "international_building": international_building,
-        "country": set_country(country_id=country_id),
-        "professions": professions,
-        "additional_roles": additional_roles,
-        "key_skills": key_skills,
-        "other_key_skills": other_key_skills,
-        "learning_interests": learning_interests,
-        "other_learning_interests": other_learning_interests,
-        "fluent_languages": fluent_languages,
-        "intermediate_languages": intermediate_languages,
-        "previous_experience": previous_experience,
-    }
+        location_in_building=location_in_building,
+        international_building=international_building,
+        country=set_country(country_id=country_id),
+        professions=professions,
+        additional_roles=additional_roles,
+        key_skills=key_skills,
+        other_key_skills=other_key_skills,
+        learning_interests=learning_interests,
+        other_learning_interests=other_learning_interests,
+        fluent_languages=fluent_languages,
+        intermediate_languages=intermediate_languages,
+        previous_experience=previous_experience,
+    )
 
-    PeopleFinderProfile.objects.create(**peoplefinder_profile)
 
 def update(
     peoplefinder_profile: PeopleFinderProfile,
@@ -313,7 +311,6 @@ def update(
             peoplefinder_profile.previous_experience = previous_experience
         update_fields.append("previous_experience")
     peoplefinder_profile.save(update_fields=update_fields)
-
 
 
 ###############################################################

@@ -117,6 +117,10 @@ def update_from_sso(
     )
 
 
+def create_from_peoplefinder():
+    user = User.objects.get(sso_email_id=sso_email_id)
+
+
 # TODO: update_from_peoplefinder() needs updating later
 def update_from_peoplefinder(
     profile: Profile,
