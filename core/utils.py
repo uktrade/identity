@@ -44,7 +44,7 @@ class DataFlowS3Ingest(ingest.DataFlowS3Ingest):
         return get_s3_resource()
 
 
-class StaffSSOUserS3Ingest(BaseDataFlowS3Ingest):
+class StaffSSOUserS3Ingest(DataFlowS3Ingest):
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory: str = settings.DATA_FLOW_USERS_DIRECTORY
