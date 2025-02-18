@@ -34,7 +34,7 @@ def get_profile_by_id(id: str, include_inactive: bool = False) -> Profile:
     )
 
 
-def create_peooplefinder_profile(
+def create_peoplefinder_profile(
     slug: str,
     sso_email_id: str,
     became_inactive: Optional[datetime] = None,
