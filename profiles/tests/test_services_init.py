@@ -184,11 +184,11 @@ def test_delete_combined_profile(combined_profile, sso_profile) -> None:
     assert str(ex.value.args[0]) == "Profile matching query does not exist."
 
 
-def test_delete_sso_profile(combined_profile) -> None:
+def test_delete_sso_profile(sso_profile) -> None:
     # Successfully delete a SSO profile
-    services.delete_sso_profile(combined_profile)
+    services.delete_sso_profile(sso_profile)
     with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
-        services.staff_sso.get_by_id(combined_profile.sso_email_id)
+        services.staff_sso.get_by_id(sso_profile.user.sso_email_id)
     assert str(ex.value.args[0]) == "StaffSSOProfile matching query does not exist."
 
 
