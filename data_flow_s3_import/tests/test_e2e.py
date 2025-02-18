@@ -3,15 +3,9 @@ import json
 import boto3
 import pytest
 from django.conf import settings
-from django.test import override_settings
 
-from data_flow_s3_import.ingest import (
-    DataFlowS3Ingest,
-    DataFlowS3IngestToModel,
-    S3BotoResource,
-)
+from data_flow_s3_import.ingest import DataFlowS3Ingest, DataFlowS3IngestToModel
 from user.models import User
-
 
 pytestmark = [
     pytest.mark.django_db,

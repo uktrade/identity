@@ -1,29 +1,22 @@
 import json
 import logging
-from typing import Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator, Optional
 
 from django.db.models import Model
 from django.db.models.manager import BaseManager
 from smart_open import open as smart_open
 
+from data_flow_s3_import.types import (
+    PrimaryKey,
+    S3BotoResource,
+    S3Bucket,
+    S3ObjectSummary,
+)
 
 logger = logging.getLogger(__name__)
 
-PrimaryKey = Any
-S3Bucket = Any
-S3ObjectSummary = Any
-
 
 class RequiredModelNotSet(Exception): ...
-
-
-class S3BotoResource:
-    class meta:
-        class client: ...
-
-    class Bucket[S3Bucket]:
-        def __init__(self, name: str):
-            self.name = name
 
 
 class DataFlowS3Ingest:
@@ -149,9 +142,6 @@ class DataFlowS3Ingest:
                 f"DataFlow S3 {self.__class__}: Found S3 file with key {file.source_key}"
             )
 
-        if len(sorted_files) == 0:
-            return []
-
         return sorted_files
 
     def _get_data_to_ingest(self) -> Iterator[str]:
@@ -211,10 +201,7 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
     identifier_field_name: str = "id"
     identifier_field_object_mapping: str = "id"
     mapping: dict[str, str]
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.imported_pks: list[int] = []
-        super().__init__(*args, **kwargs)
+    imported_pks: Optional[list[PrimaryKey]] = None
 
     def get_model(self) -> Model.__class__:
         """Get model object to create for each row"""
@@ -228,7 +215,7 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
         return self.get_model().objects
 
     def process_all(self):
-        self.imported_pks = []
+        self.imported_pks: list[PrimaryKey] = []
         for item in self._get_data_to_ingest():
             created_updated_pk: PrimaryKey = self.process_row(line=item)
             self.imported_pks.append(created_updated_pk)
@@ -245,17 +232,21 @@ class DataFlowS3IngestToModel(DataFlowS3Ingest):
         kwargs = {"defaults": defaults}
         kwargs[self.identifier_field_name] = obj[self.identifier_field_object_mapping]
 
-        (
-            instance,
-            _,
-        ) = self.get_model_manager().update_or_create(**kwargs)
+        instance, _ = self.get_model_manager().update_or_create(**kwargs)
 
         logger.info(
-            f"DataFlow S3 {self.__class__}: Added {self.model} record for {getattr(instance, self.identifier_field_name)}"
+            f"DataFlow S3 {self.__class__}: Added {self.model} record for"
+            " {getattr(instance, self.identifier_field_name)}"
         )
         return getattr(instance, self.identifier_field_name)
 
     def _cleanup(self) -> None:
+        if self.imported_pks is None:
+            logger.info(
+                f"DataFlow S3 {self.__class__}: Nothing has been imported,"
+                " so nothing to clean up"
+            )
+
         if self.model_uses_baseclass:
             self.mark_deleted_upstream()
 

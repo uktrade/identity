@@ -1,7 +1,7 @@
 import pytest
 
-from .ingest import DataFlowS3IngestToModel, RequiredModelNotSet, S3BotoResource
-
+from data_flow_s3_import.ingest import DataFlowS3IngestToModel, RequiredModelNotSet
+from data_flow_s3_import.tests.utils import S3BotoResource
 
 # @TODO only needced because of a project fixture, remove when extracting
 pytestmark = pytest.mark.django_db
@@ -15,7 +15,7 @@ def test_init_and_attributes(mocker):
     dfm = DataFlowS3IngestToModel(
         s3_resource=S3BotoResource(), bucket_name="bucket_name"
     )
-    assert dfm.imported_pks == []
+    assert dfm.imported_pks == None
     assert dfm.bucket.name == "bucket_name"
 
 

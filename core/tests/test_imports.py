@@ -10,9 +10,8 @@ from django.test import override_settings
 from core.services import create_identity, get_identity_by_id
 from core.utils import StaffSSOUserS3Ingest
 from core.utils import get_s3_resource as util_s3_resource
-from data_flow_s3_import.ingest import S3BotoResource
+from data_flow_s3_import.tests.utils import S3BotoResource
 from profiles.models.combined import Profile
-
 
 pytestmark = pytest.mark.django_db
 
@@ -337,7 +336,6 @@ def test_delete_unimported_profiles(mocker):
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def test_new_users_are_added(create_ingest_source_files):
-
     with pytest.raises(Profile.DoesNotExist):
         get_identity_by_id(id="johnsmith-09876@example.com")
     with pytest.raises(Profile.DoesNotExist):
@@ -366,7 +364,6 @@ def test_new_users_are_added(create_ingest_source_files):
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def test_changed_users_are_updated(create_ingest_source_files):
-
     create_identity(
         id="johnsmith-09876@example.com",
         first_name="Billy",
