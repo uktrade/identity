@@ -13,6 +13,7 @@ from core.utils import get_s3_resource as util_s3_resource
 from data_flow_s3_import.tests.utils import S3BotoResource
 from profiles.models.combined import Profile
 
+
 pytestmark = pytest.mark.django_db
 
 

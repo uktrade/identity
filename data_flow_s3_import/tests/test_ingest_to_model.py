@@ -3,6 +3,7 @@ import pytest
 from data_flow_s3_import.ingest import DataFlowS3IngestToModel, RequiredModelNotSet
 from data_flow_s3_import.tests.utils import S3BotoResource
 
+
 # @TODO only needced because of a project fixture, remove when extracting
 pytestmark = pytest.mark.django_db
 

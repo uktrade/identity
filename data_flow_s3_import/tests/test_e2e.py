@@ -7,6 +7,7 @@ from django.conf import settings
 from data_flow_s3_import.ingest import DataFlowS3Ingest, DataFlowS3IngestToModel
 from user.models import User
 
+
 pytestmark = [
     pytest.mark.django_db,
     pytest.mark.e2e,
