@@ -10,9 +10,8 @@ from core.services import (
     get_identity_by_id,
     update_identity,
 )
-from data_flow_s3_import.ingest import DataFlowS3Ingest
+from data_flow_s3_import import ingest
 from profiles.models.combined import Profile
-
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -35,13 +34,19 @@ def get_s3_resource():
     return boto3.resource("s3")
 
 
-class StaffSSOUserS3Ingest(DataFlowS3Ingest):
-    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
-    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
-    export_directory: str = settings.DATA_FLOW_USERS_DIRECTORY
+class DataFlowS3Ingest(ingest.DataFlowS3Ingest):
+    """
+    Set application specific behaviour for DataFlowS3Ingest.
+    """
 
     def get_s3_resource(self):
         return get_s3_resource()
+
+
+class StaffSSOUserS3Ingest(BaseDataFlowS3Ingest):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_directory: str = settings.DATA_FLOW_USERS_DIRECTORY
 
     def process_all(self):
         imported_pks = []
