@@ -1,7 +1,9 @@
+import datetime as dt
 from unittest.mock import call
 
 import pytest
 
+from conftest import basic_user
 from core import services
 from core.services import (
     SSO_CONTACT_EMAIL_ADDRESS,
@@ -12,7 +14,11 @@ from core.services import (
     SSO_USER_STATUS,
 )
 from profiles import services as profile_services
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.models.staff_sso import StaffSSOProfile
+from profiles.services import peoplefinder as peoplefinder_services
+from profiles.services import staff_sso as sso_profile_services
 from user import services as user_services
 from user.exceptions import UserExists
 from user.models import User
@@ -126,6 +132,17 @@ def test_delete_identity() -> None:
         is_active=True,
     )
 
+    user = User.objects.get(sso_email_id=profile.sso_email_id)
+    PeopleFinderProfile.objects.create(
+        user=user,
+        workdays=["Monday, Tuesday"],
+        professions=["COMMERCIAL"],
+        additional_roles=["FIRE_WARDEN"],
+        key_skills=["ASSET_MANAGEMENT"],
+        learning_interests=["SHADOWING"],
+        edited_or_confirmed_at=dt.datetime.now(),
+    )
+
     services.delete_identity(
         profile,
     )
@@ -136,6 +153,22 @@ def test_delete_identity() -> None:
         )
 
     assert str(pex.value.args[0]) == "Profile matching query does not exist."
+
+    # check that people finder profile has been deleted
+    with pytest.raises(User.DoesNotExist) as pfex:
+        peoplefinder_services.get_by_id(
+            sso_email_id=user.sso_email_id,
+            include_inactive=True,
+        )
+    assert str(pfex.value.args[0]) == "User matching query does not exist."
+
+    # check that sso profile has been deleted
+    with pytest.raises(StaffSSOProfile.DoesNotExist) as pfex:
+        sso_profile_services.get_by_id(
+            sso_email_id=user.sso_email_id,
+            include_inactive=True,
+        )
+    assert str(pfex.value.args[0]) == "StaffSSOProfile matching query does not exist."
 
     with pytest.raises(User.DoesNotExist) as uex:
         user_services.get_by_id(
