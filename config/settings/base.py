@@ -47,6 +47,7 @@ HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
 DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
 DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
+DATA_FLOW_USERS_DIRECTORY = env.str("DATA_FLOW_USERS_DIRECTORY", None)
 
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/

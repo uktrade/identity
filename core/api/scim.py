@@ -27,7 +27,7 @@ router = Router()
 def get_user(request, id: str):
     """Returns the Identity record (internally: Profile) with the given ID"""
     try:
-        return core_services.get_profile_by_id(id=id, include_inactive=True)
+        return core_services.get_identity_by_id(id=id, include_inactive=True)
     except Profile.DoesNotExist:
         return 404, {
             "status": "404",
@@ -92,7 +92,7 @@ def update_user(
         primary_email = scim_user.get_primary_email()
         contact_email = scim_user.get_contact_email()
 
-        profile = core_services.get_profile_by_id(id=id, include_inactive=True)
+        profile = core_services.get_identity_by_id(id=id, include_inactive=True)
 
         core_services.update_identity(
             profile=profile,
@@ -118,7 +118,7 @@ def delete_user(
 ) -> int | tuple[int, dict]:
     """Deleted the Identity record with the given ID"""
     try:
-        profile = core_services.get_profile_by_id(id=id, include_inactive=True)
+        profile = core_services.get_identity_by_id(id=id, include_inactive=True)
         core_services.delete_identity(
             profile=profile,
         )
