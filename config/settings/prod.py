@@ -17,4 +17,5 @@ SECURE_SSL_REDIRECT: bool = True
 CSRF_COOKIE_SECURE: bool = True
 SESSION_COOKIE_SECURE: bool = True
 SECURE_PROXY_SSL_HEADER: tuple[str, str] = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_REDIRECT_EXEMPT = [r"^.*ping\.xml$"]
+# Don't redirect from HTTP to HTTPS on the health check endpoint or /api/*
+SECURE_REDIRECT_EXEMPT = [r"^.*ping\.xml$", r"^/api/.*$"]
