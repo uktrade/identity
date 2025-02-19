@@ -4,6 +4,7 @@ import pytest
 
 from profiles import services
 from profiles.exceptions import NonCombinedProfileExists
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country
 from profiles.models.staff_sso import StaffSSOProfile
@@ -169,21 +170,34 @@ def test_delete_combined_profile(combined_profile, sso_profile) -> None:
 
     # Fail to delete a combined profile as the user has other profiles
     with pytest.raises(NonCombinedProfileExists) as ex:
-        services.delete_combined_profile(combined_profile)
+        services.delete_combined_profile(all_profiles)
     assert str(ex.value.args[0]) == f"All existing profiles: {all_profiles.keys()}"
 
     # Delete the SSO profile, then successfully delete the combined profile.
     services.delete_sso_profile(sso_profile)
-    services.delete_combined_profile(combined_profile)
+    del all_profiles["sso"]
+
+    services.delete_combined_profile(all_profiles)
 
     with pytest.raises(Profile.DoesNotExist) as ex:
         services.get_by_id(combined_profile.sso_email_id)
     assert str(ex.value.args[0]) == "Profile matching query does not exist."
 
 
-def test_delete_sso_profile(combined_profile) -> None:
+def test_delete_sso_profile(sso_profile) -> None:
     # Successfully delete a SSO profile
-    services.delete_sso_profile(combined_profile)
+    services.delete_sso_profile(sso_profile)
     with pytest.raises(StaffSSOProfile.DoesNotExist) as ex:
-        services.staff_sso.get_by_id(combined_profile.sso_email_id)
+        services.staff_sso.get_by_id(sso_profile.user.sso_email_id)
     assert str(ex.value.args[0]) == "StaffSSOProfile matching query does not exist."
+
+
+def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
+    # Successfully delete a People Finder profile
+    services.delete_peoplefinder_profile(peoplefinder_profile)
+    with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
+        services.peoplefinder.get_by_id(
+            sso_email_id=peoplefinder_profile.user.sso_email_id,
+            include_inactive=True,
+        )
+    assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."

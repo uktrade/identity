@@ -30,7 +30,7 @@ def get_by_id(sso_email_id: str, include_inactive: bool = False) -> User:
         if user.is_active or include_inactive:
             return user
         else:
-            raise UserIsArchived("User has been previously deleted")
+            raise UserIsArchived("User has been previously archived")
 
     except User.DoesNotExist:
         raise User.DoesNotExist("User does not exist")

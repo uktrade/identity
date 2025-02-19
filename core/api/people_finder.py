@@ -19,7 +19,7 @@ router = Router()
 def get_user(request, id: str):
     """Just a demo, do not build against this"""
     try:
-        return core_services.get_profile_by_id(id=id)
+        return core_services.get_identity_by_id(id=id)
     except Profile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",

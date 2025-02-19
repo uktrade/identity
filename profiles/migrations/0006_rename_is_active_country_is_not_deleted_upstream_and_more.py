@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name="country",
             old_name="is_active",
-            new_name="is_not_deleted_upstream",
+            new_name="exists_in_last_import",
         ),
         migrations.RenameField(
             model_name="ukstafflocation",
             old_name="is_active",
-            new_name="is_not_deleted_upstream",
+            new_name="exists_in_last_import",
         ),
     ]
