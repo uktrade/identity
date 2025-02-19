@@ -1,16 +1,13 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from profiles.models.generic import Email
 from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Email, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset
-
 
 
 if TYPE_CHECKING:
