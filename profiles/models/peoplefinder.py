@@ -1,10 +1,7 @@
 import uuid
-from random import choice
-from typing import Iterator
 
 from django.db import models
 from django.db.models import F, Q
-from django.utils.safestring import mark_safe
 from django_chunk_upload_handlers.clam_av import validate_virus_check_result
 
 from core.models import ChoiceArrayField
@@ -136,6 +133,8 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     first_name = models.CharField(
         max_length=200,
+        null=True,
+        blank=True,
     )
     preferred_first_name = models.CharField(
         max_length=200,
@@ -144,6 +143,8 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     )
     last_name = models.CharField(
         max_length=200,
+        null=True,
+        blank=True,
     )
     pronouns = models.CharField(max_length=40, null=True, blank=True)
     name_pronunciation = models.CharField(
@@ -329,7 +330,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     is_active = models.BooleanField(default=True)
     became_inactive = models.DateTimeField(null=True, blank=True)
-    edited_or_confirmed_at = models.DateTimeField()
+    edited_or_confirmed_at = models.DateTimeField(null=True, blank=True)
     login_count = models.IntegerField(default=0)
     profile_completion = models.IntegerField(default=0)
     ical_token = models.CharField(
