@@ -31,6 +31,13 @@ def get_by_id(sso_email_id: str, include_inactive: bool = False) -> Profile:
     )
 
 
+def get_by_slug(slug: str, include_inactive: bool = False) -> PeopleFinderProfile:
+    """
+    Retrieve a peoplefinder profile by its slug.
+    """
+    return peoplefinder.get_by_slug(slug=slug, include_inactive=include_inactive)
+
+
 def generate_combined_profile_data(sso_email_id: str):
     """
     Figures out which info we have in specific profiles and runs through the
@@ -157,7 +164,7 @@ def create_from_peoplefinder(
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
-    country_id: Optional[str] = None,
+    country_id: Optional[str] = "CTHMTC00260",
     professions: Optional[list[str]] = None,
     additional_roles: Optional[str] = None,
     key_skills: Optional[list[str]] = None,
@@ -250,8 +257,7 @@ def update_from_peoplefinder(
     previous_experience: Optional[str | Unset] = None,
 ) -> None:
     # TODO: use get_by_id to get the peoplefinder_profile
-    user = User.objects.get(sso_email_id=profile.sso_email_id)
-    peoplefinder_profile = PeopleFinderProfile.objects.get(user=user)
+    peoplefinder_profile = peoplefinder.get_by_slug(slug=slug, include_inactive=True)
     peoplefinder.update(
         peoplefinder_profile=peoplefinder_profile,
         is_active=is_active,
@@ -290,6 +296,7 @@ def update_from_peoplefinder(
         intermediate_languages=intermediate_languages,
         previous_experience=previous_experience,
     )
+    print(email_address)
     # TODO: Update combined profile here as well
 
 

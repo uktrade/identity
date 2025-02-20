@@ -149,6 +149,28 @@ def update(
 ) -> None:
 
     update_fields: list = []
+
+    peoplefinder_profile.is_active = is_active
+    update_fields.append("is_active")
+
+    if became_inactive is not None:
+        if became_inactive is UNSET:
+            peoplefinder_profile.became_inactive = None
+        else:
+            peoplefinder_profile.became_inactive = became_inactive
+        update_fields.append("became_inactive")
+    if edited_or_confirmed_at is not None:
+        if edited_or_confirmed_at is UNSET:
+            peoplefinder_profile.edited_or_confirmed_at = None
+        else:
+            peoplefinder_profile.edited_or_confirmed_at = edited_or_confirmed_at
+        update_fields.append("edited_or_confirmed_at")
+    if login_count is not None:
+        if login_count is UNSET:
+            peoplefinder_profile.login_count = None
+        else:
+            peoplefinder_profile.login_count = login_count
+        update_fields.append("login_count")
     if first_name is not None:
         if first_name is UNSET:
             peoplefinder_profile.first_name = None

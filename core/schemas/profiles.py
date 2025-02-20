@@ -4,8 +4,6 @@ from typing import List, Optional
 from ninja import Field, ModelSchema, Schema
 
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
 
 
 class ProfileMinimal(ModelSchema):

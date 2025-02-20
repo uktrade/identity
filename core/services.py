@@ -29,6 +29,15 @@ def get_identity_by_id(id: str, include_inactive: bool = False) -> Profile:
     )
 
 
+def get_profile_by_slug(
+    slug: str, include_inactive: bool = False
+) -> PeopleFinderProfile:
+    """
+    Retrieve a peoplefinder profile by its slug.
+    """
+    return profile_services.get_by_slug(slug=slug, include_inactive=include_inactive)
+
+
 def create_peoplefinder_profile(
     slug: str,
     sso_email_id: str,

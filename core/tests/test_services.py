@@ -16,6 +16,7 @@ from core.services import (
 from profiles import services as profile_services
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.models.generic import Country, Email
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.services import staff_sso as sso_profile_services
@@ -178,3 +179,17 @@ def test_delete_identity() -> None:
         )
 
     assert str(uex.value.args[0]) == "User does not exist"
+
+
+def test_update_peoplefinder_profile(combined_profile, peoplefinder_profile):
+    Country.objects.create(reference_id="CTHMTC00260")
+    user = peoplefinder_profile.user
+    services.update_peoplefinder_profile(
+        profile=combined_profile,
+        slug=peoplefinder_profile.slug,
+        is_active=user.is_active,
+        email_address="new_super_fancy_email@gov.uk",
+    )
+    assert peoplefinder_profile.email == Email.objects.get(
+        address="new_super_fancy_email@gov.uk"
+    )
