@@ -2,7 +2,7 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.profiles import ProfileMinimal
+from core.schemas.profiles import PeopleFinderProfileSchema, ProfileMinimal
 from profiles.models.combined import Profile
 
 
@@ -27,3 +27,6 @@ def get_user(request, id: str):
         return 404, {
             "message": "Unable to find user",
         }
+
+
+def update_user(request, id: str, peoplefinder_user: PeopleFinderProfileSchema): ...
