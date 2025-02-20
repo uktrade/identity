@@ -99,13 +99,13 @@ def test_get_by_id(peoplefinder_profile):
     assert actual.user.sso_email_id == peoplefinder_profile.user.sso_email_id
 
     # Get a soft-deleted people finder profile when inactive profiles are included
-    peoplefinder_profile.user.is_active = False
-    peoplefinder_profile.user.save()
+    peoplefinder_profile.is_active = False
+    peoplefinder_profile.save()
 
     soft_deleted_profile = peoplefinder_services.get_by_slug(
         peoplefinder_profile.slug, include_inactive=True
     )
-    assert soft_deleted_profile.user.is_active == False
+    assert soft_deleted_profile.is_active == False
 
     # Try to get a soft-deleted profile when inactive profiles are not included
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:

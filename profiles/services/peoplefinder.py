@@ -23,12 +23,12 @@ def get_profile_completion(peoplefinder_profile):
 
 def get_by_slug(slug: str, include_inactive: bool = False) -> PeopleFinderProfile:
     """
-    Retrieve a People Finder profile by its User ID.
+    Retrieve a People Finder profile by its Slug.
     """
     if include_inactive:
         return PeopleFinderProfile.objects.get(slug=slug)
 
-    return PeopleFinderProfile.objects.get(slug=slug, user__is_active=True)
+    return PeopleFinderProfile.objects.get(slug=slug, is_active=True)
 
 
 def create(
