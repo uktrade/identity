@@ -61,14 +61,17 @@ def test_update(peoplefinder_profile):
     assert peoplefinder_profile.last_name == "Doe"
     assert peoplefinder_profile.grade == "G7"
 
+    user = peoplefinder_profile.user
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,
+        is_active=user.is_active,
         first_name="James",
         grade=UNSET,
     )
     # Check the first_name, last_name and grade after update
     assert peoplefinder_profile.first_name == "James"
     assert peoplefinder_profile.last_name == "Doe"
+    assert peoplefinder_profile.is_active == user.is_active
     assert peoplefinder_profile.grade == None
 
 

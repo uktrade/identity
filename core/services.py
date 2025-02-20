@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from profiles import services as profile_services
 from profiles.models.combined import Profile
+from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 from user.models import User
@@ -63,12 +64,12 @@ def create_peoplefinder_profile(
     fluent_languages: Optional[str] = None,
     intermediate_languages: Optional[str] = None,
     previous_experience: Optional[str] = None,
-):
+) -> PeopleFinderProfile:
     """
     Entrypoint for peoplefinder profile creation. Triggers the creation of Peoplefinder record.
     """
     user = user_services.get_by_id(sso_email_id=sso_email_id)
-    profile_services.create_from_peoplefinder(
+    return profile_services.create_from_peoplefinder(
         slug=slug,
         user=user,
         is_active=user.is_active,
@@ -97,6 +98,90 @@ def create_peoplefinder_profile(
         country_id=country_id,
         professions=professions,
         additional_roles=additional_roles,
+        key_skills=key_skills,
+        other_key_skills=other_key_skills,
+        learning_interests=learning_interests,
+        other_learning_interests=other_learning_interests,
+        fluent_languages=fluent_languages,
+        intermediate_languages=intermediate_languages,
+        previous_experience=previous_experience,
+    )
+
+
+def update_peoplefinder_profile(
+    profile: Profile,
+    slug: str,
+    is_active: bool,
+    became_inactive: Optional[datetime] = None,
+    edited_or_confirmed_at: Optional[datetime] = None,
+    login_count: Optional[int] = None,
+    first_name: Optional[str] = None,
+    last_name: Optional[str] = None,
+    preferred_first_name: Optional[str | Unset] = None,
+    pronouns: Optional[str | Unset] = None,
+    name_pronunciation: Optional[str | Unset] = None,
+    email_address: Optional[str | Unset] = None,
+    contact_email_address: Optional[str | Unset] = None,
+    primary_phone_number: Optional[str | Unset] = None,
+    secondary_phone_number: Optional[str | Unset] = None,
+    photo: Optional[str | Unset] = None,
+    photo_small: Optional[str | Unset] = None,
+    grade: Optional[str | Unset] = None,
+    manager_slug: Optional[str | Unset] = None,
+    not_employee: Optional[bool | Unset] = None,
+    workdays: Optional[list[str] | Unset] = None,
+    remote_working: Optional[str | Unset] = None,
+    usual_office_days: Optional[str | Unset] = None,
+    uk_office_location_id: Optional[str | Unset] = None,
+    location_in_building: Optional[str | Unset] = None,
+    international_building: Optional[str | Unset] = None,
+    country_id: Optional[str] = None,
+    professions: Optional[list[str] | Unset] = None,
+    additional_roles: Optional[list[str] | Unset] = None,
+    other_additional_roles: Optional[str | Unset] = None,
+    key_skills: Optional[list[str] | Unset] = None,
+    other_key_skills: Optional[str | Unset] = None,
+    learning_interests: Optional[list[str] | Unset] = None,
+    other_learning_interests: Optional[str | Unset] = None,
+    fluent_languages: Optional[str | Unset] = None,
+    intermediate_languages: Optional[str | Unset] = None,
+    previous_experience: Optional[str | Unset] = None,
+) -> None:
+    """
+    Entrypoint for peoplefinder profile creation. Triggers the creation of Peoplefinder record.
+    """
+    peoplefinder_profile = PeopleFinderProfile.objects.get(slug=slug)
+    profile_services.update_from_peoplefinder(
+        profile=profile,
+        slug=slug,
+        is_active=is_active,
+        became_inactive=became_inactive,
+        edited_or_confirmed_at=edited_or_confirmed_at,
+        login_count=login_count,
+        first_name=first_name,
+        last_name=last_name,
+        preferred_first_name=preferred_first_name,
+        pronouns=pronouns,
+        name_pronunciation=name_pronunciation,
+        email_address=email_address,
+        contact_email_address=contact_email_address,
+        primary_phone_number=primary_phone_number,
+        secondary_phone_number=secondary_phone_number,
+        photo=photo,
+        photo_small=photo_small,
+        grade=grade,
+        manager_slug=manager_slug,
+        not_employee=not_employee,
+        workdays=workdays,
+        remote_working=remote_working,
+        usual_office_days=usual_office_days,
+        uk_office_location_id=uk_office_location_id,
+        location_in_building=location_in_building,
+        international_building=international_building,
+        country_id=country_id,
+        professions=professions,
+        additional_roles=additional_roles,
+        other_additional_roles=other_additional_roles,
         key_skills=key_skills,
         other_key_skills=other_key_skills,
         learning_interests=learning_interests,
