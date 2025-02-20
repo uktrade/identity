@@ -155,12 +155,13 @@ def test_delete_identity() -> None:
     assert str(pex.value.args[0]) == "Profile matching query does not exist."
 
     # check that people finder profile has been deleted
-    with pytest.raises(User.DoesNotExist) as pfex:
-        peoplefinder_services.get_by_id(
-            sso_email_id=user.sso_email_id,
-            include_inactive=True,
+    with pytest.raises(PeopleFinderProfile.DoesNotExist) as pfex:
+        PeopleFinderProfile.objects.get(
+            user__sso_email_id=user.sso_email_id,
         )
-    assert str(pfex.value.args[0]) == "User matching query does not exist."
+    assert (
+        str(pfex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
+    )
 
     # check that sso profile has been deleted
     with pytest.raises(StaffSSOProfile.DoesNotExist) as pfex:
