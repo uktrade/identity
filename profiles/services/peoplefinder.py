@@ -21,16 +21,14 @@ def get_profile_completion(peoplefinder_profile):
     return 0
 
 
-def get_by_id(sso_email_id: str, include_inactive: bool = False) -> PeopleFinderProfile:
+def get_by_id(slug: str, include_inactive: bool = False) -> PeopleFinderProfile:
     """
     Retrieve a People Finder profile by its User ID.
     """
     if include_inactive:
-        return PeopleFinderProfile.objects.get(user__sso_email_id=sso_email_id)
+        return PeopleFinderProfile.objects.get(slug=slug)
 
-    return PeopleFinderProfile.objects.get(
-        user__sso_email_id=sso_email_id, user__is_active=True
-    )
+    return PeopleFinderProfile.objects.get(slug=slug, user__is_active=True)
 
 
 def create(

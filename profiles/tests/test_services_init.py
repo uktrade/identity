@@ -197,7 +197,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
     services.delete_peoplefinder_profile(peoplefinder_profile)
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
         services.peoplefinder.get_by_id(
-            sso_email_id=peoplefinder_profile.user.sso_email_id,
+            slug=peoplefinder_profile.slug,
             include_inactive=True,
         )
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
