@@ -78,7 +78,7 @@ def test_delete_from_database(peoplefinder_profile):
     peoplefinder_profile.refresh_from_db()
     peoplefinder_services.delete_from_database(peoplefinder_profile)
     with pytest.raises(peoplefinder_profile.DoesNotExist):
-        peoplefinder_services.get_by_id(
+        peoplefinder_services.get_by_slug(
             slug=peoplefinder_profile.slug, include_inactive=True
         )
 
@@ -95,14 +95,14 @@ def test_get_by_id(peoplefinder_profile):
     Country.objects.create(reference_id="CTHMTC00260")
 
     # Get an active people finder profile
-    actual = peoplefinder_services.get_by_id(slug=peoplefinder_profile.slug)
+    actual = peoplefinder_services.get_by_slug(slug=peoplefinder_profile.slug)
     assert actual.user.sso_email_id == peoplefinder_profile.user.sso_email_id
 
     # Get a soft-deleted people finder profile when inactive profiles are included
     peoplefinder_profile.user.is_active = False
     peoplefinder_profile.user.save()
 
-    soft_deleted_profile = peoplefinder_services.get_by_id(
+    soft_deleted_profile = peoplefinder_services.get_by_slug(
         peoplefinder_profile.slug, include_inactive=True
     )
     assert soft_deleted_profile.user.is_active == False
@@ -110,11 +110,11 @@ def test_get_by_id(peoplefinder_profile):
     # Try to get a soft-deleted profile when inactive profiles are not included
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
         # no custom error to keep overheads low
-        peoplefinder_services.get_by_id(slug=soft_deleted_profile.slug)
+        peoplefinder_services.get_by_slug(slug=soft_deleted_profile.slug)
 
     assert ex.value.args[0] == "PeopleFinderProfile matching query does not exist."
 
     # Try to get a non-existent profile
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
-        peoplefinder_services.get_by_id(slug="550e8400-e29b-41d4-a716-446655440000")
+        peoplefinder_services.get_by_slug(slug="550e8400-e29b-41d4-a716-446655440000")
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."

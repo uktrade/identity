@@ -21,7 +21,7 @@ def get_profile_completion(peoplefinder_profile):
     return 0
 
 
-def get_by_id(slug: str, include_inactive: bool = False) -> PeopleFinderProfile:
+def get_by_slug(slug: str, include_inactive: bool = False) -> PeopleFinderProfile:
     """
     Retrieve a People Finder profile by its User ID.
     """
