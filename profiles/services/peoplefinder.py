@@ -375,7 +375,8 @@ def update(
 ###############################################################
 def set_email_details(address: str | None) -> Optional[Email]:
     if address is not None and len(address.strip()) > 0:
-        return Email.objects.get_or_create(address=address)
+        email, _ = Email.objects.get_or_create(address=address)
+        return email
     return None
 
 

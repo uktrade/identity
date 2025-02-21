@@ -164,7 +164,7 @@ def create_from_peoplefinder(
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
-    country_id: Optional[str] = "CTHMTC00260",
+    country_id: Optional[str] = None,
     professions: Optional[list[str]] = None,
     additional_roles: Optional[str] = None,
     key_skills: Optional[list[str]] = None,
@@ -296,7 +296,6 @@ def update_from_peoplefinder(
         intermediate_languages=intermediate_languages,
         previous_experience=previous_experience,
     )
-    print(email_address)
     # TODO: Update combined profile here as well
 
 

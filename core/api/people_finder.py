@@ -1,8 +1,12 @@
-from ninja import Router
+from ninja import Body, Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.profiles import PeopleFinderProfileSchema, ProfileMinimal
+from core.schemas.profiles import (
+    PeopleFinderProfileRequestSchema,
+    PeopleFinderProfileResponseSchema,
+    ProfileMinimal,
+)
 from profiles.models.combined import Profile
 from profiles.models.peoplefinder import PeopleFinderProfile
 
@@ -14,33 +18,34 @@ router.add_router("person", profile_router)
 
 # NB this is a placeholder to get the router running, it may need editing or deleting etc.
 @profile_router.get(
-    "{id}",
+    "{slug}",
     response={
         200: ProfileMinimal,
         404: Error,
     },
 )
-def get_user(request, id: str):
+def get_user(request, slug: str):
     """Just a demo, do not build against this"""
     try:
-        return core_services.get_identity_by_id(id=id)
+        return core_services.get_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
         return 404, {
             "message": "Unable to find user",
         }
 
 
-@profile_router.put("{slug}", response={200: PeopleFinderProfileSchema, 400: Error})
+@profile_router.put(
+    "{slug}", response={200: PeopleFinderProfileResponseSchema, 400: Error}
+)
 def update_user(
-    request, slug: str, peoplefinder_profile: PeopleFinderProfileSchema
+    request, slug: str, peoplefinder_profile: PeopleFinderProfileRequestSchema
 ) -> tuple[int, PeopleFinderProfile | dict]:
     try:
         profile = core_services.get_identity_by_id(id=peoplefinder_profile.sso_email_id)
-        peoplefinder_profile = core_services.get_profile_by_slug(slug=slug)
         core_services.update_peoplefinder_profile(
             profile=profile,
             slug=slug,
-            is_active=peoplefinder_profile.is_active,
+            is_active=profile.is_active,
             became_inactive=peoplefinder_profile.became_inactive,
             edited_or_confirmed_at=peoplefinder_profile.edited_or_confirmed_at,
             login_count=peoplefinder_profile.login_count,
@@ -76,6 +81,6 @@ def update_user(
             intermediate_languages=peoplefinder_profile.intermediate_languages,
             previous_experience=peoplefinder_profile.previous_experience,
         )
-        return 200, peoplefinder_profile
+        return 200, core_services.get_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
         return 404, {"message": "Profile does not exist"}

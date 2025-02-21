@@ -121,7 +121,6 @@ def test_create_from_sso(mocker):
 
 def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile):
     mock_pf_update = mocker.patch("profiles.services.peoplefinder.update")
-    Country.objects.create(reference_id="CTHMTC00260")
     user = peoplefinder_profile.user
     services.update_from_peoplefinder(
         profile=combined_profile,

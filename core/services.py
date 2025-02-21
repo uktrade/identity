@@ -159,7 +159,6 @@ def update_peoplefinder_profile(
     """
     Entrypoint for peoplefinder profile creation. Triggers the creation of Peoplefinder record.
     """
-    peoplefinder_profile = PeopleFinderProfile.objects.get(slug=slug)
     profile_services.update_from_peoplefinder(
         profile=profile,
         slug=slug,
