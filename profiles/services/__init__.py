@@ -377,3 +377,7 @@ def delete(profile_id: str) -> dict[str, models.Model]:
         del all_profiles["combined"]
 
     return all_profiles
+
+
+def get_peoplefinder_profile_by_slug(slug):
+    return peoplefinder.get_by_slug(slug=slug)

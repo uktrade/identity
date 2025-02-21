@@ -1,12 +1,11 @@
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from profiles import services as profile_services
 from profiles.models.combined import Profile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
-from user.models import User
 
 
 SSO_EMAIL_ADDRESSES = "dit:emailAddress"
@@ -182,3 +181,7 @@ def delete_identity(profile: Profile) -> None:
     if not all_remaining_profiles:
         user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
+
+
+def get_peoplefinder_profile_by_slug(slug: str):
+    return profile_services.get_peoplefinder_profile_by_slug(slug=slug)
