@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from profiles import services as profile_services
+from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
@@ -183,5 +184,8 @@ def delete_identity(profile: Profile) -> None:
         user_services.delete_from_database(user=user)
 
 
-def get_peoplefinder_profile_by_slug(slug: str):
+def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
+    """
+    Retrieve peoplefinder profile by its slug.
+    """
     return profile_services.get_peoplefinder_profile_by_slug(slug=slug)

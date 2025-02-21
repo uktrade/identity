@@ -379,5 +379,9 @@ def delete(profile_id: str) -> dict[str, models.Model]:
     return all_profiles
 
 
-def get_peoplefinder_profile_by_slug(slug):
+def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
+    """
+    Gets peoplefinder profile from peoplefinder service
+    :param slug: Peoplefinder profile slug
+    """
     return peoplefinder.get_by_slug(slug=slug)

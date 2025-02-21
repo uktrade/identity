@@ -19,7 +19,7 @@ router.add_router("person", profile_router)
     },
 )
 def get_by_slug(request, slug: str):
-    """Just a demo, do not build against this"""
+    """Optimised, low-flexibility endpoint to return a minimal peoplefinder profile record"""
     try:
         return core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
