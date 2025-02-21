@@ -1,4 +1,4 @@
-from ninja import Body, Router
+from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
