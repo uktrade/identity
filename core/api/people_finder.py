@@ -18,7 +18,7 @@ router.add_router("person", profile_router)
         404: Error,
     },
 )
-def get_by_slug(request, slug: str):
+def get_profile(request, slug: str):
     """Optimised, low-flexibility endpoint to return a minimal peoplefinder profile record"""
     try:
         return core_services.get_peoplefinder_profile_by_slug(slug=slug)
