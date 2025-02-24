@@ -95,7 +95,7 @@ def update_profile(
 
 
 @uk_location_router.get(
-    "{id}",
+    "{slug}",
     response={
         200: UkStaffLocationSchema,
         404: Error,
