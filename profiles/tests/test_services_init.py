@@ -121,36 +121,40 @@ def test_create_from_sso(mocker):
 
 def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile):
     mock_pf_update = mocker.patch("profiles.services.peoplefinder.update")
-    Country.objects.create(reference_id="CTHMTC00260")
-
     services.update_from_peoplefinder(
         profile=combined_profile,
+        is_active=combined_profile.is_active,
+        slug=peoplefinder_profile.slug,
         first_name="Jackson",
     )
 
     mock_pf_update.assert_called_once_with(
         peoplefinder_profile=peoplefinder_profile,
+        is_active=True,
+        became_inactive=None,
+        edited_or_confirmed_at=None,
+        login_count=None,
         first_name="Jackson",
         last_name=None,
         preferred_first_name=None,
         pronouns=None,
         name_pronunciation=None,
-        email=None,
-        contact_email=None,
+        email_address=None,
+        contact_email_address=None,
         primary_phone_number=None,
         secondary_phone_number=None,
         photo=None,
         photo_small=None,
         grade=None,
-        manager=None,
+        manager_slug=None,
         not_employee=None,
         workdays=None,
         remote_working=None,
         usual_office_days=None,
-        uk_office_location=None,
+        uk_office_location_id=None,
         location_in_building=None,
         international_building=None,
-        country=None,
+        country_id=None,
         professions=None,
         additional_roles=None,
         other_additional_roles=None,

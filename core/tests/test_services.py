@@ -16,6 +16,7 @@ from core.services import (
 from profiles import services as profile_services
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.models.generic import Country, Email
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.services import staff_sso as sso_profile_services
@@ -178,3 +179,45 @@ def test_delete_identity() -> None:
         )
 
     assert str(uex.value.args[0]) == "User does not exist"
+
+
+def test_update_peoplefinder_profile(combined_profile, peoplefinder_profile, manager):
+    # Create a new country to update the existing one
+    Country.objects.create(
+        reference_id="country2",
+        name="country2",
+        type="country",
+        iso_1_code="33",
+        iso_2_code="63",
+        iso_3_code="23",
+    )
+
+    services.update_peoplefinder_profile(
+        profile=combined_profile,
+        slug=peoplefinder_profile.slug,
+        is_active=combined_profile.is_active,
+        email_address="new_super_fancy_email@gov.uk",
+        country_id="country2",
+        uk_office_location_id="location_1",
+        manager_slug=manager.slug,
+    )
+
+    peoplefinder_profile.refresh_from_db()
+    assert peoplefinder_profile.email.address == "new_super_fancy_email@gov.uk"
+    assert peoplefinder_profile.country.reference_id == "country2"
+    assert peoplefinder_profile.uk_office_location.code == "location_1"
+    assert peoplefinder_profile.manager == manager
+
+    # Delete identity and try to update the peoplefinder profile
+    services.delete_identity(profile=combined_profile)
+
+    with pytest.raises(PeopleFinderProfile.DoesNotExist):
+        services.update_peoplefinder_profile(
+            profile=combined_profile,
+            slug=peoplefinder_profile.slug,
+            is_active=combined_profile.is_active,
+            email_address="new_super_fancy_email@gov.uk",
+            country_id="country2",
+            uk_office_location_id="location_1",
+            manager_slug=manager.slug,
+        )

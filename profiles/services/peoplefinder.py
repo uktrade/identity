@@ -111,27 +111,31 @@ def create(
 
 def update(
     peoplefinder_profile: PeopleFinderProfile,
-    first_name: Optional[str] = None,
-    last_name: Optional[str] = None,
+    is_active: bool,
+    became_inactive: Optional[datetime] = None,
+    edited_or_confirmed_at: Optional[datetime] = None,
+    login_count: Optional[int] = None,
+    first_name: Optional[str | Unset] = None,
+    last_name: Optional[str | Unset] = None,
     preferred_first_name: Optional[str | Unset] = None,
     pronouns: Optional[str | Unset] = None,
     name_pronunciation: Optional[str | Unset] = None,
-    email: Optional[str | Unset] = None,
-    contact_email: Optional[str | Unset] = None,
+    email_address: Optional[str | Unset] = None,
+    contact_email_address: Optional[str | Unset] = None,
     primary_phone_number: Optional[str | Unset] = None,
     secondary_phone_number: Optional[str | Unset] = None,
     photo: Optional[str | Unset] = None,
     photo_small: Optional[str | Unset] = None,
     grade: Optional[str | Unset] = None,
-    manager: Optional[PeopleFinderProfile | Unset] = None,
+    manager_slug: Optional[str | Unset] = None,
     not_employee: Optional[bool | Unset] = None,
     workdays: Optional[list[str] | Unset] = None,
     remote_working: Optional[str | Unset] = None,
     usual_office_days: Optional[str | Unset] = None,
-    uk_office_location: Optional[UkStaffLocation | Unset] = None,
+    uk_office_location_id: Optional[str | Unset] = None,
     location_in_building: Optional[str | Unset] = None,
     international_building: Optional[str | Unset] = None,
-    country: Optional[Country] = None,
+    country_id: Optional[str | Unset] = None,
     professions: Optional[list[str] | Unset] = None,
     additional_roles: Optional[list[str] | Unset] = None,
     other_additional_roles: Optional[str | Unset] = None,
@@ -145,13 +149,40 @@ def update(
 ) -> None:
 
     update_fields: list = []
-    # first_name and last_name cannot be unset
+
+    peoplefinder_profile.is_active = is_active
+    update_fields.append("is_active")
+
+    if became_inactive is not None:
+        if became_inactive is UNSET:
+            peoplefinder_profile.became_inactive = None
+        else:
+            peoplefinder_profile.became_inactive = became_inactive
+        update_fields.append("became_inactive")
+    if edited_or_confirmed_at is not None:
+        if edited_or_confirmed_at is UNSET:
+            peoplefinder_profile.edited_or_confirmed_at = None
+        else:
+            peoplefinder_profile.edited_or_confirmed_at = edited_or_confirmed_at
+        update_fields.append("edited_or_confirmed_at")
+    if login_count is not None:
+        if login_count is UNSET:
+            peoplefinder_profile.login_count = None
+        else:
+            peoplefinder_profile.login_count = login_count
+        update_fields.append("login_count")
     if first_name is not None:
+        if first_name is UNSET:
+            peoplefinder_profile.first_name = None
+        else:
+            peoplefinder_profile.first_name = first_name
         update_fields.append("first_name")
-        peoplefinder_profile.first_name = first_name
     if last_name is not None:
+        if last_name is UNSET:
+            peoplefinder_profile.last_name = None
+        else:
+            peoplefinder_profile.last_name = last_name
         update_fields.append("last_name")
-        peoplefinder_profile.last_name = last_name
     if preferred_first_name is not None:
         if preferred_first_name is UNSET:
             peoplefinder_profile.preferred_first_name = None
@@ -176,17 +207,19 @@ def update(
         else:
             peoplefinder_profile.name_pronunciation = name_pronunciation
         update_fields.append("name_pronunciation")
-    if email is not None:
-        if email is UNSET:
+    if email_address is not None:
+        if email_address is UNSET:
             peoplefinder_profile.email = None
         else:
-            peoplefinder_profile.email = email
+            peoplefinder_profile.email = set_email_details(address=email_address)
         update_fields.append("email")
-    if contact_email is not None:
-        if contact_email is UNSET:
+    if contact_email_address is not None:
+        if contact_email_address is UNSET:
             peoplefinder_profile.contact_email = None
         else:
-            peoplefinder_profile.contact_email = contact_email
+            peoplefinder_profile.contact_email = set_email_details(
+                address=contact_email_address
+            )
         update_fields.append("contact_email")
     if primary_phone_number is not None:
         if primary_phone_number is UNSET:
@@ -218,11 +251,11 @@ def update(
         else:
             peoplefinder_profile.grade = grade
         update_fields.append("grade")
-    if manager is not None:
-        if manager is UNSET:
+    if manager_slug is not None:
+        if manager_slug is UNSET:
             peoplefinder_profile.manager = None
         else:
-            peoplefinder_profile.manager = manager
+            peoplefinder_profile.manager = set_manager(manager_slug=manager_slug)
         update_fields.append("manager")
     if not_employee is not None:
         if not_employee is UNSET:
@@ -248,11 +281,13 @@ def update(
         else:
             peoplefinder_profile.usual_office_days = usual_office_days
         update_fields.append("usual_office_days")
-    if uk_office_location is not None:
-        if uk_office_location is UNSET:
+    if uk_office_location_id is not None:
+        if uk_office_location_id is UNSET:
             peoplefinder_profile.uk_office_location = None
         else:
-            peoplefinder_profile.uk_office_location = uk_office_location
+            peoplefinder_profile.uk_office_location = set_uk_office_location(
+                uk_office_location_id=uk_office_location_id
+            )
         update_fields.append("uk_office_location")
     if location_in_building is not None:
         if location_in_building is UNSET:
@@ -266,9 +301,11 @@ def update(
         else:
             peoplefinder_profile.international_building = international_building
         update_fields.append("international_building")
-    # Country cannot be unset
-    if country is not None:
-        peoplefinder_profile.country = country
+    if country_id is not None:
+        if country_id is UNSET:
+            peoplefinder_profile.country = None  # type: ignore
+        else:
+            peoplefinder_profile.country = set_country(country_id=country_id)
         update_fields.append("country")
     if professions is not None:
         if professions is UNSET:
@@ -338,7 +375,8 @@ def update(
 ###############################################################
 def set_email_details(address: str | None) -> Optional[Email]:
     if address is not None and len(address.strip()) > 0:
-        return Email.objects.get_or_create(address=address)
+        email, _ = Email.objects.get_or_create(address=address)
+        return email
     return None
 
 
