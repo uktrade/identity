@@ -15,9 +15,7 @@ from profiles.models.peoplefinder import PeopleFinderProfile
 
 router = Router()
 profile_router = Router()
-uk_location_router = Router()
 router.add_router("person", profile_router)
-router.add_router("uk-location", uk_location_router)
 
 
 # NB this is a placeholder to get the router running, it may need editing or deleting etc.
@@ -94,24 +92,21 @@ def update_profile(
         return 404, {"message": "People finder profile does not exist"}
 
 
-@uk_location_router.get(
-    "{slug}",
+@router.get(
+    "ukstafflocations/",
     response={
-        200: UkStaffLocationSchema,
+        200: list[UkStaffLocationSchema],
         404: Error,
     },
 )
-def get_uk_staff_location(request, slug: str) -> tuple[int, UkStaffLocation | dict]:
+def get_uk_staff_location(request) -> tuple[int, list[dict] | dict]:
     try:
-        # Use get by slug from core
-        profile = core_services.get_profile_by_slug(slug=slug)
-        location = profile.uk_office_location.__dict__
-        return 200, location
-    except PeopleFinderProfile.DoesNotExist:
+        locations = [location for location in UkStaffLocation.objects.all()]
+        if len(locations) > 0:
+            return 200, locations
+        else:
+            return 404, {"message": "No UK staff locations to display"}
+    except Exception as unknown_error:
         return 404, {
-            "message": "People finder profile does not exist",
-        }
-    except AttributeError:
-        return 404, {
-            "message": "Uk staff location is not set for the people finder profile",
+            "message": f"Could not get UK staff locations, reason: {unknown_error}"
         }
