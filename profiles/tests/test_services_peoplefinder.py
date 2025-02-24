@@ -111,3 +111,20 @@ def test_get_by_id(peoplefinder_profile):
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
         peoplefinder_services.get_by_slug(slug="550e8400-e29b-41d4-a716-446655440000")
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
+
+
+def test_get_countries():
+    countries = peoplefinder_services.get_countries()
+    # Check if country properties exist in fetched country
+    expected = {
+        "reference_id": "CTHMTC00260",
+        "name": "UK",
+        "type": "country",
+        "iso_1_code": "31",
+        "iso_2_code": "66",
+        "iso_3_code": "2",
+        "overseas_region": None,
+        "start_date": None,
+        "end_date": None,
+    }
+    assert expected.items() <= countries[0].__dict__.items()

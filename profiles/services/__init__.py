@@ -404,4 +404,4 @@ def get_countries() -> list[Country]:
     """
     Gets all countries service
     """
-    return [country for country in Country.objects.all()]
+    return peoplefinder.get_countries()
