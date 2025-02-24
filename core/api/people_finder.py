@@ -24,7 +24,7 @@ router.add_router("person", profile_router)
         404: Error,
     },
 )
-def get_user(request, slug: str):
+def get_profile(request, slug: str):
     """Just a demo, do not build against this"""
     try:
         return core_services.get_profile_by_slug(slug=slug)
@@ -35,52 +35,56 @@ def get_user(request, slug: str):
 
 
 @profile_router.put(
-    "{slug}", response={200: PeopleFinderProfileResponseSchema, 400: Error}
+    "{slug}", response={200: PeopleFinderProfileResponseSchema, 404: Error}
 )
-def update_user(
-    request, slug: str, peoplefinder_profile: PeopleFinderProfileRequestSchema
+def update_profile(
+    request, slug: str, profile_request: PeopleFinderProfileRequestSchema
 ) -> tuple[int, PeopleFinderProfile | dict]:
     try:
-        profile = core_services.get_identity_by_id(id=peoplefinder_profile.sso_email_id)
+        combined_profile = core_services.get_identity_by_id(
+            id=profile_request.sso_email_id
+        )
         core_services.update_peoplefinder_profile(
-            profile=profile,
+            profile=combined_profile,
             slug=slug,
-            is_active=profile.is_active,
-            became_inactive=peoplefinder_profile.became_inactive,
-            edited_or_confirmed_at=peoplefinder_profile.edited_or_confirmed_at,
-            login_count=peoplefinder_profile.login_count,
-            first_name=peoplefinder_profile.first_name,
-            last_name=peoplefinder_profile.last_name,
-            preferred_first_name=peoplefinder_profile.preferred_first_name,
-            pronouns=peoplefinder_profile.pronouns,
-            name_pronunciation=peoplefinder_profile.name_pronunciation,
-            email_address=peoplefinder_profile.email_address,
-            contact_email_address=peoplefinder_profile.contact_email_address,
-            primary_phone_number=peoplefinder_profile.primary_phone_number,
-            secondary_phone_number=peoplefinder_profile.secondary_phone_number,
-            photo=peoplefinder_profile.photo,
-            photo_small=peoplefinder_profile.photo_small,
-            grade=peoplefinder_profile.grade,
-            manager_slug=peoplefinder_profile.manager_slug,
-            not_employee=peoplefinder_profile.not_employee,
-            workdays=peoplefinder_profile.workdays,
-            remote_working=peoplefinder_profile.remote_working,
-            usual_office_days=peoplefinder_profile.usual_office_days,
-            uk_office_location_id=peoplefinder_profile.uk_office_location_id,
-            location_in_building=peoplefinder_profile.location_in_building,
-            international_building=peoplefinder_profile.international_building,
-            country_id=peoplefinder_profile.country_id,
-            professions=peoplefinder_profile.professions,
-            additional_roles=peoplefinder_profile.additional_roles,
-            other_additional_roles=peoplefinder_profile.other_additional_roles,
-            key_skills=peoplefinder_profile.key_skills,
-            other_key_skills=peoplefinder_profile.other_key_skills,
-            learning_interests=peoplefinder_profile.learning_interests,
-            other_learning_interests=peoplefinder_profile.other_learning_interests,
-            fluent_languages=peoplefinder_profile.fluent_languages,
-            intermediate_languages=peoplefinder_profile.intermediate_languages,
-            previous_experience=peoplefinder_profile.previous_experience,
+            is_active=combined_profile.is_active,
+            became_inactive=profile_request.became_inactive,
+            edited_or_confirmed_at=profile_request.edited_or_confirmed_at,
+            login_count=profile_request.login_count,
+            first_name=profile_request.first_name,
+            last_name=profile_request.last_name,
+            preferred_first_name=profile_request.preferred_first_name,
+            pronouns=profile_request.pronouns,
+            name_pronunciation=profile_request.name_pronunciation,
+            email_address=profile_request.email_address,
+            contact_email_address=profile_request.contact_email_address,
+            primary_phone_number=profile_request.primary_phone_number,
+            secondary_phone_number=profile_request.secondary_phone_number,
+            photo=profile_request.photo,
+            photo_small=profile_request.photo_small,
+            grade=profile_request.grade,
+            manager_slug=profile_request.manager_slug,
+            not_employee=profile_request.not_employee,
+            workdays=profile_request.workdays,
+            remote_working=profile_request.remote_working,
+            usual_office_days=profile_request.usual_office_days,
+            uk_office_location_id=profile_request.uk_office_location_id,
+            location_in_building=profile_request.location_in_building,
+            international_building=profile_request.international_building,
+            country_id=profile_request.country_id,
+            professions=profile_request.professions,
+            additional_roles=profile_request.additional_roles,
+            other_additional_roles=profile_request.other_additional_roles,
+            key_skills=profile_request.key_skills,
+            other_key_skills=profile_request.other_key_skills,
+            learning_interests=profile_request.learning_interests,
+            other_learning_interests=profile_request.other_learning_interests,
+            fluent_languages=profile_request.fluent_languages,
+            intermediate_languages=profile_request.intermediate_languages,
+            previous_experience=profile_request.previous_experience,
         )
         return 200, core_services.get_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
         return 404, {"message": "Profile does not exist"}
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {"message": "People finder profile does not exist"}
