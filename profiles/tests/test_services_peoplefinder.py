@@ -14,9 +14,6 @@ pytestmark = pytest.mark.django_db
 
 
 def test_create(peoplefinder_profile):
-    # Create the default country
-    Country.objects.create(reference_id="CTHMTC00260")
-
     # Create staff location
     UkStaffLocation.objects.create(
         code="test",
@@ -53,10 +50,7 @@ def test_create(peoplefinder_profile):
     assert peoplefinder_profile.manager == manager
 
 
-def test_update(peoplefinder_profile):
-    # Create the default country
-    Country.objects.create(reference_id="CTHMTC00260")
-
+def test_update(peoplefinder_profile, combined_profile):
     # Check the first_name last_name and grade before update
     assert peoplefinder_profile.first_name == "John"
     assert peoplefinder_profile.last_name == "Doe"
@@ -64,12 +58,14 @@ def test_update(peoplefinder_profile):
 
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,
+        is_active=combined_profile.is_active,
         first_name="James",
         grade=UNSET,
     )
     # Check the first_name, last_name and grade after update
     assert peoplefinder_profile.first_name == "James"
     assert peoplefinder_profile.last_name == "Doe"
+    assert peoplefinder_profile.is_active == combined_profile.is_active
     assert peoplefinder_profile.grade == None
 
 
@@ -91,9 +87,6 @@ def test_delete_from_database(peoplefinder_profile):
 
 
 def test_get_by_id(peoplefinder_profile):
-    # create the default country
-    Country.objects.create(reference_id="CTHMTC00260")
-
     # Get an active people finder profile
     actual = peoplefinder_services.get_by_slug(slug=peoplefinder_profile.slug)
     assert actual.user.sso_email_id == peoplefinder_profile.user.sso_email_id

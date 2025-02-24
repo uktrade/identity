@@ -4,7 +4,7 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from profiles.models.combined import Profile
-from profiles.models.generic import Email
+from profiles.models.generic import Country, Email, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
@@ -63,7 +63,7 @@ def combined_profile(sso_profile):
 
 @pytest.fixture(scope="function")
 def peoplefinder_profile(basic_user):
-    peoplefinder_profile = PeopleFinderProfile.objects.create(
+    return PeopleFinderProfile.objects.create(
         slug="9c8d532c-3d44-40fd-a512-debd26af007f",
         user=basic_user,
         first_name="John",
@@ -76,4 +76,53 @@ def peoplefinder_profile(basic_user):
         learning_interests=["everything"],
         edited_or_confirmed_at=dt.datetime.now(),
     )
-    return peoplefinder_profile
+
+
+@pytest.fixture(autouse=True, scope="function")
+def default_country():
+    return Country.objects.create(
+        reference_id="CTHMTC00260",
+        name="UK",
+        type="country",
+        iso_1_code="31",
+        iso_2_code="66",
+        iso_3_code="2",
+    )
+
+
+@pytest.fixture(autouse=True, scope="function")
+def uk_staff_location():
+    return UkStaffLocation.objects.create(
+        code="location_1",
+        name="OAB_UK",
+        city="London",
+        organisation="DBT",
+        building_name="OAB",
+    )
+
+
+@pytest.fixture(autouse=True, scope="function")
+def manager_user():
+    return User.objects.create_user(
+        sso_email_id="manager_sso_email@email.com",
+        is_active=True,
+        is_staff=False,
+        is_superuser=False,
+    )
+
+
+@pytest.fixture(scope="function")
+def manager(manager_user):
+    return PeopleFinderProfile.objects.create(
+        slug="734e7872-27f7-481b-9659-6632adf02268",
+        user=manager_user,
+        first_name="Jane",
+        last_name="Manager",
+        grade="G6",
+        workdays=["Monday", "Tuesday"],
+        professions=["Manager"],
+        additional_roles=["Line Manager"],
+        key_skills=["managing"],
+        learning_interests=["management"],
+        edited_or_confirmed_at=dt.datetime.now(),
+    )
