@@ -7,8 +7,6 @@ from ninja import Schema
 @dataclass
 class User:
     sso_email_id: str
-    is_staff: bool = False
-    is_active: bool = True
 
 
 @dataclass
@@ -21,10 +19,10 @@ class Email:
 class MinimalPeopleFinderProfile(Schema):
     # Basic Profile info
     slug: str
-    user: Optional[User]  # ForeignKey to "user.User"
     first_name: str
-    preferred_first_name: Optional[str]
     last_name: str
+    user: Optional[User]  # ForeignKey to "user.User"
+    preferred_first_name: Optional[str]
     pronouns: Optional[str]
     name_pronunciation: Optional[str]
     email: Optional[Email]  # ForeignKey to "profiles.Email"
