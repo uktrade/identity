@@ -10,7 +10,6 @@ from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
@@ -392,3 +391,7 @@ def delete(profile_id: str) -> dict[str, models.Model]:
         del all_profiles["combined"]
 
     return all_profiles
+
+
+def get_uk_staff_locations() -> list[dict]:
+    return peoplefinder.get_uk_staff_locations()

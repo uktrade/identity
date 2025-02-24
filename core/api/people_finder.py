@@ -93,17 +93,17 @@ def update_profile(
 
 
 @router.get(
-    "ukstafflocations/",
+    "uk_staff_locations/",
     response={
         200: list[UkStaffLocationSchema],
         404: Error,
     },
 )
-def get_uk_staff_location(request) -> tuple[int, list[dict] | dict]:
+def get_uk_staff_locations(request) -> tuple[int, list[dict] | dict]:
     try:
-        locations = [location for location in UkStaffLocation.objects.all()]
-        if len(locations) > 0:
-            return 200, locations
+        uk_staff_locations = core_services.get_uk_staff_locations()
+        if len(uk_staff_locations) > 0:
+            return 200, uk_staff_locations
         else:
             return 404, {"message": "No UK staff locations to display"}
     except Exception as unknown_error:

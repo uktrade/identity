@@ -275,3 +275,7 @@ def delete_identity(profile: Profile) -> None:
     if not all_remaining_profiles:
         user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
+
+
+def get_uk_staff_locations() -> list[dict]:
+    return profile_services.get_uk_staff_locations()

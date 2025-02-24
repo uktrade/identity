@@ -421,3 +421,8 @@ def delete_from_database(
     )
 
     peoplefinder_profile.delete()
+
+
+def get_uk_staff_locations() -> list[dict]:
+    locations = [location for location in UkStaffLocation.objects.all()]
+    return locations
