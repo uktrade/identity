@@ -1,13 +1,10 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 import logging
-import uuid
 from datetime import datetime
 from typing import Optional
 
-from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
-from django.db.models import QuerySet
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
