@@ -2,9 +2,10 @@ import logging
 from datetime import datetime
 from typing import Optional
 
+from conftest import peoplefinder_profile
 from profiles import services as profile_services
-from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.models.generic import Country
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
@@ -273,3 +274,10 @@ def delete_identity(profile: Profile) -> None:
     if not all_remaining_profiles:
         user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
+
+
+def get_countries() -> list[Country]:
+    """
+    Function for getting a list of all countries
+    """
+    return profile_services.get_countries()

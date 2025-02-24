@@ -16,7 +16,7 @@ router = Router()
 profile_router = Router()
 country_router = Router()
 router.add_router("person", profile_router)
-router.add_router("country", country_router)
+router.add_router("countries", country_router)
 
 
 @profile_router.get(
@@ -93,18 +93,17 @@ def update_profile(
 
 
 @country_router.get(
-    "{slug}",
+    "",
     response={
-        200: CountrySchema,
+        200: list[CountrySchema],
         404: Error,
     },
 )
-def get_country(request, slug: str) -> tuple[int, Country | dict]:
+def get_countries(request) -> tuple[int, list[Country] | dict]:
     try:
-        # Use get by slug from core
-        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
-        country = profile.country.__dict__
-        return 200, country
+        # Get a list of all countries
+        countries = core_services.get_countries()
+        return 200, countries
     except PeopleFinderProfile.DoesNotExist:
         return 404, {
             "message": "People finder profile does not exist",

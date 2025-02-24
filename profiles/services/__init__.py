@@ -7,6 +7,7 @@ from typing import Optional
 
 from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
+from django.db.models import QuerySet
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
@@ -400,3 +401,10 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     :param slug: Peoplefinder profile slug
     """
     return peoplefinder.get_by_slug(slug=slug)
+
+
+def get_countries() -> list[Country]:
+    """
+    Gets all countries service
+    """
+    return [country for country in Country.objects.all()]
