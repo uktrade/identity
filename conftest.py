@@ -101,7 +101,7 @@ def uk_staff_location():
     )
 
 
-@pytest.fixture(autouse=True, scope="function")
+@pytest.fixture(scope="function")
 def manager_user():
     return User.objects.create_user(
         sso_email_id="manager_sso_email@email.com",
