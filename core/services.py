@@ -30,11 +30,13 @@ def get_identity_by_id(id: str, include_inactive: bool = False) -> Profile:
     )
 
 
-def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
+def get_profile_by_slug(
+    slug: str, include_inactive: bool = False
+) -> PeopleFinderProfile:
     """
-    Retrieve peoplefinder profile by its slug.
+    Retrieve a peoplefinder profile by its slug.
     """
-    return profile_services.get_peoplefinder_profile_by_slug(slug=slug)
+    return profile_services.get_by_slug(slug=slug, include_inactive=include_inactive)
 
 
 def create_peoplefinder_profile(
@@ -274,6 +276,13 @@ def delete_identity(profile: Profile) -> None:
     if not all_remaining_profiles:
         user = user_services.get_by_id(sso_email_id=profile_id, include_inactive=True)
         user_services.delete_from_database(user=user)
+
+
+def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
+    """
+    Retrieve peoplefinder profile by its slug.
+    """
+    return profile_services.get_peoplefinder_profile_by_slug(slug=slug)
 
 
 def get_countries() -> list[Country]:
