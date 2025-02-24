@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from ninja import Schema
+from ninja import ModelSchema, Schema
 
 from profiles.models import PeopleFinderProfile
+from profiles.models.generic import Country
 
 
 @dataclass
@@ -47,3 +48,19 @@ class MinimalPeopleFinderProfile(Schema):
     @staticmethod
     def resolve_contact_email(obj: PeopleFinderProfile):
         return obj.contact_email.address
+
+
+class CountrySchema(ModelSchema):
+    class Meta:
+        model = Country
+        fields = [
+            "reference_id",
+            "name",
+            "type",
+            "iso_1_code",
+            "iso_2_code",
+            "iso_3_code",
+            "overseas_region",
+            "start_date",
+            "end_date",
+        ]

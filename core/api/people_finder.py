@@ -2,18 +2,21 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder import MinimalPeopleFinderProfile
+from core.schemas.peoplefinder import CountrySchema, MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
 )
 from profiles.models.combined import Profile
+from profiles.models.generic import Country
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
 router = Router()
 profile_router = Router()
+country_router = Router()
 router.add_router("person", profile_router)
+router.add_router("country", country_router)
 
 
 @profile_router.get(
@@ -82,8 +85,31 @@ def update_profile(
             intermediate_languages=profile_request.intermediate_languages,
             previous_experience=profile_request.previous_experience,
         )
-        return 200, core_services.get_profile_by_slug(slug=slug)
+        return 200, core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
+
+
+@country_router.get(
+    "{slug}",
+    response={
+        200: CountrySchema,
+        404: Error,
+    },
+)
+def get_country(request, slug: str) -> tuple[int, Country | dict]:
+    try:
+        # Use get by slug from core
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+        country = profile.country.__dict__
+        return 200, country
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {
+            "message": "People finder profile does not exist",
+        }
+    except AttributeError:
+        return 404, {
+            "message": "Country is not set for the people finder profile",
+        }
