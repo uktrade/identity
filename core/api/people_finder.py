@@ -85,7 +85,7 @@ def update_profile(
             intermediate_languages=profile_request.intermediate_languages,
             previous_experience=profile_request.previous_experience,
         )
-        return 200, core_services.get_peoplefinder_profile_by_slug(slug=slug)
+        return 200, core_services.get_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
