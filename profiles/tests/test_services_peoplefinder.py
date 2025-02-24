@@ -50,23 +50,22 @@ def test_create(peoplefinder_profile):
     assert peoplefinder_profile.manager == manager
 
 
-def test_update(peoplefinder_profile):
+def test_update(peoplefinder_profile, combined_profile):
     # Check the first_name last_name and grade before update
     assert peoplefinder_profile.first_name == "John"
     assert peoplefinder_profile.last_name == "Doe"
     assert peoplefinder_profile.grade == "G7"
 
-    user = peoplefinder_profile.user
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,
-        is_active=user.is_active,
+        is_active=combined_profile.is_active,
         first_name="James",
         grade=UNSET,
     )
     # Check the first_name, last_name and grade after update
     assert peoplefinder_profile.first_name == "James"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.is_active == user.is_active
+    assert peoplefinder_profile.is_active == combined_profile.is_active
     assert peoplefinder_profile.grade == None
 
 
