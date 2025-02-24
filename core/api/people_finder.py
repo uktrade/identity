@@ -2,15 +2,13 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
+from core.schemas.peoplefinder import MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
-    ProfileMinimal,
 )
 from profiles.models.combined import Profile
 from profiles.models.peoplefinder import PeopleFinderProfile
-from core.schemas.peoplefinder import MinimalPeopleFinderProfile
-from profiles.models import PeopleFinderProfile
 
 
 router = Router()
