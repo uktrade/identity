@@ -90,7 +90,7 @@ def default_country():
     )
 
 
-@pytest.fixture(autouse=True, scope="function")
+@pytest.fixture(scope="function")
 def uk_staff_location():
     return UkStaffLocation.objects.create(
         code="location_1",

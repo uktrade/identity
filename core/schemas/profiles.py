@@ -69,23 +69,19 @@ class PeopleFinderProfileResponseSchema(Schema):
     last_name: Optional[str] = Field(alias="last_name")
     pronouns: Optional[str] = Field(alias="pronouns")
     name_pronunciation: Optional[str] = Field(alias="name_pronunciation")
-    email_address: Optional[str] = Field(alias="email.address", default=None)
-    contact_email_address: Optional[str] = Field(
-        alias="contact_email.address", default=None
-    )
+    email_address: Optional[str] = Field(alias="email.address")
+    contact_email_address: Optional[str] = Field(alias="contact_email.address")
     primary_phone_number: Optional[str] = Field(alias="primary_phone_number")
     secondary_phone_number: Optional[str] = Field(alias="secondary_phone_number")
     photo: Optional[str] = Field(alias="photo")
     photo_small: Optional[str] = Field(alias="photo_small")
     grade: Optional[str] = Field(alias="grade")
-    manager_slug: Optional[UUID] = Field(alias="manager.slug", default=None)
+    manager_slug: Optional[UUID] = Field(alias="manager.slug")
     not_employee: Optional[bool] = Field(alias="not_employee")
     workdays: Optional[List[str]] = Field(alias="workdays")
     remote_working: Optional[str] = Field(alias="remote_working")
     usual_office_days: Optional[str] = Field(alias="usual_office_days")
-    uk_office_location_id: Optional[str] = Field(
-        alias="uk_office_location.code", default=None
-    )
+    uk_office_location_id: Optional[str] = Field(alias="uk_office_location.code")
     location_in_building: Optional[str] = Field(alias="location_in_building")
     international_building: Optional[str] = Field(alias="international_building")
     country_id: Optional[str] = Field(alias="country.reference_id")
