@@ -5,6 +5,7 @@ from uuid import UUID
 from ninja import Field, ModelSchema, Schema
 
 from profiles.models.combined import Profile
+from profiles.models.generic import UkStaffLocation
 
 
 class ProfileMinimal(ModelSchema):
@@ -68,19 +69,23 @@ class PeopleFinderProfileResponseSchema(Schema):
     last_name: Optional[str] = Field(alias="last_name")
     pronouns: Optional[str] = Field(alias="pronouns")
     name_pronunciation: Optional[str] = Field(alias="name_pronunciation")
-    email_address: Optional[str] = Field(alias="email.address")
-    contact_email_address: Optional[str] = Field(alias="contact_email.address")
+    email_address: Optional[str] = Field(alias="email.address", default=None)
+    contact_email_address: Optional[str] = Field(
+        alias="contact_email.address", default=None
+    )
     primary_phone_number: Optional[str] = Field(alias="primary_phone_number")
     secondary_phone_number: Optional[str] = Field(alias="secondary_phone_number")
     photo: Optional[str] = Field(alias="photo")
     photo_small: Optional[str] = Field(alias="photo_small")
     grade: Optional[str] = Field(alias="grade")
-    manager_slug: Optional[UUID] = Field(alias="manager.slug")
+    manager_slug: Optional[UUID] = Field(alias="manager.slug", default=None)
     not_employee: Optional[bool] = Field(alias="not_employee")
     workdays: Optional[List[str]] = Field(alias="workdays")
     remote_working: Optional[str] = Field(alias="remote_working")
     usual_office_days: Optional[str] = Field(alias="usual_office_days")
-    uk_office_location_id: Optional[str] = Field(alias="uk_office_location.code")
+    uk_office_location_id: Optional[str] = Field(
+        alias="uk_office_location.code", default=None
+    )
     location_in_building: Optional[str] = Field(alias="location_in_building")
     international_building: Optional[str] = Field(alias="international_building")
     country_id: Optional[str] = Field(alias="country.reference_id")
@@ -94,3 +99,14 @@ class PeopleFinderProfileResponseSchema(Schema):
     fluent_languages: Optional[str] = Field(alias="fluent_languages")
     intermediate_languages: Optional[str] = Field(alias="intermediate_languages")
     previous_experience: Optional[str] = Field(alias="previous_experience")
+
+
+class UkStaffLocationSchema(ModelSchema):
+    class Meta:
+        model = UkStaffLocation
+        fields = [
+            "code",
+            "name",
+            "organisation",
+            "building_name",
+        ]

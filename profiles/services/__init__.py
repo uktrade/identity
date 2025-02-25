@@ -9,6 +9,7 @@ from django.db import models
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
 from profiles.models.generic import Country
+from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
@@ -405,3 +406,7 @@ def get_countries() -> list[Country]:
     Gets all countries service
     """
     return peoplefinder.get_countries()
+  
+  
+def get_uk_staff_locations() -> list[UkStaffLocation]:
+    return peoplefinder.get_uk_staff_locations()

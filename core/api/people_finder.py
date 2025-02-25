@@ -6,9 +6,11 @@ from core.schemas.peoplefinder import CountrySchema, MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
+    UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
 from profiles.models.generic import Country
+from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
@@ -111,4 +113,24 @@ def get_countries(request) -> tuple[int, list[Country] | dict]:
     except AttributeError:
         return 404, {
             "message": "Country is not set for the people finder profile",
+        }
+
+          
+@reference_router.get(
+    "uk_staff_locations/",
+    response={
+        200: list[UkStaffLocationSchema],
+        404: Error,
+    },
+)
+def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
+    try:
+        uk_staff_locations = core_services.get_uk_staff_locations()
+        if len(uk_staff_locations) > 0:
+            return 200, uk_staff_locations
+        else:
+            return 404, {"message": "No UK staff location to display"}
+    except Exception as unknown_error:
+        return 404, {
+            "message": f"Could not get UK staff locations, reason: {unknown_error}"
         }
