@@ -1,16 +1,14 @@
 # This is the entrypoint service that coordinates between the sub-services
 # If in doubt about what to use, you should probably be using this
 import logging
-import uuid
 from datetime import datetime
 from typing import Optional
 
-from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
@@ -400,6 +398,13 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     :param slug: Peoplefinder profile slug
     """
     return peoplefinder.get_by_slug(slug=slug)
+
+
+def get_countries() -> list[Country]:
+    """
+    Gets all countries service
+    """
+    return peoplefinder.get_countries()
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:

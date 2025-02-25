@@ -113,6 +113,23 @@ def test_get_by_id(peoplefinder_profile):
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
 
 
+def test_get_countries():
+    countries = peoplefinder_services.get_countries()
+    # Check if country properties exist in fetched country
+    expected = {
+        "reference_id": "CTHMTC00260",
+        "name": "UK",
+        "type": "country",
+        "iso_1_code": "31",
+        "iso_2_code": "66",
+        "iso_3_code": "2",
+        "overseas_region": None,
+        "start_date": None,
+        "end_date": None,
+    }
+    assert expected.items() <= countries[0].__dict__.items()
+
+
 def test_get_uk_staff_locations():
     locations = peoplefinder_services.get_uk_staff_locations()
     # Check if code, name, organisation and building_name exists in the location dict

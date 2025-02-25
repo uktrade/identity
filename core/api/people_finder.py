@@ -2,14 +2,14 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder import MinimalPeopleFinderProfile
+from core.schemas.peoplefinder import CountrySchema, MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
@@ -91,6 +91,25 @@ def update_profile(
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
+
+
+@reference_router.get(
+    "countries/",
+    response={
+        200: list[CountrySchema],
+        404: Error,
+    },
+)
+def get_countries(request) -> tuple[int, list[Country] | dict]:
+    try:
+        # Get a list of all countries
+        countries = core_services.get_countries()
+        if len(countries) > 0:
+            return 200, countries
+        else:
+            return 404, {"message": "No Countries to display"}
+    except Exception as unknown_error:
+        return 404, {"message": f"Could not get Countries, reason: {unknown_error}"}
 
 
 @reference_router.get(
