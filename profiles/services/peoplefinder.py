@@ -424,4 +424,4 @@ def delete_from_database(
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
-    return [location for location in UkStaffLocation.objects.all()]
+    return list(UkStaffLocation.objects.all())
