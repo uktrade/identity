@@ -29,7 +29,7 @@ router.add_router("reference", reference_router)
 def get_profile(request, slug: str):
     """Optimised, low-flexibility endpoint to return a minimal peoplefinder profile record"""
     try:
-        return core_services.get_profile_by_slug(slug=slug)
+        return core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
         return 404, {
             "message": "Unable to find people finder profile",
