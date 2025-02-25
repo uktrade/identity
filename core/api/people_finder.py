@@ -99,13 +99,13 @@ def update_profile(
         404: Error,
     },
 )
-def get_uk_staff_locations(request) -> tuple[int, list[dict] | dict]:
+def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     try:
         uk_staff_locations = core_services.get_uk_staff_locations()
         if len(uk_staff_locations) > 0:
             return 200, uk_staff_locations
         else:
-            return 404, {"message": "No UK staff locations to display"}
+            return 404, {"message": "No UK staff location to display"}
     except Exception as unknown_error:
         return 404, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"

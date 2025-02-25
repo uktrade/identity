@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from profiles import services as profile_services
 from profiles.models.combined import Profile
+from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
@@ -277,5 +278,5 @@ def delete_identity(profile: Profile) -> None:
         user_services.delete_from_database(user=user)
 
 
-def get_uk_staff_locations() -> list[dict]:
+def get_uk_staff_locations() -> list[UkStaffLocation]:
     return profile_services.get_uk_staff_locations()
