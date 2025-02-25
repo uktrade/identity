@@ -128,8 +128,8 @@ def test_get_countries():
         "end_date": None,
     }
     assert expected.items() <= countries[0].__dict__.items()
-    
-    
+
+
 def test_get_uk_staff_locations():
     locations = peoplefinder_services.get_uk_staff_locations()
     # Check if code, name, organisation and building_name exists in the location dict

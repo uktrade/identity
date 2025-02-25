@@ -9,8 +9,7 @@ from core.schemas.profiles import (
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
-from profiles.models.generic import Country
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
@@ -115,7 +114,7 @@ def get_countries(request) -> tuple[int, list[Country] | dict]:
             "message": "Country is not set for the people finder profile",
         }
 
-          
+
 @reference_router.get(
     "uk_staff_locations/",
     response={

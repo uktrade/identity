@@ -5,8 +5,7 @@ from typing import Optional
 from conftest import peoplefinder_profile
 from profiles import services as profile_services
 from profiles.models.combined import Profile
-from profiles.models.generic import Country
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
@@ -291,6 +290,7 @@ def get_countries() -> list[Country]:
     Function for getting a list of all countries
     """
     return profile_services.get_countries()
-  
+
+
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return profile_services.get_uk_staff_locations()
