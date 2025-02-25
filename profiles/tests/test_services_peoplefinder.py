@@ -111,3 +111,14 @@ def test_get_by_id(peoplefinder_profile):
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
         peoplefinder_services.get_by_slug(slug="550e8400-e29b-41d4-a716-446655440000")
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
+
+
+def test_get_uk_staff_locations():
+    locations = peoplefinder_services.get_uk_staff_locations()
+    # Check if code, name, organisation and building_name exists in the location dict
+    assert {
+        "code": "location_1",
+        "name": "OAB_UK",
+        "organisation": "DBT",
+        "building_name": "OAB",
+    }.items() <= locations[0].__dict__.items()

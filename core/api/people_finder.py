@@ -6,14 +6,18 @@ from core.schemas.peoplefinder import MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
+    UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
+from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
 router = Router()
 profile_router = Router()
+reference_router = Router()
 router.add_router("person", profile_router)
+router.add_router("reference", reference_router)
 
 
 @profile_router.get(
@@ -87,3 +91,23 @@ def update_profile(
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
+
+
+@reference_router.get(
+    "uk_staff_locations/",
+    response={
+        200: list[UkStaffLocationSchema],
+        404: Error,
+    },
+)
+def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
+    try:
+        uk_staff_locations = core_services.get_uk_staff_locations()
+        if len(uk_staff_locations) > 0:
+            return 200, uk_staff_locations
+        else:
+            return 404, {"message": "No UK staff location to display"}
+    except Exception as unknown_error:
+        return 404, {
+            "message": f"Could not get UK staff locations, reason: {unknown_error}"
+        }

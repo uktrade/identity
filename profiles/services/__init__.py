@@ -10,7 +10,7 @@ from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
@@ -400,3 +400,7 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     :param slug: Peoplefinder profile slug
     """
     return peoplefinder.get_by_slug(slug=slug)
+
+
+def get_uk_staff_locations() -> list[UkStaffLocation]:
+    return peoplefinder.get_uk_staff_locations()
