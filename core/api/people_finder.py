@@ -104,15 +104,12 @@ def get_countries(request) -> tuple[int, list[Country] | dict]:
     try:
         # Get a list of all countries
         countries = core_services.get_countries()
-        return 200, countries
-    except PeopleFinderProfile.DoesNotExist:
-        return 404, {
-            "message": "People finder profile does not exist",
-        }
-    except AttributeError:
-        return 404, {
-            "message": "Country is not set for the people finder profile",
-        }
+        if len(countries) > 0:
+            return 200, countries
+        else:
+            return 404, {"message": "No Countries to display"}
+    except Exception as unknown_error:
+        return 404, {"message": f"Could not get Countries, reason: {unknown_error}"}
 
 
 @reference_router.get(
