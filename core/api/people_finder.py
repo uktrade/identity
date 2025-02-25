@@ -14,9 +14,9 @@ from profiles.models.peoplefinder import PeopleFinderProfile
 
 router = Router()
 profile_router = Router()
-country_router = Router()
+reference_router = Router()
 router.add_router("person", profile_router)
-router.add_router("countries", country_router)
+router.add_router("reference", reference_router)
 
 
 @profile_router.get(
@@ -92,8 +92,8 @@ def update_profile(
         return 404, {"message": "People finder profile does not exist"}
 
 
-@country_router.get(
-    "",
+@reference_router.get(
+    "countries/",
     response={
         200: list[CountrySchema],
         404: Error,
