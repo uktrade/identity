@@ -28,13 +28,13 @@ def test_get_workday(mocker):
     mocker.patch(
         "core.services.get_workday",
         return_value={
-            "Monday", "Mon",
-            "Tuesday", "Tue",
-            "Wednesday", "Wed",
-            "Thursday", "Thu",
-            "Friday", "Fri",
-            "Saturday", "Sat",
-            "Sunday", "Sun",
+            "Monday": "Mon",
+            "Tuesday": "Tue",
+            "Wednesday": "Wed",
+            "Thursday": "Thu",
+            "Friday": "Fri",
+            "Saturday": "Sat",
+            "Sunday": "Sun",
         },
     )
     response = client.get(
@@ -43,11 +43,12 @@ def test_get_workday(mocker):
     )
 
     assert response.status_code == 500
-    assert json.loads(response.content) == {'message': 'Could not get workday options, reason: too many values to unpack (expected 2)'}
+    assert json.loads(response.content) == {
+        "message": "Could not get workday options, reason: too many values to unpack (expected 2)"
+    }
 
     mocker.patch(
-        "core.services.get_workday",
-        side_effect=Exception("mocked-test-exception")
+        "core.services.get_workday", side_effect=Exception("mocked-test-exception")
     )
 
     response = client.get(
@@ -56,4 +57,6 @@ def test_get_workday(mocker):
     )
 
     assert response.status_code == 500
-    assert json.loads(response.content) == {'message': 'Could not get workday options, reason: mocked-test-exception'}
+    assert json.loads(response.content) == {
+        "message": "Could not get workday options, reason: mocked-test-exception"
+    }
