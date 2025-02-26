@@ -126,7 +126,7 @@ def test_get_uk_staff_locations():
 
 
 def test_get_remote_working_options():
-    options = peoplefinder_services.get_remote_working_options()
+    options = peoplefinder_services.get_remote_working()
 
     assert options == [
         ("office_worker", "Office Worker"),

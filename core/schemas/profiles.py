@@ -1,9 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional, Self
 from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
+from pydantic import model_validator
 
 from profiles.models.combined import Profile
 from profiles.models.generic import UkStaffLocation
@@ -114,5 +115,6 @@ class UkStaffLocationSchema(ModelSchema):
         ]
 
 
-class OptionsResponseSchema(Schema):
-    options: list[tuple[str, str]]
+class TextChoiceResponseSchema(Schema):
+    key: str
+    value: str

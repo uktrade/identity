@@ -427,5 +427,11 @@ def get_uk_staff_locations() -> list[UkStaffLocation]:
     return list(UkStaffLocation.objects.all())
 
 
-def get_remote_working_options() -> list[tuple[str, str]]:
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     return RemoteWorking.choices
+
+
+# {name: value for name, value in RemoteWorking.choices}
+# {
+#     "remote_working": "Remote working"
+# }

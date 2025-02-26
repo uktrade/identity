@@ -406,5 +406,5 @@ def get_uk_staff_locations() -> list[UkStaffLocation]:
     return peoplefinder.get_uk_staff_locations()
 
 
-def get_remote_working_options() -> list[tuple[str, str]]:
-    return peoplefinder.get_remote_working_options()
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    return peoplefinder.get_remote_working()

@@ -1,12 +1,14 @@
+import json
+
 from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
 from core.schemas.peoplefinder import MinimalPeopleFinderProfile
 from core.schemas.profiles import (
-    OptionsResponseSchema,
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
+    TextChoiceResponseSchema,
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
@@ -115,16 +117,19 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
 
 
 @reference_router.get(
-    "remote_working_options/",
+    "remote_working/",
     response={
-        200: OptionsResponseSchema,
+        200: list[TextChoiceResponseSchema],
         404: Error,
     },
 )
-def get_remote_working_options(request) -> tuple[int, list[tuple[str, str]] | dict]:
+def get_remote_working(request):
     try:
-        remote_working_options = core_services.get_remote_working_options()
-        return 200, {"options": remote_working_options}
+        remote_working_options = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_remote_working()
+        ]
+        return 200, remote_working_options
     except Exception as unknown_error:
         return 404, {
             "message": f"Could not get remote working options, reason: {unknown_error}"
