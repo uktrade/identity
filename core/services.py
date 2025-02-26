@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from conftest import peoplefinder_profile
 from profiles import services as profile_services
+from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
@@ -294,3 +294,10 @@ def get_countries() -> list[Country]:
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return profile_services.get_uk_staff_locations()
+
+
+def get_workday() -> list[tuple[Workday, str]]:
+    """
+    Function for getting a list of all workday options
+    """
+    return profile_services.get_workday()

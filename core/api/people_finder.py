@@ -6,6 +6,7 @@ from core.schemas.peoplefinder import CountrySchema, MinimalPeopleFinderProfile
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
+    TextChoiceResponseSchema,
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
@@ -129,4 +130,23 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     except Exception as unknown_error:
         return 404, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
+        }
+
+
+@reference_router.get(
+    "workday/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_workday(request):
+    try:
+        workday_options = [
+            {"key": key, "value": value} for key, value in core_services.get_workday()
+        ]
+        return 200, workday_options
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get workday options, reason: {unknown_error}"
         }

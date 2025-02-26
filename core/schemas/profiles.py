@@ -110,3 +110,8 @@ class UkStaffLocationSchema(ModelSchema):
             "organisation",
             "building_name",
         ]
+
+
+class TextChoiceResponseSchema(Schema):
+    key: str
+    value: str

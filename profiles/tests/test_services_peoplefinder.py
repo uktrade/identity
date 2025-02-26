@@ -139,3 +139,17 @@ def test_get_uk_staff_locations():
         "organisation": "DBT",
         "building_name": "OAB",
     }.items() <= locations[0].__dict__.items()
+
+
+def test_get_workday_options():
+    options = peoplefinder_services.get_workday()
+
+    assert options == [
+        ("Monday", "Mon"),
+        ("Tuesday", "Tue"),
+        ("Wednesday", "Wed"),
+        ("Thursday", "Thu"),
+        ("Friday", "Fri"),
+        ("Saturday", "Sat"),
+        ("Sunday", "Sun"),
+    ]
