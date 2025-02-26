@@ -4,8 +4,8 @@ from typing import Optional
 
 from profiles import services as profile_services
 from profiles.models.combined import Profile
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 

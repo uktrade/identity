@@ -12,8 +12,8 @@ from core.schemas.profiles import (
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 
 
 router = Router()

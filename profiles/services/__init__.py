@@ -8,8 +8,8 @@ from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
