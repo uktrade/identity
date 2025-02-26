@@ -1,14 +1,11 @@
 from datetime import datetime
-from enum import Enum
-from typing import Any, List, Literal, Optional, Self
+from typing import List, Optional
 from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
-from pydantic import model_validator
 
 from profiles.models.combined import Profile
 from profiles.models.generic import UkStaffLocation
-from profiles.models.peoplefinder import RemoteWorking
 
 
 class ProfileMinimal(ModelSchema):

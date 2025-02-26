@@ -2,7 +2,7 @@
 # If in doubt about what to use, you should probably be using this
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from django.db import models
 

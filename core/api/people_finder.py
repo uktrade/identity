@@ -1,5 +1,3 @@
-import json
-
 from ninja import Router
 
 from core import services as core_services
@@ -13,7 +11,7 @@ from core.schemas.profiles import (
 )
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
+from profiles.models.peoplefinder import PeopleFinderProfile
 
 
 router = Router()
