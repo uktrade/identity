@@ -137,7 +137,7 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     "remote_working/",
     response={
         200: list[TextChoiceResponseSchema],
-        404: Error,
+        500: Error,
     },
 )
 def get_remote_working(request):
@@ -148,6 +148,6 @@ def get_remote_working(request):
         ]
         return 200, remote_working_options
     except Exception as unknown_error:
-        return 404, {
+        return 500, {
             "message": f"Could not get remote working options, reason: {unknown_error}"
         }
