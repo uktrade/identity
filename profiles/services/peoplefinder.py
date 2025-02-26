@@ -6,7 +6,7 @@ from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
 from profiles.models.generic import Country, Email, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset
 
 
@@ -425,3 +425,7 @@ def delete_from_database(
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return list(UkStaffLocation.objects.all())
+
+
+def get_remote_working_options() -> list[tuple[str, str]]:
+    return RemoteWorking.choices

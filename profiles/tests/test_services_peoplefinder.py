@@ -5,6 +5,7 @@ from django.contrib.admin.models import LogEntry
 
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Country, Grade, UkStaffLocation
+from profiles.models.peoplefinder import RemoteWorking
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
@@ -122,3 +123,13 @@ def test_get_uk_staff_locations():
         "organisation": "DBT",
         "building_name": "OAB",
     }.items() <= locations[0].__dict__.items()
+
+
+def test_get_remote_working_options():
+    options = peoplefinder_services.get_remote_working_options()
+
+    assert options == [
+        ("office_worker", "Office Worker"),
+        ("remote_worker", "Remote Worker"),
+        ("split", "Split"),
+    ]

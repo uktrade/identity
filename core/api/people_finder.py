@@ -4,13 +4,14 @@ from core import services as core_services
 from core.schemas import Error
 from core.schemas.peoplefinder import MinimalPeopleFinderProfile
 from core.schemas.profiles import (
+    OptionsResponseSchema,
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
     UkStaffLocationSchema,
 )
 from profiles.models.combined import Profile
 from profiles.models.generic import UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 
 
 router = Router()
@@ -110,4 +111,21 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     except Exception as unknown_error:
         return 404, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
+        }
+
+
+@reference_router.get(
+    "remote_working_options/",
+    response={
+        200: OptionsResponseSchema,
+        404: Error,
+    },
+)
+def get_remote_working_options(request) -> tuple[int, list[tuple[str, str]] | dict]:
+    try:
+        remote_working_options = core_services.get_remote_working_options()
+        return 200, {"options": remote_working_options}
+    except Exception as unknown_error:
+        return 404, {
+            "message": f"Could not get remote working options, reason: {unknown_error}"
         }

@@ -1,11 +1,13 @@
 from datetime import datetime
-from typing import List, Optional
+from enum import Enum
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
 
 from profiles.models.combined import Profile
 from profiles.models.generic import UkStaffLocation
+from profiles.models.peoplefinder import RemoteWorking
 
 
 class ProfileMinimal(ModelSchema):
@@ -110,3 +112,7 @@ class UkStaffLocationSchema(ModelSchema):
             "organisation",
             "building_name",
         ]
+
+
+class OptionsResponseSchema(Schema):
+    options: list[tuple[str, str]]

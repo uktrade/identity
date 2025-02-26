@@ -287,3 +287,7 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return profile_services.get_uk_staff_locations()
+
+
+def get_remote_working_options() -> list[tuple[str, str]]:
+    return profile_services.get_remote_working_options()

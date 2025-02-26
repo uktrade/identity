@@ -3,7 +3,7 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from django.contrib.admin.models import DELETION, LogEntry
 from django.db import models
@@ -11,7 +11,7 @@ from django.db import models
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models.combined import Profile
 from profiles.models.generic import UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
@@ -404,3 +404,7 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return peoplefinder.get_uk_staff_locations()
+
+
+def get_remote_working_options() -> list[tuple[str, str]]:
+    return peoplefinder.get_remote_working_options()
