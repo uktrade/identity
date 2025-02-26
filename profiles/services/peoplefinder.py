@@ -423,6 +423,13 @@ def delete_from_database(
     peoplefinder_profile.delete()
 
 
+def get_countries() -> list[Country]:
+    """
+    Gets all countries service
+    """
+    return list(Country.objects.all())
+
+
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     return list(UkStaffLocation.objects.all())
 

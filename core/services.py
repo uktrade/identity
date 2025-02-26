@@ -3,10 +3,9 @@ from datetime import datetime
 from typing import Optional
 
 from profiles import services as profile_services
-from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
-from profiles.models.generic import UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
+from profiles.models.generic import Country, UkStaffLocation
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 
@@ -285,9 +284,22 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     return profile_services.get_peoplefinder_profile_by_slug(slug=slug)
 
 
+def get_countries() -> list[Country]:
+    """
+    Function for getting a list of all countries
+    """
+    return profile_services.get_countries()
+
+
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Function for getting a list of all UK staff locations
+    """
     return profile_services.get_uk_staff_locations()
 
 
 def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Function for getting a list of all remote working options
+    """
     return profile_services.get_remote_working()
