@@ -97,36 +97,28 @@ def update_profile(
     "countries/",
     response={
         200: list[CountrySchema],
-        404: Error,
+        500: Error,
     },
 )
 def get_countries(request) -> tuple[int, list[Country] | dict]:
     try:
         # Get a list of all countries
-        countries = core_services.get_countries()
-        if len(countries) > 0:
-            return 200, countries
-        else:
-            return 404, {"message": "No Countries to display"}
+        return 200, core_services.get_countries()
     except Exception as unknown_error:
-        return 404, {"message": f"Could not get Countries, reason: {unknown_error}"}
+        return 500, {"message": f"Could not get Countries, reason: {unknown_error}"}
 
 
 @reference_router.get(
     "uk_staff_locations/",
     response={
         200: list[UkStaffLocationSchema],
-        404: Error,
+        500: Error,
     },
 )
 def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     try:
-        uk_staff_locations = core_services.get_uk_staff_locations()
-        if len(uk_staff_locations) > 0:
-            return 200, uk_staff_locations
-        else:
-            return 404, {"message": "No UK staff location to display"}
+        return 200, core_services.get_uk_staff_locations()
     except Exception as unknown_error:
-        return 404, {
+        return 500, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
         }
