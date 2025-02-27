@@ -30,6 +30,7 @@ def test_get_remote_working(mocker):
         return_value={
             "remote_worker": "REMOTE WORKER",
             "office_worker": "OFFICE WORKER",
+            "split": "SPLIT",
         },
     )
     response = client.get(
@@ -38,11 +39,13 @@ def test_get_remote_working(mocker):
     )
 
     assert response.status_code == 500
-    assert json.loads(response.content) == {'message': 'Could not get remote working options, reason: too many values to unpack (expected 2)'}
+    assert json.loads(response.content) == {
+        "message": "Could not get remote working options, reason: too many values to unpack (expected 2)"
+    }
 
     mocker.patch(
         "core.services.get_remote_working",
-        side_effect=Exception("mocked-test-exception")
+        side_effect=Exception("mocked-test-exception"),
     )
 
     response = client.get(
@@ -51,6 +54,6 @@ def test_get_remote_working(mocker):
     )
 
     assert response.status_code == 500
-    assert json.loads(response.content) == {'message': 'Could not get remote working options, reason: mocked-test-exception'}
-
-
+    assert json.loads(response.content) == {
+        "message": "Could not get remote working options, reason: mocked-test-exception"
+    }
