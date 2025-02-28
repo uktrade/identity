@@ -36,14 +36,14 @@ class ProfileRequest(Schema):
     manager_slug: Optional[str] = None
     not_employee: Optional[bool] = None
     workdays: Optional[List[str]] = None
-    remote_working: Optional[str] = None
-    usual_office_days: Optional[str] = None
+    remote_working: Optional[List[str]] = None
+    usual_office_days: Optional[List[str]] = None
     uk_office_location_id: Optional[str] = None
     location_in_building: Optional[str] = None
     international_building: Optional[str] = None
     country_id: Optional[str] = None
     professions: Optional[List[str]] = None
-    additional_roles: Optional[List[str]] = None
+    additional_roles: Optional[str] = None
     other_additional_roles: Optional[str] = None
     key_skills: Optional[List[str]] = None
     other_key_skills: Optional[str] = None
