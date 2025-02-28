@@ -63,11 +63,15 @@ def combined_profile(sso_profile):
 
 @pytest.fixture(scope="function")
 def peoplefinder_profile(basic_user):
+    email = Email.objects.create(address="john.doe@example.com")
+    contact_email = Email.objects.create(address="john.doe_contact@example.com")
     return PeopleFinderProfile.objects.create(
         slug="9c8d532c-3d44-40fd-a512-debd26af007f",
         user=basic_user,
         first_name="John",
         last_name="Doe",
+        email=email,
+        contact_email=contact_email,
         grade="G7",
         workdays=["Monday", "Tuesday"],
         professions=["Developer"],
