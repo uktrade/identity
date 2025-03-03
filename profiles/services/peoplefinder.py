@@ -5,8 +5,8 @@ from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.models import Workday
 from profiles.exceptions import ProfileExists
+from profiles.models import Workday
 from profiles.models.generic import Country, Email, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.types import UNSET, Unset

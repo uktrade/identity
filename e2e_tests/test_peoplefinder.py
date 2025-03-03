@@ -105,6 +105,7 @@ def test_create(combined_profile):
         ]
     }
 
+
 def test_get_workday(mocker):
     url = reverse("people-finder:get_workday")
     client = Client()

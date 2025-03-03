@@ -3,20 +3,13 @@ from ninja import Router
 from core import services as core_services
 from core.schemas import Error
 from core.schemas.peoplefinder import (
-    CountrySchema,
     CountryResponse,
     CreateProfileRequest,
-    MinimalPeopleFinderProfile,
     ProfileMinimalResponse,
     ProfileResponse,
+    TextChoiceResponseSchema,
     UkStaffLocationResponse,
     UpdateProfileRequest,
-)
-from core.schemas.profiles import (
-    PeopleFinderProfileRequestSchema,
-    PeopleFinderProfileResponseSchema,
-    TextChoiceResponseSchema,
-    UkStaffLocationSchema,
 )
 from profiles.exceptions import ProfileExists
 from profiles.models.combined import Profile
@@ -34,7 +27,7 @@ router.add_router("reference", reference_router)
 @profile_router.get(
     "{slug}",
     response={
-        200: MinimalPeopleFinderProfile,
+        200: ProfileMinimalResponse,
         404: Error,
     },
 )
@@ -159,7 +152,7 @@ def update_profile(
 @reference_router.get(
     "countries/",
     response={
-        200: list[CountrySchema],
+        200: list[CountryResponse],
         404: Error,
     },
 )
