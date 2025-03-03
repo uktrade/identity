@@ -222,9 +222,7 @@ def get_workdays(request):
         ]
         return 200, workday_options
     except Exception as unknown_error:
-        return 500, {
-            "message": f"Could not get workday options, reason: {unknown_error}"
-        }
+        return 500, {"message": f"Could not get workdays, reason: {unknown_error}"}
 
 
 @reference_router.get(
@@ -243,5 +241,5 @@ def get_learning_interests(request):
         return 200, learning_interest_options
     except Exception as unknown_error:
         return 500, {
-            "message": f"Could not get learning interest options, reason: {unknown_error}"
+            "message": f"Could not get learning interests, reason: {unknown_error}"
         }
