@@ -457,15 +457,15 @@ def get_workdays() -> list[tuple[Workday, str]]:
     return Workday.choices
 
 
-def get_professions() -> list[tuple[Profession, str]]:
-    """
-    Gets all professions
-    """
-    return Profession.choices
-
-
 def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
     Gets all learning interests
     """
     return LearningInterest.choices
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Gets all professions
+    """
+    return Profession.choices

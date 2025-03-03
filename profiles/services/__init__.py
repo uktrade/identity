@@ -433,15 +433,15 @@ def get_workdays() -> list[tuple[Workday, str]]:
     return peoplefinder.get_workdays()
 
 
-def get_professions() -> list[tuple[Profession, str]]:
-    """
-    Gets all professions
-    """
-    return peoplefinder.get_professions()
-
-
 def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
     Gets all learning interests
     """
     return peoplefinder.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Gets all professions
+    """
+    return peoplefinder.get_professions()

@@ -313,15 +313,15 @@ def get_workdays() -> list[tuple[Workday, str]]:
     return profile_services.get_workdays()
 
 
-def get_professions() -> list[tuple[Profession, str]]:
-    """
-    Function for getting a list of all professions
-    """
-    return profile_services.get_professions()
-
-
 def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
     Function for getting a list of all learning interests
     """
     return profile_services.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Function for getting a list of all professions
+    """
+    return profile_services.get_professions()
