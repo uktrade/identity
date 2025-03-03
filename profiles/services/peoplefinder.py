@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from profiles.exceptions import ProfileExists
 from profiles.models import Workday
 from profiles.models.generic import Country, Email, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset
 
 
@@ -437,7 +437,17 @@ def get_countries() -> list[Country]:
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Gets all UK staff locations
+    """
     return list(UkStaffLocation.objects.all())
+
+
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Gets all remote working options
+    """
+    return RemoteWorking.choices
 
 
 def get_workday() -> list[tuple[Workday, str]]:

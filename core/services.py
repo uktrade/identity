@@ -6,7 +6,7 @@ from profiles import services as profile_services
 from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 
@@ -293,7 +293,17 @@ def get_countries() -> list[Country]:
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Function for getting a list of all UK staff locations
+    """
     return profile_services.get_uk_staff_locations()
+
+
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Function for getting a list of all remote working options
+    """
+    return profile_services.get_remote_working()
 
 
 def get_workday() -> list[tuple[Workday, str]]:
