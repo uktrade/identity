@@ -7,6 +7,7 @@ from typing import Optional
 from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
+from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
@@ -419,3 +420,10 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     Gets all remote working options
     """
     return peoplefinder.get_remote_working()
+
+
+def get_workday() -> list[tuple[Workday, str]]:
+    """
+    Gets all workday options
+    """
+    return peoplefinder.get_workday()

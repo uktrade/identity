@@ -150,3 +150,17 @@ def test_get_remote_working_options():
         ("remote_worker", "Remote Worker"),
         ("split", "Split"),
     ]
+
+
+def test_get_workday_options():
+    options = peoplefinder_services.get_workday()
+
+    assert options == [
+        ("Monday", "Mon"),
+        ("Tuesday", "Tue"),
+        ("Wednesday", "Wed"),
+        ("Thursday", "Thu"),
+        ("Friday", "Fri"),
+        ("Saturday", "Sat"),
+        ("Sunday", "Sun"),
+    ]

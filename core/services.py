@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from profiles import services as profile_services
+from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
@@ -303,3 +304,10 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     Function for getting a list of all remote working options
     """
     return profile_services.get_remote_working()
+
+
+def get_workday() -> list[tuple[Workday, str]]:
+    """
+    Function for getting a list of all workday options
+    """
+    return profile_services.get_workday()

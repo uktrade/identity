@@ -206,3 +206,22 @@ def get_remote_working(request):
         return 500, {
             "message": f"Could not get remote working options, reason: {unknown_error}"
         }
+
+
+@reference_router.get(
+    "workday/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_workday(request):
+    try:
+        workday_options = [
+            {"key": key, "value": value} for key, value in core_services.get_workday()
+        ]
+        return 200, workday_options
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get workday options, reason: {unknown_error}"
+        }
