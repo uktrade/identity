@@ -2,13 +2,23 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder import CountrySchema, MinimalPeopleFinderProfile
+from core.schemas.peoplefinder import (
+    CountrySchema,
+    CountryResponse,
+    CreateProfileRequest,
+    MinimalPeopleFinderProfile,
+    ProfileMinimalResponse,
+    ProfileResponse,
+    UkStaffLocationResponse,
+    UpdateProfileRequest,
+)
 from core.schemas.profiles import (
     PeopleFinderProfileRequestSchema,
     PeopleFinderProfileResponseSchema,
     TextChoiceResponseSchema,
     UkStaffLocationSchema,
 )
+from profiles.exceptions import ProfileExists
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
@@ -38,11 +48,63 @@ def get_profile(request, slug: str):
         }
 
 
-@profile_router.put(
-    "{slug}", response={200: PeopleFinderProfileResponseSchema, 404: Error}
-)
+@profile_router.post("", response={201: ProfileResponse, 404: Error, 409: Error})
+def create_profile(
+    request, profile_request: CreateProfileRequest
+) -> tuple[int, PeopleFinderProfile | dict]:
+    try:
+        combined_profile = core_services.get_identity_by_id(
+            id=profile_request.sso_email_id
+        )
+
+        core_services.create_peoplefinder_profile(
+            slug=profile_request.slug,
+            sso_email_id=profile_request.sso_email_id,
+            became_inactive=profile_request.became_inactive,
+            edited_or_confirmed_at=profile_request.edited_or_confirmed_at,
+            login_count=profile_request.login_count,
+            first_name=profile_request.first_name,
+            preferred_first_name=profile_request.preferred_first_name,
+            last_name=profile_request.last_name,
+            pronouns=profile_request.pronouns,
+            name_pronunciation=profile_request.name_pronunciation,
+            email_address=profile_request.email_address,
+            contact_email_address=profile_request.contact_email_address,
+            primary_phone_number=profile_request.primary_phone_number,
+            secondary_phone_number=profile_request.secondary_phone_number,
+            photo=profile_request.photo,
+            photo_small=profile_request.photo_small,
+            grade=profile_request.grade,
+            manager_slug=profile_request.manager_slug,
+            workdays=profile_request.workdays,
+            remote_working=profile_request.remote_working,
+            usual_office_days=profile_request.usual_office_days,
+            uk_office_location_id=profile_request.uk_office_location_id,
+            location_in_building=profile_request.location_in_building,
+            international_building=profile_request.international_building,
+            country_id=profile_request.country_id,
+            professions=profile_request.professions,
+            additional_roles=profile_request.additional_roles,
+            key_skills=profile_request.key_skills,
+            other_key_skills=profile_request.other_key_skills,
+            learning_interests=profile_request.learning_interests,
+            other_learning_interests=profile_request.other_learning_interests,
+            fluent_languages=profile_request.fluent_languages,
+            intermediate_languages=profile_request.intermediate_languages,
+            previous_experience=profile_request.previous_experience,
+        )
+        return 201, core_services.get_profile_by_slug(slug=profile_request.slug)
+    except Profile.DoesNotExist:
+        return 404, {"message": "Profile does not exist"}
+    except ProfileExists:
+        return 409, {
+            "message": "A people finder profile for this user has already been created"
+        }
+
+
+@profile_router.put("{slug}", response={200: ProfileResponse, 404: Error})
 def update_profile(
-    request, slug: str, profile_request: PeopleFinderProfileRequestSchema
+    request, slug: str, profile_request: UpdateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
     try:
         combined_profile = core_services.get_identity_by_id(
@@ -116,7 +178,7 @@ def get_countries(request) -> tuple[int, list[Country] | dict]:
 @reference_router.get(
     "uk_staff_locations/",
     response={
-        200: list[UkStaffLocationSchema],
+        200: list[UkStaffLocationResponse],
         404: Error,
     },
 )
