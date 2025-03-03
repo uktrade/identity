@@ -10,7 +10,11 @@ from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
+from profiles.models.peoplefinder import (
+    LearningInterest,
+    PeopleFinderProfile,
+    RemoteWorking,
+)
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
@@ -422,8 +426,15 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     return peoplefinder.get_remote_working()
 
 
-def get_workday() -> list[tuple[Workday, str]]:
+def get_workdays() -> list[tuple[Workday, str]]:
     """
-    Gets all workday options
+    Gets all workdays
     """
-    return peoplefinder.get_workday()
+    return peoplefinder.get_workdays()
+
+
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
+    """
+    Gets all learning interests
+    """
+    return peoplefinder.get_learning_interests()

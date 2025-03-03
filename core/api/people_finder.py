@@ -209,19 +209,37 @@ def get_remote_working(request):
 
 
 @reference_router.get(
-    "workday/",
+    "workdays/",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
     },
 )
-def get_workday(request):
+def get_workdays(request):
     try:
         workday_options = [
-            {"key": key, "value": value} for key, value in core_services.get_workday()
+            {"key": key, "value": value} for key, value in core_services.get_workdays()
         ]
         return 200, workday_options
     except Exception as unknown_error:
+        return 500, {"message": f"Could not get workdays, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "learning_interests/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_learning_interests(request):
+    try:
+        learning_interest_options = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_learning_interests()
+        ]
+        return 200, learning_interest_options
+    except Exception as unknown_error:
         return 500, {
-            "message": f"Could not get workday options, reason: {unknown_error}"
+            "message": f"Could not get learning interests, reason: {unknown_error}"
         }
