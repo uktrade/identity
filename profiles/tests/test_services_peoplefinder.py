@@ -164,3 +164,40 @@ def test_get_workday_options():
         ("Saturday", "Sat"),
         ("Sunday", "Sun"),
     ]
+
+
+def test_get_professions():
+    options = peoplefinder_services.get_professions()
+
+    assert options == [
+        ("Government commercial and contract management", "Commercial"),
+        ("Corporate finance profession", "Corp Finance"),
+        ("Counter-fraud standards and profession", "Counter Fraud"),
+        ("Digital, data and technology profession", "Digital Data Tech"),
+        ("Government communication service", "Gov Comms"),
+        ("Government economic service", "Gov Economics"),
+        ("Government finance profession", "Gov Finance"),
+        ("Government IT profession", "Gov It"),
+        ("Government knowledge and information management profession", "Gov Knowledge"),
+        ("Government legal service", "Gov Legal"),
+        ("Government occupational psychology profession", "Gov Occupational"),
+        ("Government operational research service", "Gov Operational"),
+        ("Government planning inspectors", "Gov Planning Inspectors"),
+        ("Government planning profession", "Gov Planning Profession"),
+        ("Government property profession", "Gov Property"),
+        ("Government security profession", "Gov Security"),
+        ("Government science and engineering profession", "Gov Science"),
+        ("Government social research profession", "Gov Social"),
+        ("Government statistical service profession", "Gov Statistical"),
+        ("Government tax profession", "Gov Tax"),
+        ("Government veterinary profession", "Gov Vet"),
+        ("Human resources profession", "Human Resources"),
+        ("Intelligence analysis", "Intelligence Analysis"),
+        ("Internal audit profession", "Internal Audit"),
+        ("Medical profession", "Medical Profession"),
+        ("Operational delivery profession", "Operation Delivery"),
+        ("Policy profession", "Policy Profiession"),
+        ("Procurement profession", "Procurement Profession"),
+        ("Project delivery profession", "Project Delivery"),
+        ("International trade profession", "International Trade"),
+    ]
