@@ -51,6 +51,11 @@ def test_get_profile(peoplefinder_profile):
 
     url = reverse("people-finder:get_profile", args=(str(uuid.uuid4()),))
 
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
     assert response.status_code == 404
 
 
@@ -125,6 +130,11 @@ def test_get_remote_working(mocker):
         },
     )
 
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
     assert response.status_code == 500
     assert json.loads(response.content) == {
         "message": "Could not get remote working options, reason: too many values to unpack (expected 2)"
@@ -169,10 +179,6 @@ def test_get_workday(mocker):
             "Saturday": "Sat",
             "Sunday": "Sun",
         },
-    )
-    response = client.get(
-        url,
-        content_type="application/json",
     )
 
     response = client.get(
