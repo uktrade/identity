@@ -421,6 +421,7 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     """
     return peoplefinder.get_remote_working()
 
+
 def get_workday() -> list[tuple[Workday, str]]:
     """
     Gets all workday options

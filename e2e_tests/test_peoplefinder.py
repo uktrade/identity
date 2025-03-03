@@ -6,8 +6,8 @@ from django.test.client import Client
 from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest
-from profiles.models.peoplefinder import RemoteWorking
 from profiles.models import Workday
+from profiles.models.peoplefinder import RemoteWorking
 
 
 pytestmark = [
