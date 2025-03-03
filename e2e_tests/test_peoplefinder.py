@@ -188,7 +188,7 @@ def test_get_workday(mocker):
 
     assert response.status_code == 500
     assert json.loads(response.content) == {
-        "message": "Could not get workday options, reason: too many values to unpack (expected 2)"
+        "message": "Could not get workdays, reason: too many values to unpack (expected 2)"
     }
 
     mocker.patch(
@@ -201,7 +201,7 @@ def test_get_workday(mocker):
 
     assert response.status_code == 500
     assert json.loads(response.content) == {
-        "message": "Could not get workday options, reason: mocked-test-exception"
+        "message": "Could not get workdays, reason: mocked-test-exception"
     }
 
 
@@ -238,7 +238,7 @@ def test_get_learning_interest(mocker):
 
     assert response.status_code == 500
     assert json.loads(response.content) == {
-        "message": "Could not get learning interest options, reason: too many values to unpack (expected 2)"
+        "message": "Could not get learning interests, reason: too many values to unpack (expected 2)"
     }
 
     mocker.patch(
@@ -252,5 +252,5 @@ def test_get_learning_interest(mocker):
 
     assert response.status_code == 500
     assert json.loads(response.content) == {
-        "message": "Could not get learning interest options, reason: mocked-test-exception"
+        "message": "Could not get learning interests, reason: mocked-test-exception"
     }
