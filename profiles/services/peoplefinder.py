@@ -450,15 +450,15 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     return RemoteWorking.choices
 
 
-def get_workday() -> list[tuple[Workday, str]]:
+def get_workdays() -> list[tuple[Workday, str]]:
     """
-    Gets all workday options
+    Gets all workdays
     """
     return Workday.choices
 
 
-def get_learning_interest() -> list[tuple[Workday, str]]:
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
-    Gets all learning interest options
+    Gets all learning interests
     """
     return LearningInterest.choices

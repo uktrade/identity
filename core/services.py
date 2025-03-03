@@ -306,15 +306,15 @@ def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     return profile_services.get_remote_working()
 
 
-def get_workday() -> list[tuple[Workday, str]]:
+def get_workdays() -> list[tuple[Workday, str]]:
     """
     Function for getting a list of all workday options
     """
-    return profile_services.get_workday()
+    return profile_services.get_workdays()
 
 
-def get_learning_interest() -> list[tuple[LearningInterest, str]]:
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
     Function for getting a list of all learning interest options
     """
-    return profile_services.get_learning_interest()
+    return profile_services.get_learning_interests()

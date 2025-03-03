@@ -157,7 +157,7 @@ def test_get_remote_working(mocker):
 
 
 def test_get_workday(mocker):
-    url = reverse("people-finder:get_workday")
+    url = reverse("people-finder:get_workdays")
     client = Client()
     response = client.get(
         url,
@@ -169,7 +169,7 @@ def test_get_workday(mocker):
     ]
 
     mocker.patch(
-        "core.services.get_workday",
+        "core.services.get_workdays",
         return_value={
             "Monday": "Mon",
             "Tuesday": "Tue",
@@ -192,7 +192,7 @@ def test_get_workday(mocker):
     }
 
     mocker.patch(
-        "core.services.get_workday", side_effect=Exception("mocked-test-exception")
+        "core.services.get_workdays", side_effect=Exception("mocked-test-exception")
     )
     response = client.get(
         url,
@@ -206,7 +206,7 @@ def test_get_workday(mocker):
 
 
 def test_get_learning_interest(mocker):
-    url = reverse("people-finder:get_learning_interest")
+    url = reverse("people-finder:get_learning_interests")
     client = Client()
     response = client.get(
         url,
@@ -218,7 +218,7 @@ def test_get_learning_interest(mocker):
     ]
 
     mocker.patch(
-        "core.services.get_learning_interest",
+        "core.services.get_learning_interests",
         return_value={
             "Work shadowing": "Shadowing",
             "Mentoring": "Mentoring",
@@ -242,7 +242,7 @@ def test_get_learning_interest(mocker):
     }
 
     mocker.patch(
-        "core.services.get_learning_interest",
+        "core.services.get_learning_interests",
         side_effect=Exception("mocked-test-exception"),
     )
     response = client.get(

@@ -153,7 +153,7 @@ def test_get_remote_working_options():
 
 
 def test_get_workday_options():
-    options = peoplefinder_services.get_workday()
+    options = peoplefinder_services.get_workdays()
 
     assert options == [
         ("Monday", "Mon"),
@@ -167,9 +167,7 @@ def test_get_workday_options():
 
 
 def test_get_learning_interest_options():
-    options = peoplefinder_services.get_learning_interest()
-
-    print(options)
+    options = peoplefinder_services.get_learning_interests()
 
     assert options == [
         ("Work shadowing", "Shadowing"),
