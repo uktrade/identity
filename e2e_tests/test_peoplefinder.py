@@ -175,6 +175,11 @@ def test_get_workday(mocker):
         content_type="application/json",
     )
 
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
     assert response.status_code == 500
     assert json.loads(response.content) == {
         "message": "Could not get workday options, reason: too many values to unpack (expected 2)"
@@ -183,7 +188,6 @@ def test_get_workday(mocker):
     mocker.patch(
         "core.services.get_workday", side_effect=Exception("mocked-test-exception")
     )
-
     response = client.get(
         url,
         content_type="application/json",
