@@ -7,5 +7,6 @@ The ID service exposes an API that provides read and edit functionality designed
 #### Reference data can be accessed via `/api/peoplefinder/reference/<endpoint>/`. Here is the list of reference endpoints:
 
 `remote_working/` : lists remote working options
-`workday/` : lists workday options
+`workdays/` : lists workday options
+`learning_interests/` : lists learning interests
 `professions/` : lists professions
