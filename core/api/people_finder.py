@@ -7,6 +7,7 @@ from core.schemas.peoplefinder import (
     CreateProfileRequest,
     ProfileMinimalResponse,
     ProfileResponse,
+    TextChoiceResponseSchema,
     UkStaffLocationResponse,
     UpdateProfileRequest,
 )
@@ -184,4 +185,24 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     except Exception as unknown_error:
         return 404, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
+        }
+
+
+@reference_router.get(
+    "remote_working/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_remote_working(request):
+    try:
+        remote_working_options = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_remote_working()
+        ]
+        return 200, remote_working_options
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get remote working options, reason: {unknown_error}"
         }
