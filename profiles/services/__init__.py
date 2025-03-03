@@ -9,7 +9,7 @@ from django.db import models
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import Workday
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     LearningInterest,
     PeopleFinderProfile,
@@ -438,3 +438,10 @@ def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     Gets all learning interests
     """
     return peoplefinder.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Gets all professions
+    """
+    return peoplefinder.get_professions()

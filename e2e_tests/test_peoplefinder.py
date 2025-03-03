@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest
 from profiles.models import LearningInterest, Workday
+from profiles.models.generic import Profession
 from profiles.models.peoplefinder import RemoteWorking
 
 
@@ -253,4 +254,51 @@ def test_get_learning_interest(mocker):
     assert response.status_code == 500
     assert json.loads(response.content) == {
         "message": "Could not get learning interests, reason: mocked-test-exception"
+    }
+
+
+def test_get_professions(mocker):
+    url = reverse("people-finder:get_professions")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert json.loads(response.content) == [
+        {"key": key, "value": value} for key, value in Profession.choices
+    ]
+
+    mocker.patch(
+        "core.services.get_professions",
+        return_value={
+            "COMMERCIAL": "Government commercial and contract management",
+            "CORP_FINANCE": "Corporate finance profession",
+            "COUNTER_FRAUD": "Counter-fraud standards and profession",
+            "DIGITAL_DATA_TECH": "Digital, data and technology profession",
+            "GOV_COMMS": "Government communication service",
+        },
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get professions, reason: too many values to unpack (expected 2)"
+    }
+
+    mocker.patch(
+        "core.services.get_professions", side_effect=Exception("mocked-test-exception")
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get professions, reason: mocked-test-exception"
     }

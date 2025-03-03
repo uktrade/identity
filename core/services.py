@@ -5,7 +5,7 @@ from typing import Optional
 from profiles import services as profile_services
 from profiles.models import LearningInterest, Workday
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Profession, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
@@ -318,3 +318,10 @@ def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     Function for getting a list of all learning interests
     """
     return profile_services.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Function for getting a list of all professions
+    """
+    return profile_services.get_professions()

@@ -243,3 +243,21 @@ def get_learning_interests(request):
         return 500, {
             "message": f"Could not get learning interests, reason: {unknown_error}"
         }
+
+
+@reference_router.get(
+    "professions/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_professions(request):
+    try:
+        professions = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_professions()
+        ]
+        return 200, professions
+    except Exception as unknown_error:
+        return 500, {"message": f"Could not get professions, reason: {unknown_error}"}

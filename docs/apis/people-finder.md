@@ -9,3 +9,4 @@ The ID service exposes an API that provides read and edit functionality designed
 `remote_working/` : lists remote working options
 `workdays/` : lists workday options
 `learning_interests/` : lists learning interests
+`professions/` : lists professions
