@@ -225,3 +225,23 @@ def get_workday(request):
         return 500, {
             "message": f"Could not get workday options, reason: {unknown_error}"
         }
+
+
+@reference_router.get(
+    "learning_interest/",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_learning_interest(request):
+    try:
+        learning_interest_options = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_learning_interest()
+        ]
+        return 200, learning_interest_options
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get learning interest options, reason: {unknown_error}"
+        }

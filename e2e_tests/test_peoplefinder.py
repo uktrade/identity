@@ -6,7 +6,7 @@ from django.test.client import Client
 from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest
-from profiles.models import Workday
+from profiles.models import LearningInterest, Workday
 from profiles.models.peoplefinder import RemoteWorking
 
 
@@ -202,4 +202,55 @@ def test_get_workday(mocker):
     assert response.status_code == 500
     assert json.loads(response.content) == {
         "message": "Could not get workday options, reason: mocked-test-exception"
+    }
+
+
+def test_get_learning_interest(mocker):
+    url = reverse("people-finder:get_learning_interest")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert json.loads(response.content) == [
+        {"key": key, "value": value} for key, value in LearningInterest.choices
+    ]
+
+    mocker.patch(
+        "core.services.get_learning_interest",
+        return_value={
+            "Work shadowing": "Shadowing",
+            "Mentoring": "Mentoring",
+            "Research": "Research",
+            "Overseas posts": "Overseas Posts",
+            "Secondment": "Secondment",
+            "Parliamentary work": "Parliamentary Work",
+            "Ministerial submissions": "Ministerial Submissions",
+            "Coding": "Coding",
+        },
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get learning interest options, reason: too many values to unpack (expected 2)"
+    }
+
+    mocker.patch(
+        "core.services.get_learning_interest",
+        side_effect=Exception("mocked-test-exception"),
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get learning interest options, reason: mocked-test-exception"
     }

@@ -6,7 +6,7 @@ from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
 from profiles.exceptions import ProfileExists
-from profiles.models import Workday
+from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Email, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset
@@ -455,3 +455,10 @@ def get_workday() -> list[tuple[Workday, str]]:
     Gets all workday options
     """
     return Workday.choices
+
+
+def get_learning_interest() -> list[tuple[Workday, str]]:
+    """
+    Gets all learning interest options
+    """
+    return LearningInterest.choices

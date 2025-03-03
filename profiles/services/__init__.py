@@ -427,3 +427,10 @@ def get_workday() -> list[tuple[Workday, str]]:
     Gets all workday options
     """
     return peoplefinder.get_workday()
+
+
+def get_learning_interest() -> list[tuple[Workday, str]]:
+    """
+    Gets all learning interest options
+    """
+    return peoplefinder.get_learning_interest()

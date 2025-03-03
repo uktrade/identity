@@ -164,3 +164,20 @@ def test_get_workday_options():
         ("Saturday", "Sat"),
         ("Sunday", "Sun"),
     ]
+
+
+def test_get_learning_interest_options():
+    options = peoplefinder_services.get_learning_interest()
+
+    print(options)
+
+    assert options == [
+        ("Work shadowing", "Shadowing"),
+        ("Mentoring", "Mentoring"),
+        ("Research", "Research"),
+        ("Overseas posts", "Overseas Posts"),
+        ("Secondment", "Secondment"),
+        ("Parliamentary work", "Parliamentary Work"),
+        ("Ministerial submissions", "Ministerial Submissions"),
+        ("Coding", "Coding"),
+    ]
