@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from conftest import peoplefinder_profile
 from profiles import services as profile_services
+from profiles.models import LearningInterest, Workday
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.generic import Country, Profession, UkStaffLocation
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 
@@ -59,14 +59,14 @@ def create_peoplefinder_profile(
     grade: Optional[str] = None,
     manager_slug: Optional[str] = None,
     workdays: Optional[list[str]] = None,
-    remote_working: Optional[list[str]] = None,
-    usual_office_days: Optional[list[str]] = None,
+    remote_working: Optional[str] = None,
+    usual_office_days: Optional[str] = None,
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
     country_id: Optional[str] = None,
     professions: Optional[list[str]] = None,
-    additional_roles: Optional[str] = None,
+    additional_roles: Optional[list[str]] = None,
     key_skills: Optional[list[str]] = None,
     other_key_skills: Optional[str] = None,
     learning_interests: Optional[list[str]] = None,
@@ -293,4 +293,35 @@ def get_countries() -> list[Country]:
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Function for getting a list of all UK staff locations
+    """
     return profile_services.get_uk_staff_locations()
+
+
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Function for getting a list of all remote working options
+    """
+    return profile_services.get_remote_working()
+
+
+def get_workdays() -> list[tuple[Workday, str]]:
+    """
+    Function for getting a list of all workdays
+    """
+    return profile_services.get_workdays()
+
+
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
+    """
+    Function for getting a list of all learning interests
+    """
+    return profile_services.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Function for getting a list of all professions
+    """
+    return profile_services.get_professions()

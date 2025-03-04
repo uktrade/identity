@@ -5,8 +5,10 @@ from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.models.generic import Country, Email, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.exceptions import ProfileExists
+from profiles.models import LearningInterest, Workday
+from profiles.models.generic import Country, Email, Profession, UkStaffLocation
+from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
 from profiles.types import UNSET, Unset
 
 
@@ -52,14 +54,14 @@ def create(
     grade: Optional[str] = None,
     manager_slug: Optional[str] = None,
     workdays: Optional[list[str]] = None,
-    remote_working: Optional[list[str]] = None,
-    usual_office_days: Optional[list[str]] = None,
+    remote_working: Optional[str] = None,
+    usual_office_days: Optional[str] = None,
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
     country_id: Optional[str] = None,
     professions: Optional[list[str]] = None,
-    additional_roles: Optional[str] = None,
+    additional_roles: Optional[list[str]] = None,
     key_skills: Optional[list[str]] = None,
     other_key_skills: Optional[str] = None,
     learning_interests: Optional[list[str]] = None,
@@ -68,45 +70,49 @@ def create(
     intermediate_languages: Optional[str] = None,
     previous_experience: Optional[str] = None,
 ) -> PeopleFinderProfile:
-    return PeopleFinderProfile.objects.create(
-        slug=slug,
-        user=user,
-        is_active=is_active,
-        became_inactive=became_inactive,
-        edited_or_confirmed_at=edited_or_confirmed_at,
-        login_count=login_count,
-        first_name=first_name,
-        preferred_first_name=preferred_first_name,
-        last_name=last_name,
-        pronouns=pronouns,
-        name_pronunciation=name_pronunciation,
-        email=set_email_details(address=email_address),
-        contact_email=set_email_details(address=contact_email_address),
-        primary_phone_number=primary_phone_number,
-        secondary_phone_number=secondary_phone_number,
-        photo=photo,
-        photo_small=photo_small,
-        grade=grade,
-        manager=set_manager(manager_slug=manager_slug),
-        workdays=workdays,
-        remote_working=remote_working,
-        usual_office_days=usual_office_days,
-        uk_office_location=set_uk_office_location(
-            uk_office_location_id=uk_office_location_id
-        ),
-        location_in_building=location_in_building,
-        international_building=international_building,
-        country=set_country(country_id=country_id),
-        professions=professions,
-        additional_roles=additional_roles,
-        key_skills=key_skills,
-        other_key_skills=other_key_skills,
-        learning_interests=learning_interests,
-        other_learning_interests=other_learning_interests,
-        fluent_languages=fluent_languages,
-        intermediate_languages=intermediate_languages,
-        previous_experience=previous_experience,
-    )
+    try:
+        PeopleFinderProfile.objects.get(slug=slug)
+        raise ProfileExists("Profile has been previously created")
+    except PeopleFinderProfile.DoesNotExist:
+        return PeopleFinderProfile.objects.create(
+            slug=slug,
+            user=user,
+            is_active=is_active,
+            became_inactive=became_inactive,
+            edited_or_confirmed_at=edited_or_confirmed_at,
+            login_count=login_count,
+            first_name=first_name,
+            preferred_first_name=preferred_first_name,
+            last_name=last_name,
+            pronouns=pronouns,
+            name_pronunciation=name_pronunciation,
+            email=set_email_details(address=email_address),
+            contact_email=set_email_details(address=contact_email_address),
+            primary_phone_number=primary_phone_number,
+            secondary_phone_number=secondary_phone_number,
+            photo=photo,
+            photo_small=photo_small,
+            grade=grade,
+            manager=set_manager(manager_slug=manager_slug),
+            workdays=workdays,
+            remote_working=remote_working,
+            usual_office_days=usual_office_days,
+            uk_office_location=set_uk_office_location(
+                uk_office_location_id=uk_office_location_id
+            ),
+            location_in_building=location_in_building,
+            international_building=international_building,
+            country=set_country(country_id=country_id),
+            professions=professions,
+            additional_roles=additional_roles,
+            key_skills=key_skills,
+            other_key_skills=other_key_skills,
+            learning_interests=learning_interests,
+            other_learning_interests=other_learning_interests,
+            fluent_languages=fluent_languages,
+            intermediate_languages=intermediate_languages,
+            previous_experience=previous_experience,
+        )
 
 
 def update(
@@ -431,4 +437,35 @@ def get_countries() -> list[Country]:
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Gets all UK staff locations
+    """
     return list(UkStaffLocation.objects.all())
+
+
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Gets all remote working options
+    """
+    return RemoteWorking.choices
+
+
+def get_workdays() -> list[tuple[Workday, str]]:
+    """
+    Gets all workdays
+    """
+    return Workday.choices
+
+
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
+    """
+    Gets all learning interests
+    """
+    return LearningInterest.choices
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Gets all professions
+    """
+    return Profession.choices

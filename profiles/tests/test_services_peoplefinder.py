@@ -5,6 +5,7 @@ from django.contrib.admin.models import LogEntry
 
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Country, Grade, UkStaffLocation
+from profiles.models.peoplefinder import RemoteWorking
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
@@ -139,3 +140,79 @@ def test_get_uk_staff_locations():
         "organisation": "DBT",
         "building_name": "OAB",
     }.items() <= locations[0].__dict__.items()
+
+
+def test_get_remote_working_options():
+    options = peoplefinder_services.get_remote_working()
+
+    assert options == [
+        ("office_worker", "Office Worker"),
+        ("remote_worker", "Remote Worker"),
+        ("split", "Split"),
+    ]
+
+
+def test_get_workday_options():
+    options = peoplefinder_services.get_workdays()
+
+    assert options == [
+        ("Monday", "Mon"),
+        ("Tuesday", "Tue"),
+        ("Wednesday", "Wed"),
+        ("Thursday", "Thu"),
+        ("Friday", "Fri"),
+        ("Saturday", "Sat"),
+        ("Sunday", "Sun"),
+    ]
+
+
+def test_get_learning_interest_options():
+    options = peoplefinder_services.get_learning_interests()
+
+    assert options == [
+        ("Work shadowing", "Shadowing"),
+        ("Mentoring", "Mentoring"),
+        ("Research", "Research"),
+        ("Overseas posts", "Overseas Posts"),
+        ("Secondment", "Secondment"),
+        ("Parliamentary work", "Parliamentary Work"),
+        ("Ministerial submissions", "Ministerial Submissions"),
+        ("Coding", "Coding"),
+    ]
+
+
+def test_get_professions():
+    options = peoplefinder_services.get_professions()
+
+    assert options == [
+        ("Government commercial and contract management", "Commercial"),
+        ("Corporate finance profession", "Corp Finance"),
+        ("Counter-fraud standards and profession", "Counter Fraud"),
+        ("Digital, data and technology profession", "Digital Data Tech"),
+        ("Government communication service", "Gov Comms"),
+        ("Government economic service", "Gov Economics"),
+        ("Government finance profession", "Gov Finance"),
+        ("Government IT profession", "Gov It"),
+        ("Government knowledge and information management profession", "Gov Knowledge"),
+        ("Government legal service", "Gov Legal"),
+        ("Government occupational psychology profession", "Gov Occupational"),
+        ("Government operational research service", "Gov Operational"),
+        ("Government planning inspectors", "Gov Planning Inspectors"),
+        ("Government planning profession", "Gov Planning Profession"),
+        ("Government property profession", "Gov Property"),
+        ("Government security profession", "Gov Security"),
+        ("Government science and engineering profession", "Gov Science"),
+        ("Government social research profession", "Gov Social"),
+        ("Government statistical service profession", "Gov Statistical"),
+        ("Government tax profession", "Gov Tax"),
+        ("Government veterinary profession", "Gov Vet"),
+        ("Human resources profession", "Human Resources"),
+        ("Intelligence analysis", "Intelligence Analysis"),
+        ("Internal audit profession", "Internal Audit"),
+        ("Medical profession", "Medical Profession"),
+        ("Operational delivery profession", "Operation Delivery"),
+        ("Policy profession", "Policy Profiession"),
+        ("Procurement profession", "Procurement Profession"),
+        ("Project delivery profession", "Project Delivery"),
+        ("International trade profession", "International Trade"),
+    ]

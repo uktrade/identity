@@ -7,9 +7,14 @@ from typing import Optional
 from django.db import models
 
 from profiles.exceptions import NonCombinedProfileExists
+from profiles.models import Workday
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.generic import Country, Profession, UkStaffLocation
+from profiles.models.peoplefinder import (
+    LearningInterest,
+    PeopleFinderProfile,
+    RemoteWorking,
+)
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, peoplefinder, staff_sso
 from profiles.types import Unset
@@ -157,14 +162,14 @@ def create_from_peoplefinder(
     grade: Optional[str] = None,
     manager_slug: Optional[str] = None,
     workdays: Optional[list[str]] = None,
-    remote_working: Optional[list[str]] = None,
-    usual_office_days: Optional[list[str]] = None,
+    remote_working: Optional[str] = None,
+    usual_office_days: Optional[str] = None,
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
     country_id: Optional[str] = None,
     professions: Optional[list[str]] = None,
-    additional_roles: Optional[str] = None,
+    additional_roles: Optional[list[str]] = None,
     key_skills: Optional[list[str]] = None,
     other_key_skills: Optional[str] = None,
     learning_interests: Optional[list[str]] = None,
@@ -408,4 +413,35 @@ def get_countries() -> list[Country]:
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
+    """
+    Gets all UK staff locations
+    """
     return peoplefinder.get_uk_staff_locations()
+
+
+def get_remote_working() -> list[tuple[RemoteWorking, str]]:
+    """
+    Gets all remote working options
+    """
+    return peoplefinder.get_remote_working()
+
+
+def get_workdays() -> list[tuple[Workday, str]]:
+    """
+    Gets all workdays
+    """
+    return peoplefinder.get_workdays()
+
+
+def get_learning_interests() -> list[tuple[LearningInterest, str]]:
+    """
+    Gets all learning interests
+    """
+    return peoplefinder.get_learning_interests()
+
+
+def get_professions() -> list[tuple[Profession, str]]:
+    """
+    Gets all professions
+    """
+    return peoplefinder.get_professions()
