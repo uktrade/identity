@@ -6,7 +6,6 @@ from profiles import services
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
-from profiles.models.generic import Country
 from profiles.models.staff_sso import StaffSSOProfile
 
 
@@ -205,3 +204,26 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
             include_inactive=True,
         )
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
+
+
+def test_create_peoplefinder_team(mocker):
+    mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.create_team")
+    services.create_peoplefinder_team(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="Portfolio",
+    )
+
+    mock_pf_create_team.assert_called_once_with(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="Portfolio",
+    )
