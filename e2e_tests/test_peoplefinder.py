@@ -5,7 +5,7 @@ import pytest
 from django.test.client import Client
 from django.urls import reverse
 
-from core.schemas.peoplefinder import CreateProfileRequest
+from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Profession, UkStaffLocation
 from profiles.models.peoplefinder import RemoteWorking
@@ -107,6 +107,47 @@ def test_create(combined_profile):
             }
         ]
     }
+
+
+def test_update(combined_profile, peoplefinder_profile):
+    client = Client()
+    update_request = UpdateProfileRequest(
+        sso_email_id=combined_profile.sso_email_id,
+        first_name="Alison",
+    )
+    url = reverse(
+        "people-finder:update_profile", args=(str(peoplefinder_profile.slug),)
+    )
+
+    # Update an existing PF Profile
+    response = client.put(
+        url, data=update_request.model_dump_json(), content_type="application/json"
+    )
+
+    # Profile update returns 200 OK
+    assert response.status_code == 200
+    profile_response = response.json()
+
+    # Profile input values match returned values
+    assert profile_response["sso_email_id"] == update_request.sso_email_id
+    assert profile_response["slug"] == peoplefinder_profile.slug
+    assert profile_response["first_name"] == update_request.first_name
+
+    # Try to update profile that doesn't exist
+    wrong_uuid = str(uuid.uuid4())
+    update_request = UpdateProfileRequest(
+        sso_email_id=combined_profile.sso_email_id,
+        first_name="Alison",
+    )
+    url = reverse("people-finder:update_profile", args=(str(wrong_uuid),))
+
+    response = client.put(
+        url, data=update_request.model_dump_json(), content_type="application/json"
+    )
+
+    assert response.status_code == 404
+    response_json = response.json()
+    assert response_json == {"message": "People finder profile does not exist"}
 
 
 def test_get_countries(mocker):

@@ -25,7 +25,7 @@ router.add_router("reference", reference_router)
 
 
 @profile_router.get(
-    "{slug}",
+    "{slug}/",
     response={
         200: ProfileMinimalResponse,
         404: Error,
@@ -41,10 +41,11 @@ def get_profile(request, slug: str):
         }
 
 
-@profile_router.post("", response={201: ProfileResponse, 404: Error, 409: Error})
+@profile_router.post("/", response={201: ProfileResponse, 404: Error, 409: Error})
 def create_profile(
     request, profile_request: CreateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
+    """Endpoint to create a new people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
@@ -95,10 +96,11 @@ def create_profile(
         }
 
 
-@profile_router.put("{slug}", response={200: ProfileResponse, 404: Error})
+@profile_router.put("{slug}/", response={200: ProfileResponse, 404: Error})
 def update_profile(
     request, slug: str, profile_request: UpdateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
+    """Endpoint to update an existing people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
