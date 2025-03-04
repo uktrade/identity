@@ -215,7 +215,7 @@ def test_create_peoplefinder_team(mocker):
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
         leaders_ordering="custom",
         cost_code="EX_cost_code",
-        team_type="Portfolio",
+        team_type="portfolio",
     )
 
     mock_pf_create_team.assert_called_once_with(
@@ -225,5 +225,5 @@ def test_create_peoplefinder_team(mocker):
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
         leaders_ordering="custom",
         cost_code="EX_cost_code",
-        team_type="Portfolio",
+        team_type="portfolio",
     )
