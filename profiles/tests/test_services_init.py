@@ -169,6 +169,29 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
     # TODO: Update test - Check for combined_profile updates after adding the functionality.
 
 
+def test_update_peoplefinder_team(mocker, peoplefinder_team):
+    mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.update_team")
+    services.update_peoplefinder_team(
+        slug=peoplefinder_team.slug,
+        name=peoplefinder_team.name,
+        abbreviation=peoplefinder_team.abbreviation,
+        description="New description",
+        leaders_ordering=peoplefinder_team.leaders_ordering,
+        cost_code=peoplefinder_team.cost_code,
+        team_type=peoplefinder_team.team_type,
+    )
+
+    mock_pft_update_team.assert_called_once_with(
+        peoplefinder_team=peoplefinder_team,
+        name=peoplefinder_team.name,
+        abbreviation=peoplefinder_team.abbreviation,
+        description="New description",
+        leaders_ordering=peoplefinder_team.leaders_ordering,
+        cost_code=peoplefinder_team.cost_code,
+        team_type=peoplefinder_team.team_type,
+    )
+
+
 def test_delete_combined_profile(combined_profile, sso_profile) -> None:
     all_profiles = services.get_all_profiles(sso_email_id=combined_profile.sso_email_id)
 

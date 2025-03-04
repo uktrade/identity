@@ -221,3 +221,23 @@ def test_update_peoplefinder_profile(combined_profile, peoplefinder_profile, man
             uk_office_location_id="location_1",
             manager_slug=manager.slug,
         )
+
+
+def test_update_peoplefinder_team(peoplefinder_team):
+    services.update_peoplefinder_team(
+        slug=peoplefinder_team.slug,
+        name="New Name",
+        abbreviation="NABV",
+        description="New Desc",
+        leaders_ordering="custom",
+        cost_code="CC123",
+        team_type="Directorate",
+    )
+
+    peoplefinder_team.refresh_from_db()
+    assert peoplefinder_team.name == "New Name"
+    assert peoplefinder_team.abbreviation == "NABV"
+    assert peoplefinder_team.description == "New Desc"
+    assert peoplefinder_team.cost_code == "CC123"
+    assert peoplefinder_team.leaders_ordering == "custom"
+    assert peoplefinder_team.team_type == "Directorate"

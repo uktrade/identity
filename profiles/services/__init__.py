@@ -302,6 +302,27 @@ def update_from_peoplefinder(
     # TODO: Update combined profile here as well
 
 
+def update_peoplefinder_team(
+    slug: str,
+    name: Optional[str | Unset] = None,
+    abbreviation: Optional[str | Unset] = None,
+    description: Optional[str | Unset] = None,
+    leaders_ordering: Optional[str | Unset] = None,
+    cost_code: Optional[str | Unset] = None,
+    team_type: Optional[str | Unset] = None,
+) -> None:
+    peoplefinder_team = peoplefinder.get_team_by_slug(slug=slug)
+    peoplefinder.update_team(
+        peoplefinder_team=peoplefinder_team,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )
+
+
 def delete_combined_profile(all_profiles: dict) -> None:
     # check and delete if combined profile is the only profile left for user
     if len(all_profiles) == 1 and "combined" in all_profiles:
