@@ -201,6 +201,26 @@ def update_peoplefinder_profile(
     )
 
 
+def update_peoplefinder_team(
+    slug: str,
+    name: Optional[str | Unset] = None,
+    abbreviation: Optional[str | Unset] = None,
+    description: Optional[str | Unset] = None,
+    leaders_ordering: Optional[str | Unset] = None,
+    cost_code: Optional[str | Unset] = None,
+    team_type: Optional[str | Unset] = None,
+) -> None:
+    profile_services.update_peoplefinder_team(
+        slug=slug,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )
+
+
 def create_identity(
     id: str,
     first_name: str,
