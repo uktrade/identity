@@ -5,10 +5,16 @@ from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.exceptions import ProfileExists
+from profiles.exceptions import ProfileExists, TeamExists
 from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Email, Profession, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
+from profiles.models.peoplefinder import (
+    PeopleFinderProfile,
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamType,
+    RemoteWorking,
+)
 from profiles.types import UNSET, Unset
 
 
@@ -469,3 +475,33 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return Profession.choices
+
+
+def create_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Creates a people finder team
+    """
+    try:
+        PeopleFinderTeam.objects.get(slug=slug)
+        raise TeamExists("Team has been previously created")
+    except PeopleFinderTeam.DoesNotExist:
+        team = PeopleFinderTeam(
+            slug=slug,
+            name=name,
+            abbreviation=abbreviation,
+            description=description,
+            leaders_ordering=leaders_ordering,
+            cost_code=cost_code,
+            team_type=team_type,
+        )
+        team.full_clean()
+        team.save()
+        return team

@@ -6,7 +6,13 @@ from profiles import services as profile_services
 from profiles.models import LearningInterest, Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Profession, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile, RemoteWorking
+from profiles.models.peoplefinder import (
+    PeopleFinderProfile,
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamType,
+    RemoteWorking,
+)
 from profiles.types import UNSET, Unset  # noqa
 from user import services as user_services
 
@@ -325,3 +331,26 @@ def get_professions() -> list[tuple[Profession, str]]:
     Function for getting a list of all professions
     """
     return profile_services.get_professions()
+
+
+def create_peoplefinder_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Function to create a people finder team
+    """
+    return profile_services.create_peoplefinder_team(
+        slug=slug,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )

@@ -14,6 +14,7 @@ from core.services import (
     SSO_USER_STATUS,
 )
 from profiles import services as profile_services
+from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email
@@ -221,3 +222,30 @@ def test_update_peoplefinder_profile(combined_profile, peoplefinder_profile, man
             uk_office_location_id="location_1",
             manager_slug=manager.slug,
         )
+
+
+def test_create_peoplefinder_team_core_services():
+    # Create a peoplefinder team
+    services.create_peoplefinder_team(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="portfolio",
+    )
+
+    # Try to create a team with the same slug
+    with pytest.raises(TeamExists) as ex:
+        services.create_peoplefinder_team(
+            slug="employee-experience",
+            name="Employees' Experiences",
+            abbreviation="EXs",
+            description="We support employees' experiences",
+            leaders_ordering="alphabetical",
+            cost_code="EXs_cost_code",
+            team_type="portfolio",
+        )
+
+    assert ex.value.args[0] == "Team has been previously created"
