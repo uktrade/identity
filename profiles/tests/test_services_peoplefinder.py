@@ -2,10 +2,11 @@ import uuid
 
 import pytest
 from django.contrib.admin.models import LogEntry
+from django.core.exceptions import ValidationError
 
+from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
-from profiles.models.generic import Country, Grade, UkStaffLocation
-from profiles.models.peoplefinder import RemoteWorking
+from profiles.models.generic import UkStaffLocation
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
@@ -235,3 +236,42 @@ def test_get_professions():
         ("Project delivery profession", "Project Delivery"),
         ("International trade profession", "International Trade"),
     ]
+
+
+def test_create_team():
+    # Create a peoplefinder team
+    peoplefinder_services.create_team(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="portfolio",
+    )
+
+    # Try to create a team with the same slug
+    with pytest.raises(TeamExists) as ex:
+        peoplefinder_services.create_team(
+            slug="employee-experience",
+            name="Employees' Experiences",
+            abbreviation="EXs",
+            description="We support employees' experiences",
+            leaders_ordering="alphabetical",
+            cost_code="EXs_cost_code",
+            team_type="portfolio",
+        )
+
+    assert ex.value.args[0] == "Team has been previously created"
+
+    # Try to create a team with a wrong team type
+    with pytest.raises(ValidationError):
+        peoplefinder_services.create_team(
+            slug="software-development",
+            name="Software Development",
+            abbreviation="SD",
+            description="We build, maintain, and support a growing number of services in DBT",
+            leaders_ordering="alphabetical",
+            cost_code="SD_cost_code",
+            team_type="Folio",
+        )

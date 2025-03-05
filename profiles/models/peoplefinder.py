@@ -372,10 +372,10 @@ class PeopleFinderTeamLeadersOrdering(models.TextChoices):
     CUSTOM = "custom", "Custom"
 
 
-class PeopleFinderTeamTypes(models.TextChoices):
-    STANDARD = "Standard"
-    DIRECTORATE = "Directorate"
-    PORTFOLIO = "Portfolio"
+class PeopleFinderTeamType(models.TextChoices):
+    STANDARD = "standard", "Standard"
+    DIRECTORATE = "directorate", "Directorate"
+    PORTFOLIO = "portfolio", "Portfolio"
 
 
 class PeopleFinderTeam(AbstractHistoricalModel):
@@ -412,8 +412,8 @@ class PeopleFinderTeam(AbstractHistoricalModel):
     )
     team_type = models.CharField(
         max_length=20,
-        choices=PeopleFinderTeamTypes.choices,
-        default=PeopleFinderTeamTypes.STANDARD,
+        choices=PeopleFinderTeamType.choices,
+        default=PeopleFinderTeamType.STANDARD,
         blank=True,
     )
 

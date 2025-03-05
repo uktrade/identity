@@ -13,6 +13,9 @@ from profiles.models.generic import Country, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     LearningInterest,
     PeopleFinderProfile,
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamType,
     RemoteWorking,
 )
 from profiles.models.staff_sso import StaffSSOProfile
@@ -466,3 +469,26 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return peoplefinder.get_professions()
+
+
+def create_peoplefinder_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Creates a people finder team
+    """
+    return peoplefinder.create_team(
+        slug=slug,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )
