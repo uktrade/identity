@@ -389,6 +389,59 @@ def update(
     peoplefinder_profile.save(update_fields=update_fields)
 
 
+def delete_from_database(
+    peoplefinder_profile: PeopleFinderProfile,
+    reason: Optional[str] = None,
+    requesting_user: Optional[User] = None,
+) -> None:
+    """Really delete a People Finder Profile"""
+    if reason is None:
+        reason = "Deleting People Finder Profile record"
+    requesting_user_id = "via-api"
+    if requesting_user is not None:
+        requesting_user_id = requesting_user.pk
+    LogEntry.objects.log_action(
+        user_id=requesting_user_id,
+        content_type_id=get_content_type_for_model(peoplefinder_profile).pk,
+        object_id=peoplefinder_profile.pk,
+        object_repr=str(peoplefinder_profile),
+        change_message=reason,
+        action_flag=DELETION,
+    )
+
+    peoplefinder_profile.delete()
+
+
+def create_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Creates a people finder team
+    """
+    try:
+        PeopleFinderTeam.objects.get(slug=slug)
+        raise TeamExists("Team has been previously created")
+    except PeopleFinderTeam.DoesNotExist:
+        team = PeopleFinderTeam(
+            slug=slug,
+            name=name,
+            abbreviation=abbreviation,
+            description=description,
+            leaders_ordering=leaders_ordering,
+            cost_code=cost_code,
+            team_type=team_type,
+        )
+        team.full_clean()
+        team.save()
+        return team
+
+
 def update_team(
     peoplefinder_team: PeopleFinderTeam,
     name: Optional[str | Unset] = None,
@@ -472,29 +525,6 @@ def set_country(country_id: str | None) -> Optional[Country]:
     return None
 
 
-def delete_from_database(
-    peoplefinder_profile: PeopleFinderProfile,
-    reason: Optional[str] = None,
-    requesting_user: Optional[User] = None,
-) -> None:
-    """Really delete a People Finder Profile"""
-    if reason is None:
-        reason = "Deleting People Finder Profile record"
-    requesting_user_id = "via-api"
-    if requesting_user is not None:
-        requesting_user_id = requesting_user.pk
-    LogEntry.objects.log_action(
-        user_id=requesting_user_id,
-        content_type_id=get_content_type_for_model(peoplefinder_profile).pk,
-        object_id=peoplefinder_profile.pk,
-        object_repr=str(peoplefinder_profile),
-        change_message=reason,
-        action_flag=DELETION,
-    )
-
-    peoplefinder_profile.delete()
-
-
 def get_countries() -> list[Country]:
     """
     Gets all countries service
@@ -535,33 +565,3 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return Profession.choices
-
-
-def create_team(
-    slug: str,
-    name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
-) -> PeopleFinderTeam:
-    """
-    Creates a people finder team
-    """
-    try:
-        PeopleFinderTeam.objects.get(slug=slug)
-        raise TeamExists("Team has been previously created")
-    except PeopleFinderTeam.DoesNotExist:
-        team = PeopleFinderTeam(
-            slug=slug,
-            name=name,
-            abbreviation=abbreviation,
-            description=description,
-            leaders_ordering=leaders_ordering,
-            cost_code=cost_code,
-            team_type=team_type,
-        )
-        team.full_clean()
-        team.save()
-        return team

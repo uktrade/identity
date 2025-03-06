@@ -305,27 +305,6 @@ def update_from_peoplefinder(
     # TODO: Update combined profile here as well
 
 
-def update_peoplefinder_team(
-    slug: str,
-    name: Optional[str | Unset] = None,
-    abbreviation: Optional[str | Unset] = None,
-    description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | Unset] = None,
-    cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | Unset] = None,
-) -> None:
-    peoplefinder_team = peoplefinder.get_team_by_slug(slug=slug)
-    peoplefinder.update_team(
-        peoplefinder_team=peoplefinder_team,
-        name=name,
-        abbreviation=abbreviation,
-        description=description,
-        leaders_ordering=leaders_ordering,
-        cost_code=cost_code,
-        team_type=team_type,
-    )
-
-
 def delete_combined_profile(all_profiles: dict) -> None:
     # check and delete if combined profile is the only profile left for user
     if len(all_profiles) == 1 and "combined" in all_profiles:
@@ -429,6 +408,50 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     return peoplefinder.get_by_slug(slug=slug)
 
 
+def create_peoplefinder_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Creates a people finder team
+    """
+    return peoplefinder.create_team(
+        slug=slug,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )
+
+
+def update_peoplefinder_team(
+    slug: str,
+    name: Optional[str | Unset] = None,
+    abbreviation: Optional[str | Unset] = None,
+    description: Optional[str | Unset] = None,
+    leaders_ordering: Optional[str | Unset] = None,
+    cost_code: Optional[str | Unset] = None,
+    team_type: Optional[str | Unset] = None,
+) -> None:
+    peoplefinder_team = peoplefinder.get_team_by_slug(slug=slug)
+    peoplefinder.update_team(
+        peoplefinder_team=peoplefinder_team,
+        name=name,
+        abbreviation=abbreviation,
+        description=description,
+        leaders_ordering=leaders_ordering,
+        cost_code=cost_code,
+        team_type=team_type,
+    )
+
+
 def get_countries() -> list[Country]:
     """
     Gets all countries service
@@ -469,26 +492,3 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return peoplefinder.get_professions()
-
-
-def create_peoplefinder_team(
-    slug: str,
-    name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
-) -> PeopleFinderTeam:
-    """
-    Creates a people finder team
-    """
-    return peoplefinder.create_team(
-        slug=slug,
-        name=name,
-        abbreviation=abbreviation,
-        description=description,
-        leaders_ordering=leaders_ordering,
-        cost_code=cost_code,
-        team_type=team_type,
-    )
