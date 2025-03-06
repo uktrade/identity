@@ -259,7 +259,7 @@ def test_update_peoplefinder_team(peoplefinder_team):
         description="New Desc",
         leaders_ordering="custom",
         cost_code="CC123",
-        team_type="Directorate",
+        team_type="directorate",
     )
 
     peoplefinder_team.refresh_from_db()
@@ -268,4 +268,4 @@ def test_update_peoplefinder_team(peoplefinder_team):
     assert peoplefinder_team.description == "New Desc"
     assert peoplefinder_team.cost_code == "CC123"
     assert peoplefinder_team.leaders_ordering == "custom"
-    assert peoplefinder_team.team_type == "Directorate"
+    assert peoplefinder_team.team_type == "directorate"

@@ -91,7 +91,7 @@ def peoplefinder_team():
         description="Team description",
         leaders_ordering="alphabetical",
         cost_code="CC1",
-        team_type="Standard",
+        team_type="standard",
     )
 
 

@@ -438,6 +438,7 @@ def update_team(
             peoplefinder_team.team_type = team_type
         update_fields.append("team_type")
 
+    peoplefinder_team.full_clean()
     peoplefinder_team.save(update_fields=update_fields)
 
 
