@@ -394,9 +394,9 @@ def update_team(
     name: Optional[str | Unset] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | Unset] = None,
+    leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | Unset] = None,
+    team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
 ) -> None:
 
     update_fields: list = []
