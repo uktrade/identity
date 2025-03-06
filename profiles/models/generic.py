@@ -23,8 +23,14 @@ class Grade(models.TextChoices):
     ADMIN_ASSISTANT = "admin_assistant", "Administrative assistant (AA)"
     ADMIN_OFFICER = "admin_officer", "Administrative officer (AO/A2)"
     EXECUTIVE_OFFICER = "executive_officer", "Executive officer (EO/B3)"
-    HIGHER_EXECUTIVE_OFFICER = "higher_executive_officer", "Higher executive officer (HEO/C4)"
-    SENIOR_EXECUTIVE_OFFICER = "senior_executive_officer", "Senior executive officer (SEO/C5)"
+    HIGHER_EXECUTIVE_OFFICER = (
+        "higher_executive_officer",
+        "Higher executive officer (HEO/C4)",
+    )
+    SENIOR_EXECUTIVE_OFFICER = (
+        "senior_executive_officer",
+        "Senior executive officer (SEO/C5)",
+    )
     GRADE_7 = "grade_7", "Grade 7 (G7/D6)"
     GRADE_6 = "grade_6", "Grade 6 (G6/D7)"
     SCS_1 = "scs_1", "Senior civil service 1 (SCS1/SMS1)"
@@ -34,7 +40,10 @@ class Grade(models.TextChoices):
     FAST_STREAM = "fast_stream", "Fast Stream"
     FAST_TRACK = "fast_track", "Fast Track"
     APPRENTICE = "apprentice", "Apprentice"
-    NON_GRADED_SPECIAL_ADVISOR = "non_graded_special_advisor", "Non graded - special advisor (SPAD)"
+    NON_GRADED_SPECIAL_ADVISOR = (
+        "non_graded_special_advisor",
+        "Non graded - special advisor (SPAD)",
+    )
     NON_GRADED_CONTRACTOR = "non_graded_contractor", "Non graded - contractor"
     NON_GRADED_SECONDEE = "non_graded_secondee", "Non graded - secondee"
     NON_GRADED_POST = "non_graded_post", "Non graded - post"
@@ -44,17 +53,29 @@ class Profession(models.TextChoices):
     COMMERCIAL = "commercial", "Government commercial and contract management"
     CORP_FINANCE = "corp_finance", "Corporate finance profession"
     COUNTER_FRAUD = "counter_fraud", "Counter-fraud standards and profession"
-    DIGITAL_DATA_TECH = "digital_data_tech", "digital, data and technology profession"
+    DIGITAL_DATA_TECH = "digital_data_tech", "Digital, data and technology profession"
     GOV_COMMS = "gov_comms", "Government communication service"
     GOV_ECONOMICS = "gov_economics", "Government economic service"
     GOV_FINANCE = "gov_finance", "Government finance profession"
     GOV_IT = "gov_it", "Government IT profession"
-    GOV_KNOWLEDGE = "gov_knowledge", "Government knowledge and information management profession"
+    GOV_KNOWLEDGE = (
+        "gov_knowledge",
+        "Government knowledge and information management profession",
+    )
     GOV_LEGAL = "gov_legal", "Government legal service"
-    GOV_OCCUPATIONAL = "gov_occupational", "Government occupational psychology profession"
+    GOV_OCCUPATIONAL = (
+        "gov_occupational",
+        "Government occupational psychology profession",
+    )
     GOV_OPERATIONAL = "gov_operational", "Government operational research service"
-    GOV_PLANNING_INSPECTORS = "gov_planning_inspectors", "Government planning inspectors"
-    GOV_PLANNING_PROFESSION = "gov_planning_profession", "Government planning profession"
+    GOV_PLANNING_INSPECTORS = (
+        "gov_planning_inspectors",
+        "Government planning inspectors",
+    )
+    GOV_PLANNING_PROFESSION = (
+        "gov_planning_profession",
+        "Government planning profession",
+    )
     GOV_PROPERTY = "gov_property", "Government property profession"
     GOV_SECURITY = "gov_security", "Government security profession"
     GOV_SCIENCE = "gov_science", "Government science and engineering profession"

@@ -166,8 +166,8 @@ def test_get_remote_working_options():
     options = peoplefinder_services.get_remote_working()
 
     assert options == [
-        ("office_worker", "Office Worker"),
-        ("remote_worker", "Remote Worker"),
+        ("office_worker", "Office worker"),
+        ("remote_worker", "Remote worker"),
         ("split", "Split"),
     ]
 
@@ -176,13 +176,13 @@ def test_get_workday_options():
     options = peoplefinder_services.get_workdays()
 
     assert options == [
-        ("Monday", "Mon"),
-        ("Tuesday", "Tue"),
-        ("Wednesday", "Wed"),
-        ("Thursday", "Thu"),
-        ("Friday", "Fri"),
-        ("Saturday", "Sat"),
-        ("Sunday", "Sun"),
+        ("mon", "Monday"),
+        ("tue", "Tuesday"),
+        ("wed", "Wednesday"),
+        ("thu", "Thursday"),
+        ("fri", "Friday"),
+        ("sat", "Saturday"),
+        ("sun", "Sunday"),
     ]
 
 
@@ -190,14 +190,14 @@ def test_get_learning_interest_options():
     options = peoplefinder_services.get_learning_interests()
 
     assert options == [
-        ("Work shadowing", "Shadowing"),
-        ("Mentoring", "Mentoring"),
-        ("Research", "Research"),
-        ("Overseas posts", "Overseas Posts"),
-        ("Secondment", "Secondment"),
-        ("Parliamentary work", "Parliamentary Work"),
-        ("Ministerial submissions", "Ministerial Submissions"),
-        ("Coding", "Coding"),
+        ("shadowing", "Work shadowing"),
+        ("mentoring", "Mentoring"),
+        ("research", "Research"),
+        ("overseas_posts", "Overseas posts"),
+        ("secondment", "Secondment"),
+        ("parliamentary_work", "Parliamentary work"),
+        ("ministerial_submissions", "Ministerial submissions"),
+        ("coding", "Coding"),
     ]
 
 
@@ -205,36 +205,36 @@ def test_get_professions():
     options = peoplefinder_services.get_professions()
 
     assert options == [
-        ("Government commercial and contract management", "Commercial"),
-        ("Corporate finance profession", "Corp Finance"),
-        ("Counter-fraud standards and profession", "Counter Fraud"),
-        ("Digital, data and technology profession", "Digital Data Tech"),
-        ("Government communication service", "Gov Comms"),
-        ("Government economic service", "Gov Economics"),
-        ("Government finance profession", "Gov Finance"),
-        ("Government IT profession", "Gov It"),
-        ("Government knowledge and information management profession", "Gov Knowledge"),
-        ("Government legal service", "Gov Legal"),
-        ("Government occupational psychology profession", "Gov Occupational"),
-        ("Government operational research service", "Gov Operational"),
-        ("Government planning inspectors", "Gov Planning Inspectors"),
-        ("Government planning profession", "Gov Planning Profession"),
-        ("Government property profession", "Gov Property"),
-        ("Government security profession", "Gov Security"),
-        ("Government science and engineering profession", "Gov Science"),
-        ("Government social research profession", "Gov Social"),
-        ("Government statistical service profession", "Gov Statistical"),
-        ("Government tax profession", "Gov Tax"),
-        ("Government veterinary profession", "Gov Vet"),
-        ("Human resources profession", "Human Resources"),
-        ("Intelligence analysis", "Intelligence Analysis"),
-        ("Internal audit profession", "Internal Audit"),
-        ("Medical profession", "Medical Profession"),
-        ("Operational delivery profession", "Operation Delivery"),
-        ("Policy profession", "Policy Profiession"),
-        ("Procurement profession", "Procurement Profession"),
-        ("Project delivery profession", "Project Delivery"),
-        ("International trade profession", "International Trade"),
+        ("commercial", "Government commercial and contract management"),
+        ("corp_finance", "Corporate finance profession"),
+        ("counter_fraud", "Counter-fraud standards and profession"),
+        ("digital_data_tech", "Digital, data and technology profession"),
+        ("gov_comms", "Government communication service"),
+        ("gov_economics", "Government economic service"),
+        ("gov_finance", "Government finance profession"),
+        ("gov_it", "Government IT profession"),
+        ("gov_knowledge", "Government knowledge and information management profession"),
+        ("gov_legal", "Government legal service"),
+        ("gov_occupational", "Government occupational psychology profession"),
+        ("gov_operational", "Government operational research service"),
+        ("gov_planning_inspectors", "Government planning inspectors"),
+        ("gov_planning_profession", "Government planning profession"),
+        ("gov_property", "Government property profession"),
+        ("gov_security", "Government security profession"),
+        ("gov_science", "Government science and engineering profession"),
+        ("gov_social", "Government social research profession"),
+        ("gov_statistical", "Government statistical service profession"),
+        ("gov_tax", "Government tax profession"),
+        ("gov_vet", "Government veterinary profession"),
+        ("human_resources", "Human resources profession"),
+        ("intelligence_analysis", "Intelligence analysis"),
+        ("internal_audit", "Internal audit profession"),
+        ("medical_profession", "Medical profession"),
+        ("operation_delivery", "Operational delivery profession"),
+        ("policy_profiession", "Policy profession"),
+        ("procurement_profession", "Procurement profession"),
+        ("project_delivery", "Project delivery profession"),
+        ("international_trade", "International trade profession"),
     ]
 
 
