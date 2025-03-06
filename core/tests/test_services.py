@@ -249,3 +249,23 @@ def test_create_peoplefinder_team_core_services():
         )
 
     assert ex.value.args[0] == "Team has been previously created"
+
+
+def test_update_peoplefinder_team(peoplefinder_team):
+    services.update_peoplefinder_team(
+        slug=peoplefinder_team.slug,
+        name="New Name",
+        abbreviation="NABV",
+        description="New Desc",
+        leaders_ordering="custom",
+        cost_code="CC123",
+        team_type="directorate",
+    )
+
+    peoplefinder_team.refresh_from_db()
+    assert peoplefinder_team.name == "New Name"
+    assert peoplefinder_team.abbreviation == "NABV"
+    assert peoplefinder_team.description == "New Desc"
+    assert peoplefinder_team.cost_code == "CC123"
+    assert peoplefinder_team.leaders_ordering == "custom"
+    assert peoplefinder_team.team_type == "directorate"

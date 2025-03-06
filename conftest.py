@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.peoplefinder import PeopleFinderProfile, PeopleFinderTeam
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
 
 
@@ -79,6 +79,19 @@ def peoplefinder_profile(basic_user):
         key_skills=["coding"],
         learning_interests=["everything"],
         edited_or_confirmed_at=dt.datetime.now(),
+    )
+
+
+@pytest.fixture(scope="function")
+def peoplefinder_team():
+    return PeopleFinderTeam.objects.create(
+        slug="9c8d532c-3d44-40fd-a512-debd26af007f",
+        name="Team1Name",
+        abbreviation="T1N",
+        description="Team description",
+        leaders_ordering="alphabetical",
+        cost_code="CC1",
+        team_type="standard",
     )
 
 
