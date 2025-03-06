@@ -52,11 +52,14 @@ def create(
         raise ValueError("contact_email not in all_emails")
 
     user = user_services.get_by_id(sso_email_id=sso_email_id, include_inactive=True)
-    staff_sso_profile = StaffSSOProfile.objects.create(
+    staff_sso_profile = StaffSSOProfile(
         user=user,
         first_name=first_name,
         last_name=last_name,
     )
+
+    staff_sso_profile.full_clean()
+    staff_sso_profile.save()
 
     if reason is None:
         reason = "Creating new StaffSSOProfile"
@@ -122,6 +125,8 @@ def update(
     if last_name is not None:
         update_fields.append("last_name")
         staff_sso_profile.last_name = last_name
+
+    staff_sso_profile.full_clean()
     staff_sso_profile.save(update_fields=update_fields)
 
     # add / update staff sso email records

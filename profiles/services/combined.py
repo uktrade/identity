@@ -51,7 +51,7 @@ def create(
     try:
         get_by_id(sso_email_id=sso_email_id, include_inactive=True)
     except Profile.DoesNotExist:
-        profile = Profile.objects.create(
+        profile = Profile(
             sso_email_id=sso_email_id,
             first_name=first_name,
             last_name=last_name,
@@ -60,6 +60,8 @@ def create(
             contact_email=contact_email,
             is_active=is_active,
         )
+        profile.full_clean()
+        profile.save()
 
         if reason is None:
             reason = "Creating new Profile"
@@ -110,6 +112,7 @@ def update(
         update_fields.append("emails")
         profile.emails = all_emails
 
+    profile.full_clean()
     profile.save(update_fields=update_fields)
 
     if reason is None:
