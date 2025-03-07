@@ -5,7 +5,7 @@ from typing import Optional
 from profiles import services as profile_services
 from profiles.models import LearningInterest, Workday
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, Profession, UkStaffLocation
+from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     PeopleFinderProfile,
     PeopleFinderTeam,
@@ -142,7 +142,7 @@ def update_peoplefinder_profile(
     secondary_phone_number: Optional[str | Unset] = None,
     photo: Optional[str | Unset] = None,
     photo_small: Optional[str | Unset] = None,
-    grade: Optional[str | Unset] = None,
+    grade: Optional[Grade | Unset] = None,
     manager_slug: Optional[str | Unset] = None,
     not_employee: Optional[bool | Unset] = None,
     workdays: Optional[list[str] | Unset] = None,

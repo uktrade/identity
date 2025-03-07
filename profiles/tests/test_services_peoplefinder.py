@@ -56,7 +56,7 @@ def test_update(peoplefinder_profile, combined_profile):
     # Check the first_name last_name and grade before update
     assert peoplefinder_profile.first_name == "John"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "G7"
+    assert peoplefinder_profile.grade == "grade_7"
 
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,

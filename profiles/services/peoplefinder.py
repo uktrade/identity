@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from profiles.exceptions import ProfileExists, TeamExists
 from profiles.models import LearningInterest, PeopleFinderTeam, Workday
-from profiles.models.generic import Country, Email, Profession, UkStaffLocation
+from profiles.models.generic import Country, Email, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     PeopleFinderProfile,
     PeopleFinderTeam,
@@ -145,7 +145,7 @@ def update(
     secondary_phone_number: Optional[str | Unset] = None,
     photo: Optional[str | Unset] = None,
     photo_small: Optional[str | Unset] = None,
-    grade: Optional[str | Unset] = None,
+    grade: Optional[Grade | Unset] = None,
     manager_slug: Optional[str | Unset] = None,
     not_employee: Optional[bool | Unset] = None,
     workdays: Optional[list[str] | Unset] = None,

@@ -13,7 +13,7 @@ from core.schemas.peoplefinder import (
 )
 from profiles.exceptions import ProfileExists
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Grade, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderProfile
 
 
@@ -67,7 +67,7 @@ def create_profile(
             secondary_phone_number=profile_request.secondary_phone_number,
             photo=profile_request.photo,
             photo_small=profile_request.photo_small,
-            grade=profile_request.grade,
+            grade=Grade(profile_request.grade) if profile_request.grade else None,
             manager_slug=profile_request.manager_slug,
             workdays=profile_request.workdays,
             remote_working=profile_request.remote_working,
@@ -121,7 +121,7 @@ def update_profile(
             secondary_phone_number=profile_request.secondary_phone_number,
             photo=profile_request.photo,
             photo_small=profile_request.photo_small,
-            grade=profile_request.grade,
+            grade=Grade(profile_request.grade) if profile_request.grade else None,
             manager_slug=profile_request.manager_slug,
             not_employee=profile_request.not_employee,
             workdays=profile_request.workdays,

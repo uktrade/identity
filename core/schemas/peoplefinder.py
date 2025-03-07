@@ -8,7 +8,7 @@ from uuid import UUID
 from ninja import Field, ModelSchema, Schema
 
 from profiles.models import PeopleFinderProfile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, Grade, UkStaffLocation
 
 
 # Requests
@@ -91,7 +91,7 @@ class ProfileMinimalResponse(Schema):
     photo_small: Optional[
         str
     ]  # ImageField is represented as a string (file path or URL)
-    grade: Optional[str]
+    grade: Optional[Grade]
 
     @staticmethod
     def resolve_sso_email_id(obj: PeopleFinderProfile):
