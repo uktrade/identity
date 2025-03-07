@@ -37,7 +37,9 @@ def test_create(peoplefinder_profile):
         is_active=user.is_active,
         first_name="Tom",
         last_name="Doe",
-        grade="GRADE_7",
+        contact_email_address="contact_email@email.com",
+        email_address="email@email.com",
+        grade="FCO S2",
         country_id="CTHMTC00260",
         uk_office_location_id="test",
         manager_slug=manager.slug,
@@ -45,7 +47,7 @@ def test_create(peoplefinder_profile):
 
     assert peoplefinder_profile.first_name == "Tom"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "GRADE_7"
+    assert peoplefinder_profile.grade == "FCO S2"
     assert peoplefinder_profile.uk_office_location == UkStaffLocation.objects.get(
         code="test"
     )
@@ -56,7 +58,7 @@ def test_update(peoplefinder_profile, combined_profile):
     # Check the first_name last_name and grade before update
     assert peoplefinder_profile.first_name == "John"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "G7"
+    assert peoplefinder_profile.grade == "FCO S1"
 
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,

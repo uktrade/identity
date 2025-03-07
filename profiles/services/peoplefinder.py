@@ -87,7 +87,7 @@ def create(
         PeopleFinderProfile.objects.get(slug=slug)
         raise ProfileExists("Profile has been previously created")
     except PeopleFinderProfile.DoesNotExist:
-        return PeopleFinderProfile.objects.create(
+        peoplefinder_profile = PeopleFinderProfile(
             slug=slug,
             user=user,
             is_active=is_active,
@@ -126,6 +126,9 @@ def create(
             intermediate_languages=intermediate_languages,
             previous_experience=previous_experience,
         )
+        peoplefinder_profile.full_clean()
+        peoplefinder_profile.save()
+        return peoplefinder_profile
 
 
 def update(
@@ -386,6 +389,7 @@ def update(
         else:
             peoplefinder_profile.previous_experience = previous_experience
         update_fields.append("previous_experience")
+    peoplefinder_profile.full_clean()
     peoplefinder_profile.save(update_fields=update_fields)
 
 
