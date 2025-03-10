@@ -53,6 +53,7 @@ def combined_profile(sso_profile):
         first_name="John",
         last_name="Doe",
         primary_email="email2@email.com",
+        contact_email="email@email.com",
         emails=[
             "email1@email.com",
             "email2@email.com",
