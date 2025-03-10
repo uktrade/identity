@@ -134,10 +134,10 @@ def create(
 
 def update(
     peoplefinder_profile: PeopleFinderProfile,
-    is_active: bool,
+    is_active: Optional[bool] = None,
     became_inactive: Optional[datetime | Unset] = None,
     edited_or_confirmed_at: Optional[datetime | Unset] = None,
-    login_count: int = 0,
+    login_count: Optional[int] = None,
     first_name: Optional[str | Unset] = None,
     last_name: Optional[str | Unset] = None,
     preferred_first_name: Optional[str | Unset] = None,
@@ -151,14 +151,14 @@ def update(
     photo_small: Optional[str | Unset] = None,
     grade: Optional[Grade | Unset] = None,
     manager_slug: Optional[str | Unset] = None,
-    not_employee: bool = False,
+    not_employee: Optional[bool] = None,
     workdays: Optional[list[Workday] | Unset] = None,
     remote_working: Optional[RemoteWorking | Unset] = None,
     usual_office_days: Optional[str | Unset] = None,
     uk_office_location_id: Optional[str | Unset] = None,
     location_in_building: Optional[str | Unset] = None,
     international_building: Optional[str | Unset] = None,
-    country_id: str = "CTHMTC00260",
+    country_id: Optional[str] = None,
     professions: Optional[list[Profession] | Unset] = None,
     additional_roles: Optional[list[AdditionalRole] | Unset] = None,
     other_additional_roles: Optional[str | Unset] = None,
@@ -173,13 +173,21 @@ def update(
 
     update_fields: list = []
 
-    # Update non-optional fields
-    peoplefinder_profile.is_active = is_active
-    peoplefinder_profile.login_count = login_count
-    peoplefinder_profile.not_employee = not_employee
-    peoplefinder_profile.country = set_country(country_id=country_id)
-    update_fields.extend(["is_active", "login_count", "not_employee", "country"])
+    # Update fields that are required on the PeopleFinderProfile
+    if is_active:
+        peoplefinder_profile.is_active = is_active
+        update_fields.append("is_active")
+    if login_count:
+        peoplefinder_profile.login_count = login_count
+        update_fields.append("login_count")
+    if not_employee:
+        peoplefinder_profile.not_employee = not_employee
+        update_fields.append("not_employee")
+    if country_id:
+        peoplefinder_profile.country = set_country(country_id=country_id)
+        update_fields.append("country")
 
+    # Update fields that are optional on the PeopleFinderProfile
     if became_inactive is not None:
         if became_inactive is UNSET:
             peoplefinder_profile.became_inactive = None
@@ -380,6 +388,8 @@ def update(
         else:
             peoplefinder_profile.previous_experience = previous_experience
         update_fields.append("previous_experience")
+
+    # Save the changes to the PeopleFinderProfile
     peoplefinder_profile.save(update_fields=update_fields)
 
 
