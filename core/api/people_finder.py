@@ -173,9 +173,9 @@ def update_profile(
             ]
 
         key_skills_list: Unset | list[KeySkill]
-        if not profile_request.key_skills:
+        if profile_request.key_skills is None:
             key_skills_list = UNSET
-        elif profile_request.key_skills:
+        else:
             key_skills_list = [
                 KeySkill(key_skill) for key_skill in profile_request.key_skills
             ]
@@ -199,9 +199,9 @@ def update_profile(
                 else UNSET
             ),
             edited_or_confirmed_at=(
-                profile_request.edited_or_confirmed_at
-                if profile_request.edited_or_confirmed_at
-                else UNSET
+                UNSET
+                if profile_request.edited_or_confirmed_at is None
+                else profile_request.edited_or_confirmed_at
             ),
             login_count=profile_request.login_count,
             first_name=(
