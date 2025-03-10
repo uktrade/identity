@@ -1,4 +1,5 @@
 services:
+
   postgres:
     image: postgres:17
     environment:
@@ -36,6 +37,20 @@ services:
       - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
     stdin_open: true
     tty: true
+
+  celery:
+    image: identity/web:latest
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=psql://postgres:postgres@db:5432/fido
+      - CELERY_BROKER_URL=rediss://redis:redis@redis:6379/0
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
 
   api-peoplefinder:
     image: identity/main:latest
