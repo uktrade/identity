@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 
 from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Grade, UkStaffLocation
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
@@ -37,7 +37,7 @@ def test_create(peoplefinder_profile):
         is_active=user.is_active,
         first_name="Tom",
         last_name="Doe",
-        grade="GRADE_7",
+        grade=Grade("grade_7"),
         country_id="CTHMTC00260",
         uk_office_location_id="test",
         manager_slug=manager.slug,
@@ -45,7 +45,7 @@ def test_create(peoplefinder_profile):
 
     assert peoplefinder_profile.first_name == "Tom"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "GRADE_7"
+    assert peoplefinder_profile.grade == "grade_7"
     assert peoplefinder_profile.uk_office_location == UkStaffLocation.objects.get(
         code="test"
     )

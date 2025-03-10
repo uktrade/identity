@@ -6,9 +6,17 @@ from typing import List, Optional
 from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
+from pydantic import ConfigDict
 
 from profiles.models import PeopleFinderProfile
-from profiles.models.generic import Country, Grade, UkStaffLocation
+from profiles.models.generic import Country, Grade, Profession, UkStaffLocation, Workday
+from profiles.models.peoplefinder import (
+    AdditionalRole,
+    KeySkill,
+    LearningInterest,
+    RemoteWorking,
+)
+from profiles.types import Unset
 
 
 # Requests
@@ -20,7 +28,7 @@ class ProfileRequest(Schema):
     sso_email_id: str
     became_inactive: Optional[datetime] = None
     edited_or_confirmed_at: Optional[datetime] = None
-    login_count: Optional[int] = None
+    login_count: int = 0
     first_name: Optional[str] = None
     preferred_first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -32,22 +40,22 @@ class ProfileRequest(Schema):
     secondary_phone_number: Optional[str] = None
     photo: Optional[str] = None
     photo_small: Optional[str] = None
-    grade: Optional[str] = None
+    grade: Optional[Grade] = None
     manager_slug: Optional[str] = None
-    not_employee: Optional[bool] = None
-    workdays: Optional[List[str]] = None
-    remote_working: Optional[str] = None
+    not_employee: bool = False
+    workdays: Optional[List[Workday]] = None
+    remote_working: Optional[RemoteWorking] = None
     usual_office_days: Optional[str] = None
     uk_office_location_id: Optional[str] = None
     location_in_building: Optional[str] = None
     international_building: Optional[str] = None
-    country_id: Optional[str] = None
-    professions: Optional[List[str]] = None
-    additional_roles: Optional[list[str]] = None
+    country_id: str = "CTHMTC00260"
+    professions: Optional[List[Profession]] = None
+    additional_roles: Optional[list[AdditionalRole]] = None
     other_additional_roles: Optional[str] = None
-    key_skills: Optional[List[str]] = None
+    key_skills: Optional[List[KeySkill]] = None
     other_key_skills: Optional[str] = None
-    learning_interests: Optional[List[str]] = None
+    learning_interests: Optional[List[LearningInterest]] = None
     other_learning_interests: Optional[str] = None
     fluent_languages: Optional[str] = None
     intermediate_languages: Optional[str] = None
@@ -58,8 +66,6 @@ class CreateProfileRequest(ProfileRequest):
     """People Finder profile creation request"""
 
     slug: str
-    login_count: Optional[int] = 0
-    country_id: Optional[str] = "CTHMTC00260"
 
 
 class UpdateProfileRequest(ProfileRequest):
@@ -109,8 +115,8 @@ class ProfileResponse(ProfileMinimalResponse):
     login_count: Optional[int] = Field(alias="login_count")
     manager_slug: Optional[UUID] = Field(alias="manager.slug", default=None)
     not_employee: Optional[bool] = Field(alias="not_employee")
-    workdays: Optional[List[str]] = Field(alias="workdays")
-    remote_working: Optional[str] = Field(alias="remote_working")
+    workdays: Optional[List[Workday]] = Field(alias="workdays")
+    remote_working: Optional[RemoteWorking] = Field(alias="remote_working")
     usual_office_days: Optional[str] = Field(alias="usual_office_days")
     uk_office_location_id: Optional[str] = Field(
         alias="uk_office_location.code", default=None
@@ -118,12 +124,14 @@ class ProfileResponse(ProfileMinimalResponse):
     location_in_building: Optional[str] = Field(alias="location_in_building")
     international_building: Optional[str] = Field(alias="international_building")
     country_id: Optional[str] = Field(alias="country.reference_id")
-    professions: Optional[List[str]] = Field(alias="professions")
-    additional_roles: Optional[List[str]] = Field(alias="additional_roles")
+    professions: Optional[List[Profession]] = Field(alias="professions")
+    additional_roles: Optional[List[AdditionalRole]] = Field(alias="additional_roles")
     other_additional_roles: Optional[str] = Field(alias="other_additional_roles")
-    key_skills: Optional[List[str]] = Field(alias="key_skills")
+    key_skills: Optional[List[KeySkill]] = Field(alias="key_skills")
     other_key_skills: Optional[str] = Field(alias="other_key_skills")
-    learning_interests: Optional[List[str]] = Field(alias="learning_interests")
+    learning_interests: Optional[List[LearningInterest]] = Field(
+        alias="learning_interests"
+    )
     other_learning_interests: Optional[str] = Field(alias="other_learning_interests")
     fluent_languages: Optional[str] = Field(alias="fluent_languages")
     intermediate_languages: Optional[str] = Field(alias="intermediate_languages")

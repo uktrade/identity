@@ -146,7 +146,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
 
     # Basic Profile info
     #
-    first_name = models.CharField(
+    first_name = models.CharField(  # TODO: Why is this different from the PF field? when will a profile have no first name?
         max_length=200,
         null=True,
         blank=True,
@@ -156,7 +156,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         null=True,
         blank=True,
     )
-    last_name = models.CharField(
+    last_name = models.CharField(  # TODO: Why is this different from the PF field? when will a profile have no last name?
         max_length=200,
         null=True,
         blank=True,
@@ -345,7 +345,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     is_active = models.BooleanField(default=True)
     became_inactive = models.DateTimeField(null=True, blank=True)
-    edited_or_confirmed_at = models.DateTimeField(null=True, blank=True)
+    edited_or_confirmed_at = models.DateTimeField(
+        null=True, blank=True
+    )  # TODO: This is defined in the PF codebase as `models.DateTimeField(default=timezone.now)`
     login_count = models.IntegerField(default=0)
     profile_completion = models.IntegerField(default=0)
     ical_token = models.CharField(
