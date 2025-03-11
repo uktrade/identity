@@ -5,9 +5,9 @@ import pytest
 from django.test.client import Client
 from django.urls import reverse
 
-from core.schemas.peoplefinder import CreateProfileRequest
+from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
-from profiles.models.generic import Profession
+from profiles.models.generic import Country, Profession, UkStaffLocation
 from profiles.models.peoplefinder import RemoteWorking
 
 
@@ -112,6 +112,123 @@ def test_create(combined_profile):
     }
 
 
+def test_update(combined_profile, peoplefinder_profile):
+    client = Client()
+    update_request = UpdateProfileRequest(
+        sso_email_id=combined_profile.sso_email_id,
+        first_name="Alison",
+    )
+    url = reverse(
+        "people-finder:update_profile", args=(str(peoplefinder_profile.slug),)
+    )
+
+    # Update an existing PF Profile
+    response = client.put(
+        url, data=update_request.model_dump_json(), content_type="application/json"
+    )
+
+    # Profile update returns 200 OK
+    assert response.status_code == 200
+    profile_response = response.json()
+
+    # Profile input values match returned values
+    assert profile_response["sso_email_id"] == update_request.sso_email_id
+    assert profile_response["slug"] == peoplefinder_profile.slug
+    assert profile_response["first_name"] == update_request.first_name
+
+    # Try to update profile that doesn't exist
+    wrong_uuid = str(uuid.uuid4())
+    update_request = UpdateProfileRequest(
+        sso_email_id=combined_profile.sso_email_id,
+        first_name="Alison",
+    )
+    url = reverse("people-finder:update_profile", args=(str(wrong_uuid),))
+
+    response = client.put(
+        url, data=update_request.model_dump_json(), content_type="application/json"
+    )
+
+    assert response.status_code == 404
+    response_json = response.json()
+    assert response_json == {"message": "People finder profile does not exist"}
+
+
+def test_get_countries(mocker):
+    url = reverse("people-finder:get_countries")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    expected = list(
+        Country.objects.values(
+            "reference_id",
+            "name",
+            "type",
+            "iso_1_code",
+            "iso_2_code",
+            "iso_3_code",
+            "overseas_region",
+            "start_date",
+            "end_date",
+        )
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    mocker.patch(
+        "core.services.get_countries",
+        side_effect=Exception("mocked-test-exception"),
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get Countries, reason: mocked-test-exception"
+    }
+
+
+def test_get_uk_staff_locations(mocker):
+    url = reverse("people-finder:get_uk_staff_locations")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    expected = list(
+        UkStaffLocation.objects.values(
+            "code",
+            "name",
+            "organisation",
+            "building_name",
+        )
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    mocker.patch(
+        "core.services.get_uk_staff_locations",
+        side_effect=Exception("mocked-test-exception"),
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get UK staff locations, reason: mocked-test-exception"
+    }
+
+
 def test_get_remote_working(mocker):
     url = reverse("people-finder:get_remote_working")
     client = Client()
@@ -167,6 +284,7 @@ def test_get_workday(mocker):
         url,
         content_type="application/json",
     )
+
     assert response.status_code == 200
     assert json.loads(response.content) == [
         {"key": key, "value": value} for key, value in Workday.choices
@@ -184,7 +302,6 @@ def test_get_workday(mocker):
             "Sunday": "Sun",
         },
     )
-
     response = client.get(
         url,
         content_type="application/json",
