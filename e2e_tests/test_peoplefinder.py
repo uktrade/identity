@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import uuid
 
@@ -7,8 +8,8 @@ from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
-from profiles.models.generic import Country, Profession, UkStaffLocation
-from profiles.models.peoplefinder import RemoteWorking
+from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
+from profiles.models.peoplefinder import AdditionalRole, KeySkill, RemoteWorking
 
 
 pytestmark = [
@@ -107,8 +108,8 @@ def test_create(combined_profile):
                 "type": "missing",
                 "loc": ["body", "profile_request", "slug"],
                 "msg": "Field required",
-            }
-        ]
+            },
+        ],
     }
 
 
@@ -117,6 +118,39 @@ def test_update(combined_profile, peoplefinder_profile):
     update_request = UpdateProfileRequest(
         sso_email_id=combined_profile.sso_email_id,
         first_name="Alison",
+        last_name="Doe",
+        email_address="alison.doe@example.com",
+        contact_email_address="alison.doe@example_contact.com",
+        grade=Grade("grade_7"),
+        workdays=[Workday("mon"), Workday("tue")],
+        professions=[Profession("commercial")],
+        additional_roles=[AdditionalRole("fire_warden")],
+        key_skills=[KeySkill("coaching")],
+        learning_interests=[LearningInterest("shadowing")],
+        edited_or_confirmed_at=dt.datetime.now(),
+        preferred_first_name="Alison",
+        became_inactive=None,
+        login_count=0,
+        pronouns=None,
+        not_employee=False,
+        name_pronunciation=None,
+        primary_phone_number=None,
+        secondary_phone_number=None,
+        photo=None,
+        photo_small=None,
+        manager_slug=None,
+        remote_working=None,
+        usual_office_days=None,
+        uk_office_location_id=None,
+        location_in_building=None,
+        international_building=None,
+        country_id="CTHMTC00260",
+        other_key_skills=None,
+        other_learning_interests=None,
+        fluent_languages=None,
+        intermediate_languages=None,
+        previous_experience=None,
+        other_additional_roles=None,
     )
     url = reverse(
         "people-finder:update_profile", args=(str(peoplefinder_profile.slug),)
@@ -141,6 +175,39 @@ def test_update(combined_profile, peoplefinder_profile):
     update_request = UpdateProfileRequest(
         sso_email_id=combined_profile.sso_email_id,
         first_name="Alison",
+        last_name="Doe",
+        email_address="alison.doe@example.com",
+        contact_email_address="alison.doe@example_contact.com",
+        grade=Grade("grade_7"),
+        workdays=[Workday("mon"), Workday("tue")],
+        professions=[Profession("commercial")],
+        additional_roles=[AdditionalRole("fire_warden")],
+        key_skills=[KeySkill("coaching")],
+        learning_interests=[LearningInterest("shadowing")],
+        edited_or_confirmed_at=dt.datetime.now(),
+        preferred_first_name="Alison",
+        became_inactive=None,
+        login_count=0,
+        pronouns=None,
+        not_employee=False,
+        name_pronunciation=None,
+        primary_phone_number=None,
+        secondary_phone_number=None,
+        photo=None,
+        photo_small=None,
+        manager_slug=None,
+        remote_working=None,
+        usual_office_days=None,
+        uk_office_location_id=None,
+        location_in_building=None,
+        international_building=None,
+        country_id="CTHMTC00260",
+        other_key_skills=None,
+        other_learning_interests=None,
+        fluent_languages=None,
+        intermediate_languages=None,
+        previous_experience=None,
+        other_additional_roles=None,
     )
     url = reverse("people-finder:update_profile", args=(str(wrong_uuid),))
 

@@ -7,8 +7,10 @@ from django.contrib.auth import get_user_model
 
 from profiles.exceptions import ProfileExists, TeamExists
 from profiles.models import LearningInterest, PeopleFinderTeam, Workday
-from profiles.models.generic import Country, Email, Profession, UkStaffLocation
+from profiles.models.generic import Country, Email, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
+    AdditionalRole,
+    KeySkill,
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
@@ -52,7 +54,7 @@ def create(
     is_active: bool,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
-    login_count: Optional[int] = 0,
+    login_count: int = 0,
     first_name: Optional[str] = None,
     preferred_first_name: Optional[str] = None,
     last_name: Optional[str] = None,
@@ -64,20 +66,21 @@ def create(
     secondary_phone_number: Optional[str] = None,
     photo: Optional[str] = None,
     photo_small: Optional[str] = None,
-    grade: Optional[str] = None,
+    grade: Optional[Grade] = None,
     manager_slug: Optional[str] = None,
-    workdays: Optional[list[str]] = None,
-    remote_working: Optional[str] = None,
+    not_employee: bool = False,
+    workdays: Optional[list[Workday]] = None,
+    remote_working: Optional[RemoteWorking] = None,
     usual_office_days: Optional[str] = None,
     uk_office_location_id: Optional[str] = None,
     location_in_building: Optional[str] = None,
     international_building: Optional[str] = None,
-    country_id: Optional[str] = None,
-    professions: Optional[list[str]] = None,
-    additional_roles: Optional[list[str]] = None,
-    key_skills: Optional[list[str]] = None,
+    country_id: str = "CTHMTC00260",
+    professions: Optional[list[Profession]] = None,
+    additional_roles: Optional[list[AdditionalRole]] = None,
+    key_skills: Optional[list[KeySkill]] = None,
     other_key_skills: Optional[str] = None,
-    learning_interests: Optional[list[str]] = None,
+    learning_interests: Optional[list[LearningInterest]] = None,
     other_learning_interests: Optional[str] = None,
     fluent_languages: Optional[str] = None,
     intermediate_languages: Optional[str] = None,
@@ -107,6 +110,7 @@ def create(
             photo_small=photo_small,
             grade=grade,
             manager=set_manager(manager_slug=manager_slug),
+            not_employee=not_employee,
             workdays=workdays,
             remote_working=remote_working,
             usual_office_days=usual_office_days,
@@ -133,9 +137,9 @@ def create(
 
 def update(
     peoplefinder_profile: PeopleFinderProfile,
-    is_active: bool,
-    became_inactive: Optional[datetime] = None,
-    edited_or_confirmed_at: Optional[datetime] = None,
+    is_active: Optional[bool] = None,
+    became_inactive: Optional[datetime | Unset] = None,
+    edited_or_confirmed_at: Optional[datetime | Unset] = None,
     login_count: Optional[int] = None,
     first_name: Optional[str | Unset] = None,
     last_name: Optional[str | Unset] = None,
@@ -148,22 +152,22 @@ def update(
     secondary_phone_number: Optional[str | Unset] = None,
     photo: Optional[str | Unset] = None,
     photo_small: Optional[str | Unset] = None,
-    grade: Optional[str | Unset] = None,
+    grade: Optional[Grade | Unset] = None,
     manager_slug: Optional[str | Unset] = None,
-    not_employee: Optional[bool | Unset] = None,
-    workdays: Optional[list[str] | Unset] = None,
-    remote_working: Optional[str | Unset] = None,
+    not_employee: Optional[bool] = None,
+    workdays: Optional[list[Workday] | Unset] = None,
+    remote_working: Optional[RemoteWorking | Unset] = None,
     usual_office_days: Optional[str | Unset] = None,
     uk_office_location_id: Optional[str | Unset] = None,
     location_in_building: Optional[str | Unset] = None,
     international_building: Optional[str | Unset] = None,
-    country_id: Optional[str | Unset] = None,
-    professions: Optional[list[str] | Unset] = None,
-    additional_roles: Optional[list[str] | Unset] = None,
+    country_id: Optional[str] = None,
+    professions: Optional[list[Profession] | Unset] = None,
+    additional_roles: Optional[list[AdditionalRole] | Unset] = None,
     other_additional_roles: Optional[str | Unset] = None,
-    key_skills: Optional[list[str] | Unset] = None,
+    key_skills: Optional[list[KeySkill] | Unset] = None,
     other_key_skills: Optional[str | Unset] = None,
-    learning_interests: Optional[list[str] | Unset] = None,
+    learning_interests: Optional[list[LearningInterest] | Unset] = None,
     other_learning_interests: Optional[str | Unset] = None,
     fluent_languages: Optional[str | Unset] = None,
     intermediate_languages: Optional[str | Unset] = None,
@@ -172,9 +176,21 @@ def update(
 
     update_fields: list = []
 
-    peoplefinder_profile.is_active = is_active
-    update_fields.append("is_active")
+    # Update fields that are required on the PeopleFinderProfile
+    if is_active:
+        peoplefinder_profile.is_active = is_active
+        update_fields.append("is_active")
+    if login_count:
+        peoplefinder_profile.login_count = login_count
+        update_fields.append("login_count")
+    if not_employee:
+        peoplefinder_profile.not_employee = not_employee
+        update_fields.append("not_employee")
+    if country_id:
+        peoplefinder_profile.country = set_country(country_id=country_id)
+        update_fields.append("country")
 
+    # Update fields that are optional on the PeopleFinderProfile
     if became_inactive is not None:
         if became_inactive is UNSET:
             peoplefinder_profile.became_inactive = None
@@ -187,12 +203,7 @@ def update(
         else:
             peoplefinder_profile.edited_or_confirmed_at = edited_or_confirmed_at
         update_fields.append("edited_or_confirmed_at")
-    if login_count is not None:
-        if login_count is UNSET:
-            peoplefinder_profile.login_count = None
-        else:
-            peoplefinder_profile.login_count = login_count
-        update_fields.append("login_count")
+
     if first_name is not None:
         if first_name is UNSET:
             peoplefinder_profile.first_name = None
@@ -279,15 +290,12 @@ def update(
         else:
             peoplefinder_profile.manager = set_manager(manager_slug=manager_slug)
         update_fields.append("manager")
-    if not_employee is not None:
-        if not_employee is UNSET:
-            peoplefinder_profile.not_employee = None
-        else:
-            peoplefinder_profile.not_employee = not_employee
-        update_fields.append("not_employee")
     if workdays is not None:
         if workdays is UNSET:
-            peoplefinder_profile.workdays = None  # type: ignore
+            # TODO: Discuss the type ignore below, something about the
+            # `ChoiceArrayField` class is causing us issues.
+            # Why aren't we just doing https://stackoverflow.com/a/38934721? - Cam
+            peoplefinder_profile.workdays = []  # type: ignore
         else:
             peoplefinder_profile.workdays = workdays  # type: ignore
         update_fields.append("workdays")
@@ -323,12 +331,6 @@ def update(
         else:
             peoplefinder_profile.international_building = international_building
         update_fields.append("international_building")
-    if country_id is not None:
-        if country_id is UNSET:
-            peoplefinder_profile.country = None  # type: ignore
-        else:
-            peoplefinder_profile.country = set_country(country_id=country_id)
-        update_fields.append("country")
     if professions is not None:
         if professions is UNSET:
             peoplefinder_profile.professions = None  # type: ignore
@@ -389,6 +391,8 @@ def update(
         else:
             peoplefinder_profile.previous_experience = previous_experience
         update_fields.append("previous_experience")
+
+    # Save the changes to the PeopleFinderProfile
     peoplefinder_profile.full_clean()
     peoplefinder_profile.save(update_fields=update_fields)
 

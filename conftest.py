@@ -73,12 +73,12 @@ def peoplefinder_profile(basic_user):
         last_name="Doe",
         email=email,
         contact_email=contact_email,
-        grade="FCO S1",
-        workdays=["Monday", "Tuesday"],
-        professions=["Government commercial and contract management"],
-        additional_roles=["Fire warden"],
-        key_skills=["Asset management"],
-        learning_interests=["Coding"],
+        grade="grade_7",
+        workdays=["mon", "tue"],
+        professions=["commercial"],
+        additional_roles=["fire_warden"],
+        key_skills=["asset_management"],
+        learning_interests=["coding"],
         edited_or_confirmed_at=dt.datetime.now(),
     )
 
@@ -131,16 +131,20 @@ def manager_user():
 
 @pytest.fixture(scope="function")
 def manager(manager_user):
+    email = Email.objects.create(address="jane@email.com")
+    contact_email = Email.objects.create(address="jane_contact@email.com")
     return PeopleFinderProfile.objects.create(
         slug="734e7872-27f7-481b-9659-6632adf02268",
         user=manager_user,
         first_name="Jane",
         last_name="Manager",
-        grade="G6",
-        workdays=["Monday", "Tuesday"],
-        professions=["Manager"],
-        additional_roles=["Line Manager"],
-        key_skills=["managing"],
-        learning_interests=["management"],
+        email=email,
+        contact_email=contact_email,
+        grade="grade_6",
+        workdays=["mon", "wed"],
+        professions=["gov_it"],
+        additional_roles=["cirrus_champion"],
+        key_skills=["coaching"],
+        learning_interests=["mentoring"],
         edited_or_confirmed_at=dt.datetime.now(),
     )
