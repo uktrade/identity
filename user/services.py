@@ -48,12 +48,14 @@ def create(
     try:
         get_by_id(sso_email_id)
     except User.DoesNotExist:
-        user = User.objects.create_user(
+        user = User(
             sso_email_id=sso_email_id,
             is_active=is_active,
             is_staff=is_staff,
             is_superuser=is_superuser,
         )
+        user.full_clean(exclude=["password"])
+        user.save()
 
         if reason is None:
             reason = "Creating new User record"
@@ -89,6 +91,7 @@ def update(
     """
     user.is_staff = is_staff
     user.is_superuser = is_superuser
+    user.full_clean()
     user.save(
         update_fields=(
             "is_staff",
