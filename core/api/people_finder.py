@@ -57,30 +57,30 @@ def create_profile(
             id=profile_request.sso_email_id
         )
 
-        workdays_list: list[Workday] = []
+        workdays_list: list[Workday] | None = None
         if profile_request.workdays:
             workdays_list = [Workday(workday) for workday in profile_request.workdays]
 
-        professions_list: list[Profession] = []
+        professions_list: list[Profession] | None = None
         if profile_request.professions:
             professions_list = [
                 Profession(profession) for profession in profile_request.professions
             ]
 
-        learning_interests_list: list[LearningInterest] = []
+        learning_interests_list: list[LearningInterest] | None = None
         if profile_request.learning_interests:
             learning_interests_list = [
                 LearningInterest(learning_interest)
                 for learning_interest in profile_request.learning_interests
             ]
 
-        key_skills_list: list[KeySkill] = []
+        key_skills_list: list[KeySkill] | None = None
         if profile_request.key_skills:
             key_skills_list = [
                 KeySkill(key_skill) for key_skill in profile_request.key_skills
             ]
 
-        additional_roles_list: list[AdditionalRole] = []
+        additional_roles_list: list[AdditionalRole] | None = None
         if profile_request.additional_roles:
             additional_roles_list = [
                 AdditionalRole(additional_role)
@@ -150,23 +150,23 @@ def update_profile(
         )
 
         workdays_list: Unset | list[Workday]
-        if not profile_request.workdays:
+        if profile_request.workdays is None:
             workdays_list = UNSET
-        elif profile_request.workdays:
+        else:
             workdays_list = [Workday(workday) for workday in profile_request.workdays]
 
         professions_list: Unset | list[Profession]
-        if not profile_request.professions:
+        if profile_request.professions is None:
             professions_list = UNSET
-        elif profile_request.professions:
+        else:
             professions_list = [
                 Profession(profession) for profession in profile_request.professions
             ]
 
         learning_interests_list: Unset | list[LearningInterest]
-        if not profile_request.learning_interests:
+        if profile_request.learning_interests is None:
             learning_interests_list = UNSET
-        elif profile_request.learning_interests:
+        else:
             learning_interests_list = [
                 LearningInterest(learning_interest)
                 for learning_interest in profile_request.learning_interests
@@ -181,9 +181,9 @@ def update_profile(
             ]
 
         additional_roles_list: Unset | list[AdditionalRole]
-        if not profile_request.additional_roles:
+        if profile_request.additional_roles is None:
             additional_roles_list = UNSET
-        elif profile_request.additional_roles:
+        else:
             additional_roles_list = [
                 AdditionalRole(additional_role)
                 for additional_role in profile_request.additional_roles
@@ -194,9 +194,9 @@ def update_profile(
             slug=slug,
             is_active=combined_profile.is_active,  # TODO: Cam/Marcel to discuss, shouldn't the first step just be to store PF data and not change it's behaviour/purpose?
             became_inactive=(
-                profile_request.became_inactive
-                if profile_request.became_inactive
-                else UNSET
+                UNSET
+                if profile_request.became_inactive is None
+                else profile_request.became_inactive
             ),
             edited_or_confirmed_at=(
                 UNSET
@@ -205,109 +205,121 @@ def update_profile(
             ),
             login_count=profile_request.login_count,
             first_name=(
-                profile_request.first_name if profile_request.first_name else UNSET
+                UNSET
+                if profile_request.first_name is None
+                else profile_request.first_name
             ),
             last_name=profile_request.last_name if profile_request.last_name else UNSET,
             preferred_first_name=(
-                profile_request.preferred_first_name
-                if profile_request.preferred_first_name
-                else UNSET
+                UNSET
+                if profile_request.preferred_first_name is None
+                else profile_request.preferred_first_name
             ),
-            pronouns=profile_request.pronouns if profile_request.pronouns else UNSET,
+            pronouns=(
+                UNSET if profile_request.pronouns is None else profile_request.pronouns
+            ),
             name_pronunciation=(
-                profile_request.name_pronunciation
-                if profile_request.name_pronunciation
-                else UNSET
+                UNSET
+                if profile_request.name_pronunciation is None
+                else profile_request.name_pronunciation
             ),
             email_address=(
-                profile_request.email_address
-                if profile_request.email_address
-                else UNSET
+                UNSET
+                if profile_request.email_address is None
+                else profile_request.email_address
             ),
             contact_email_address=(
-                profile_request.contact_email_address
-                if profile_request.contact_email_address
-                else UNSET
+                UNSET
+                if profile_request.contact_email_address is None
+                else profile_request.contact_email_address
             ),
             primary_phone_number=(
-                profile_request.primary_phone_number
-                if profile_request.primary_phone_number
-                else UNSET
+                UNSET
+                if profile_request.primary_phone_number is None
+                else profile_request.primary_phone_number
             ),
             secondary_phone_number=(
-                profile_request.secondary_phone_number
-                if profile_request.secondary_phone_number
-                else UNSET
+                UNSET
+                if profile_request.secondary_phone_number is None
+                else profile_request.secondary_phone_number
             ),
             photo=(
-                profile_request.photo if profile_request.preferred_first_name else UNSET
+                UNSET
+                if profile_request.preferred_first_name is None
+                else profile_request.photo
             ),
-            photo_small=profile_request.photo_small if profile_request.photo else UNSET,
-            grade=Grade(profile_request.grade) if profile_request.grade else UNSET,
+            photo_small=(
+                UNSET if profile_request.photo is None else profile_request.photo
+            ),
+            grade=(
+                UNSET if profile_request.grade is None else Grade(profile_request.grade)
+            ),
             manager_slug=(
-                profile_request.manager_slug if profile_request.manager_slug else UNSET
+                UNSET
+                if profile_request.manager_slug is None
+                else profile_request.manager_slug
             ),
             not_employee=profile_request.not_employee,
             workdays=workdays_list,
             remote_working=(
-                RemoteWorking(profile_request.remote_working)
-                if profile_request.remote_working
-                else UNSET
+                UNSET
+                if profile_request.remote_working is None
+                else RemoteWorking(profile_request.remote_working)
             ),
             usual_office_days=(
-                profile_request.usual_office_days
-                if profile_request.usual_office_days
-                else UNSET
+                UNSET
+                if profile_request.usual_office_days is None
+                else profile_request.usual_office_days
             ),
             uk_office_location_id=(
-                profile_request.uk_office_location_id
-                if profile_request.uk_office_location_id
-                else UNSET
+                UNSET
+                if profile_request.uk_office_location_id is None
+                else profile_request.uk_office_location_id
             ),
             location_in_building=(
-                profile_request.location_in_building
-                if profile_request.location_in_building
-                else UNSET
+                UNSET
+                if profile_request.location_in_building is None
+                else profile_request.location_in_building
             ),
             international_building=(
-                profile_request.international_building
-                if profile_request.international_building
-                else UNSET
+                UNSET
+                if profile_request.international_building is None
+                else profile_request.international_building
             ),
             country_id=profile_request.country_id,
             professions=professions_list,
             additional_roles=additional_roles_list,
             other_additional_roles=(
-                profile_request.other_additional_roles
-                if profile_request.other_additional_roles
-                else UNSET
+                UNSET
+                if profile_request.other_additional_roles is None
+                else profile_request.other_additional_roles
             ),
             key_skills=key_skills_list,
             other_key_skills=(
-                profile_request.other_key_skills
-                if profile_request.other_key_skills
-                else UNSET
+                UNSET
+                if profile_request.other_key_skills is None
+                else profile_request.other_key_skills
             ),
             learning_interests=learning_interests_list,
             other_learning_interests=(
-                profile_request.other_learning_interests
-                if profile_request.other_learning_interests
-                else UNSET
+                UNSET
+                if profile_request.other_learning_interests is None
+                else profile_request.other_learning_interests
             ),
             fluent_languages=(
-                profile_request.fluent_languages
-                if profile_request.fluent_languages
-                else UNSET
+                UNSET
+                if profile_request.fluent_languages is None
+                else profile_request.fluent_languages
             ),
             intermediate_languages=(
-                profile_request.intermediate_languages
-                if profile_request.intermediate_languages
-                else UNSET
+                UNSET
+                if profile_request.intermediate_languages is None
+                else profile_request.intermediate_languages
             ),
             previous_experience=(
-                profile_request.previous_experience
-                if profile_request.previous_experience
-                else UNSET
+                UNSET
+                if profile_request.previous_experience is None
+                else profile_request.previous_experience
             ),
         )
         return 200, core_services.get_profile_by_slug(slug=slug)
