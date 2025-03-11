@@ -52,6 +52,7 @@ def get_profile(request, slug: str):
 def create_profile(
     request, profile_request: CreateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
+    """Endpoint to create a new people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
@@ -147,7 +148,7 @@ def create_profile(
 def update_profile(
     request, slug: str, profile_request: UpdateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
-
+    """Endpoint to update an existing people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
@@ -334,46 +335,38 @@ def update_profile(
 
 
 @reference_router.get(
-    "countries/",
+    "countries",
     response={
         200: list[CountryResponse],
-        404: Error,
+        500: Error,
     },
 )
 def get_countries(request) -> tuple[int, list[Country] | dict]:
     try:
         # Get a list of all countries
-        countries = core_services.get_countries()
-        if len(countries) > 0:
-            return 200, countries
-        else:
-            return 404, {"message": "No Countries to display"}
+        return 200, core_services.get_countries()
     except Exception as unknown_error:
-        return 404, {"message": f"Could not get Countries, reason: {unknown_error}"}
+        return 500, {"message": f"Could not get Countries, reason: {unknown_error}"}
 
 
 @reference_router.get(
-    "uk_staff_locations/",
+    "uk_staff_locations",
     response={
         200: list[UkStaffLocationResponse],
-        404: Error,
+        500: Error,
     },
 )
 def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     try:
-        uk_staff_locations = core_services.get_uk_staff_locations()
-        if len(uk_staff_locations) > 0:
-            return 200, uk_staff_locations
-        else:
-            return 404, {"message": "No UK staff location to display"}
+        return 200, core_services.get_uk_staff_locations()
     except Exception as unknown_error:
-        return 404, {
+        return 500, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
         }
 
 
 @reference_router.get(
-    "remote_working/",
+    "remote_working",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -393,7 +386,7 @@ def get_remote_working(request):
 
 
 @reference_router.get(
-    "workdays/",
+    "workdays",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -410,7 +403,7 @@ def get_workdays(request):
 
 
 @reference_router.get(
-    "learning_interests/",
+    "learning_interests",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -430,7 +423,7 @@ def get_learning_interests(request):
 
 
 @reference_router.get(
-    "professions/",
+    "professions",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,

@@ -168,7 +168,7 @@ def update_peoplefinder_profile(
     previous_experience: Optional[str | Unset] = None,
 ) -> None:
     """
-    Entrypoint for peoplefinder profile creation. Triggers the creation of Peoplefinder record.
+    Function to update a people finder profile.
     """
     profile_services.update_from_peoplefinder(
         profile=profile,

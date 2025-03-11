@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
-from profiles.models.generic import Grade, Profession
+from profiles.models.generic import Grade, Profession, Country, UkStaffLocation
 from profiles.models.peoplefinder import AdditionalRole, KeySkill, RemoteWorking
 
 
@@ -220,6 +220,82 @@ def test_update(combined_profile, peoplefinder_profile):
     assert response_json == {"message": "People finder profile does not exist"}
 
 
+def test_get_countries(mocker):
+    url = reverse("people-finder:get_countries")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    expected = list(
+        Country.objects.values(
+            "reference_id",
+            "name",
+            "type",
+            "iso_1_code",
+            "iso_2_code",
+            "iso_3_code",
+            "overseas_region",
+            "start_date",
+            "end_date",
+        )
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    mocker.patch(
+        "core.services.get_countries",
+        side_effect=Exception("mocked-test-exception"),
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get Countries, reason: mocked-test-exception"
+    }
+
+
+def test_get_uk_staff_locations(mocker):
+    url = reverse("people-finder:get_uk_staff_locations")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    expected = list(
+        UkStaffLocation.objects.values(
+            "code",
+            "name",
+            "organisation",
+            "building_name",
+        )
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    mocker.patch(
+        "core.services.get_uk_staff_locations",
+        side_effect=Exception("mocked-test-exception"),
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get UK staff locations, reason: mocked-test-exception"
+    }
+
+
 def test_get_remote_working(mocker):
     url = reverse("people-finder:get_remote_working")
     client = Client()
@@ -275,6 +351,7 @@ def test_get_workday(mocker):
         url,
         content_type="application/json",
     )
+
     assert response.status_code == 200
     assert json.loads(response.content) == [
         {"key": key, "value": value} for key, value in Workday.choices
@@ -292,7 +369,6 @@ def test_get_workday(mocker):
             "Sunday": "Sun",
         },
     )
-
     response = client.get(
         url,
         content_type="application/json",
