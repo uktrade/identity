@@ -25,28 +25,28 @@ class ProfileRequest(Schema):
     sso_email_id: str
     became_inactive: Optional[datetime] = None
     edited_or_confirmed_at: Optional[datetime] = None
-    login_count: int = 0
+    login_count: Optional[int] = None
     first_name: Optional[str] = None
     preferred_first_name: Optional[str] = None
     last_name: Optional[str] = None
     pronouns: Optional[str] = None
     name_pronunciation: Optional[str] = None
-    email_address: str
-    contact_email_address: str
+    email_address: Optional[str] = None
+    contact_email_address: Optional[str] = None
     primary_phone_number: Optional[str] = None
     secondary_phone_number: Optional[str] = None
     photo: Optional[str] = None
     photo_small: Optional[str] = None
     grade: Optional[Grade] = None
     manager_slug: Optional[str] = None
-    not_employee: bool = False
+    not_employee: Optional[bool] = None
     workdays: Optional[List[Workday]] = None
     remote_working: Optional[RemoteWorking] = None
     usual_office_days: Optional[str] = None
     uk_office_location_id: Optional[str] = None
     location_in_building: Optional[str] = None
     international_building: Optional[str] = None
-    country_id: str = "CTHMTC00260"
+    country_id: Optional[str] = None
     professions: Optional[List[Profession]] = None
     additional_roles: Optional[list[AdditionalRole]] = None
     other_additional_roles: Optional[str] = None
@@ -63,6 +63,9 @@ class CreateProfileRequest(ProfileRequest):
     """People Finder profile creation request"""
 
     slug: str
+    login_count: int = 0
+    not_employee: bool = False
+    country_id: str = "CTHMTC00260"
 
 
 class UpdateProfileRequest(ProfileRequest):

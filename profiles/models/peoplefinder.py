@@ -171,12 +171,14 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         "profiles.Email",
         models.SET_NULL,
         null=True,
+        blank=True,
         related_name="+",
     )
     contact_email = models.ForeignKey(
         "profiles.Email",
         models.SET_NULL,
         null=True,
+        blank=True,
         related_name="+",
     )
     primary_phone_number = models.CharField(

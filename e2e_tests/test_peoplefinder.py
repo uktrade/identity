@@ -106,16 +106,6 @@ def test_create(combined_profile):
         "detail": [
             {
                 "type": "missing",
-                "loc": ["body", "profile_request", "email_address"],
-                "msg": "Field required",
-            },
-            {
-                "type": "missing",
-                "loc": ["body", "profile_request", "contact_email_address"],
-                "msg": "Field required",
-            },
-            {
-                "type": "missing",
                 "loc": ["body", "profile_request", "slug"],
                 "msg": "Field required",
             },
