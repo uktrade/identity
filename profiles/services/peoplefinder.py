@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from profiles.exceptions import ProfileExists, TeamExists
 from profiles.models import LearningInterest, PeopleFinderTeam, Workday
-from profiles.models.generic import Country, Email, Profession, UkStaffLocation
+from profiles.models.generic import Country, Email, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     PeopleFinderProfile,
     PeopleFinderTeam,
@@ -569,3 +569,10 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return Profession.choices
+
+
+def get_grades() -> list[tuple[Grade, str]]:
+    """
+    Gets all grades
+    """
+    return Grade.choices

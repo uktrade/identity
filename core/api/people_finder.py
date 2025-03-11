@@ -261,3 +261,20 @@ def get_professions(request):
         return 200, professions
     except Exception as unknown_error:
         return 500, {"message": f"Could not get professions, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "grades",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_grades(request):
+    try:
+        grades = [
+            {"key": key, "value": value} for key, value in core_services.get_grades()
+        ]
+        return 200, grades
+    except Exception as unknown_error:
+        return 500, {"message": f"Could not get grades, reason: {unknown_error}"}

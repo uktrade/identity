@@ -73,12 +73,12 @@ def peoplefinder_profile(basic_user):
         last_name="Doe",
         email=email,
         contact_email=contact_email,
-        grade="FCO S1",
-        workdays=["Monday", "Tuesday"],
-        professions=["Government commercial and contract management"],
-        additional_roles=["Fire warden"],
-        key_skills=["Asset management"],
-        learning_interests=["Coding"],
+        grade="FCO_S1",
+        workdays=["MON", "TUE"],
+        professions=["COMMERCIAL"],
+        additional_roles=["FIRE_WARDEN"],
+        key_skills=["ASSET_MANAGEMENT"],
+        learning_interests=["CODING"],
         edited_or_confirmed_at=dt.datetime.now(),
     )
 
