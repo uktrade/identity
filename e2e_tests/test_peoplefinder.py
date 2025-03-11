@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
-from profiles.models.generic import Grade, Profession, Country, UkStaffLocation
+from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import AdditionalRole, KeySkill, RemoteWorking
 
 
