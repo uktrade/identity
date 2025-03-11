@@ -500,13 +500,13 @@ def test_get_grades(mocker):
     )
     assert response.status_code == 200
     assert json.loads(response.content) == [
-        {"key": key, "value": value} for key, value in LearningInterest.choices
+        {"key": key, "value": value} for key, value in Grade.choices
     ]
 
     mocker.patch(
         "core.services.get_grades",
         return_value={
-            "FCO_S1": "FCO S1",
+            "fco_s1": "FCO S1",
         },
     )
 

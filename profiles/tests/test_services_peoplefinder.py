@@ -190,7 +190,6 @@ def test_get_workday_options():
 def test_get_learning_interest_options():
     options = peoplefinder_services.get_learning_interests()
 
-    print(options)
     assert options == [
         ("shadowing", "Work shadowing"),
         ("mentoring", "Mentoring"),
