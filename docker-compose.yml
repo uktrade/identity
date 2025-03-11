@@ -39,18 +39,22 @@ services:
     tty: true
 
   celery:
-    image: identity/web:latest
-    env_file:
-      - .env
-    environment:
-      - DATABASE_URL=psql://postgres:postgres@db:5432/fido
-      - CELERY_BROKER_URL=rediss://redis:redis@redis:6379/0
-    command: celery -A config worker -l info
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile"
+    env_file: .env
+    command: celery -A config.celery worker -l INFO
     volumes:
       - .:/app
     depends_on:
       - postgres
       - redis
+    healthcheck:
+      test: [ "CMD-SHELL", "python -m dbt_copilot_python.celery_health_check.healthcheck" ]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+      start_period: 5s
 
   api-peoplefinder:
     image: identity/main:latest

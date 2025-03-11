@@ -1,5 +1,3 @@
-# fido/fido/celery.py
-# https://stackabuse.com/asynchronous-tasks-in-django-with-redis-and-celery/
 import os
 
 from celery import Celery
