@@ -227,8 +227,16 @@ def update_profile(
                 if profile_request.name_pronunciation is None
                 else profile_request.name_pronunciation
             ),
-            email_address=profile_request.email_address,
-            contact_email_address=profile_request.contact_email_address,
+            email_address=(
+                UNSET
+                if profile_request.email_address is None
+                else profile_request.email_address
+            ),
+            contact_email_address=(
+                UNSET
+                if profile_request.contact_email_address is None
+                else profile_request.contact_email_address
+            ),
             primary_phone_number=(
                 UNSET
                 if profile_request.primary_phone_number is None
