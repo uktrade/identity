@@ -104,25 +104,24 @@ def test_create(combined_profile):
     response_json = response.json()
     print(response_json)
     assert response_json == {
-            "detail": [
-                {
-                    "type": "missing",
-                    "loc": ["body", "profile_request", "email_address"],
-                    "msg": "Field required",
-                },
-                {
-                    "type": "missing",
-                    "loc": ["body", "profile_request", "contact_email_address"],
-                    "msg": "Field required",
-                },
-                {
-                    "type": "missing",
-                    "loc": ["body", "profile_request", "slug"],
-                    "msg": "Field required",
-                },
-            ],
-        }
-    
+        "detail": [
+            {
+                "type": "missing",
+                "loc": ["body", "profile_request", "email_address"],
+                "msg": "Field required",
+            },
+            {
+                "type": "missing",
+                "loc": ["body", "profile_request", "contact_email_address"],
+                "msg": "Field required",
+            },
+            {
+                "type": "missing",
+                "loc": ["body", "profile_request", "slug"],
+                "msg": "Field required",
+            },
+        ],
+    }
 
 
 def test_update(combined_profile, peoplefinder_profile):
