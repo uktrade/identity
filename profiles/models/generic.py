@@ -7,91 +7,91 @@ from .abstract import AbstractHistoricalModel
 
 
 class Workday(models.TextChoices):
-    MON = "MON", "Monday"
-    TUE = "TUE", "Tuesday"
-    WED = "WED", "Wednesday"
-    THU = "THU", "Thursday"
-    FRI = "FRI", "Friday"
-    SAT = "SAT", "Saturday"
-    SUN = "SUN", "Sunday"
+    MON = "mon", "Monday"
+    TUE = "tue", "Tuesday"
+    WED = "wed", "Wednesday"
+    THU = "thu", "Thursday"
+    FRI = "fri", "Friday"
+    SAT = "sat", "Saturday"
+    SUN = "sun", "Sunday"
 
 
 class Grade(models.TextChoices):
-    FCO_S1 = "FCO_S1", "FCO S1"
-    FCO_S2 = "FCO_S2", "FCO S2"
-    FCO_S3 = "FCO_S3", "FCO S3"
-    ADMIN_ASSISTANT = "ADMIN_ASSISTANT", "Administrative assistant (AA)"
-    ADMIN_OFFICER = "ADMIN_OFFICER", "Administrative officer (AO/A2)"
-    EXECUTIVE_OFFICER = "EXECUTIVE_OFFICER", "Executive officer (EO/B3)"
+    FCO_S1 = "fco_s1", "FCO S1"
+    FCO_S2 = "fco_s2", "FCO S2"
+    FCO_S3 = "fco_s3", "FCO S3"
+    ADMIN_ASSISTANT = "admin_assistant", "Administrative assistant (AA)"
+    ADMIN_OFFICER = "admin_officer", "Administrative officer (AO/A2)"
+    EXECUTIVE_OFFICER = "executive_officer", "Executive officer (EO/B3)"
     HIGHER_EXECUTIVE_OFFICER = (
-        "HIGHER_EXECUTIVE_OFFICER",
+        "higher_executive_officer",
         "Higher executive officer (HEO/C4)",
     )
     SENIOR_EXECUTIVE_OFFICER = (
-        "SENIOR_EXECUTIVE_OFFICER",
+        "senior_executive_officer",
         "Senior executive officer (SEO/C5)",
     )
-    GRADE_7 = "GRADE_7", "Grade 7 (G7/D6)"
-    GRADE_6 = "GRADE_6", "Grade 6 (G6/D7)"
-    SCS_1 = "SCS_1", "Senior civil service 1 (SCS1/SMS1)"
-    SCS_2 = "SCS_2", "Senior civil service 2 (SCS2/SMS2)"
-    SCS_3 = "SCS_3", "Senior civil service 3 (SCS3/SMS3)"
-    SCS_4 = "SCS_4", "Senior civil service 4 (SCS4/SMS4)"
-    FAST_STREAM = "FAST_STREAM", "Fast Stream"
-    FAST_TRACK = "FAST_TRACK", "Fast Track"
-    APPRENTICE = "APPRENTICE", "Apprentice"
+    GRADE_7 = "grade_7", "Grade 7 (G7/D6)"
+    GRADE_6 = "grade_6", "Grade 6 (G6/D7)"
+    SCS_1 = "scs_1", "Senior civil service 1 (SCS1/SMS1)"
+    SCS_2 = "scs_2", "Senior civil service 2 (SCS2/SMS2)"
+    SCS_3 = "scs_3", "Senior civil service 3 (SCS3/SMS3)"
+    SCS_4 = "scs_4", "Senior civil service 4 (SCS4/SMS4)"
+    FAST_STREAM = "fast_stream", "Fast Stream"
+    FAST_TRACK = "fast_track", "Fast Track"
+    APPRENTICE = "apprentice", "Apprentice"
     NON_GRADED_SPECIAL_ADVISOR = (
-        "NON_GRADED_SPECIAL_ADVISOR",
+        "non_graded_special_advisor",
         "Non graded - special advisor (SPAD)",
     )
-    NON_GRADED_CONTRACTOR = "NON_GRADED_CONTRACTOR", "Non graded - contractor"
-    NON_GRADED_SECONDEE = "NON_GRADED_SECONDEE", "Non graded - secondee"
-    NON_GRADED_POST = "NON_GRADED_POST", "Non graded - post"
+    NON_GRADED_CONTRACTOR = "non_graded_contractor", "Non graded - contractor"
+    NON_GRADED_SECONDEE = "non_graded_secondee", "Non graded - secondee"
+    NON_GRADED_POST = "non_graded_post", "Non graded - post"
 
 
 class Profession(models.TextChoices):
-    COMMERCIAL = "COMMERCIAL", "Government commercial and contract management"
-    CORP_FINANCE = "CORP_FINANCE", "Corporate finance profession"
-    COUNTER_FRAUD = "COUNTER_FRAUD", "Counter-fraud standards and profession"
-    DIGITAL_DATA_TECH = "DIGITAL_DATA_TECH", "Digital, data and technology profession"
-    GOV_COMMS = "GOV_COMMS", "Government communication service"
-    GOV_ECONOMICS = "GOV_ECONOMICS", "Government economic service"
-    GOV_FINANCE = "GOV_FINANCE", "Government finance profession"
-    GOV_IT = "GOV_IT", "Government IT profession"
+    COMMERCIAL = "commercial", "Government commercial and contract management"
+    CORP_FINANCE = "corp_finance", "Corporate finance profession"
+    COUNTER_FRAUD = "counter_fraud", "Counter-fraud standards and profession"
+    DIGITAL_DATA_TECH = "digital_data_tech", "Digital, data and technology profession"
+    GOV_COMMS = "gov_comms", "Government communication service"
+    GOV_ECONOMICS = "gov_economics", "Government economic service"
+    GOV_FINANCE = "gov_finance", "Government finance profession"
+    GOV_IT = "gov_it", "Government IT profession"
     GOV_KNOWLEDGE = (
-        "GOV_KNOWLEDGE",
+        "gov_knowledge",
         "Government knowledge and information management profession",
     )
-    GOV_LEGAL = "GOV_LEGAL", "Government legal service"
+    GOV_LEGAL = "gov_legal", "Government legal service"
     GOV_OCCUPATIONAL = (
-        "GOV_OCCUPATIONAL",
+        "gov_occupational",
         "Government occupational psychology profession",
     )
-    GOV_OPERATIONAL = "GOV_OPERATIONAL", "Government operational research service"
+    GOV_OPERATIONAL = "gov_operational", "Government operational research service"
     GOV_PLANNING_INSPECTORS = (
-        "GOV_PLANNING_INSPECTORS",
+        "gov_planning_inspectors",
         "Government planning inspectors",
     )
     GOV_PLANNING_PROFESSION = (
-        "GOV_PLANNING_PROFESSION",
+        "gov_planning_profession",
         "Government planning profession",
     )
-    GOV_PROPERTY = "GOV_PROPERTY", "Government property profession"
-    GOV_SECURITY = "GOV_SECURITY", "Government security profession"
-    GOV_SCIENCE = "GOV_SCIENCE", "Government science and engineering profession"
-    GOV_SOCIAL = "GOV_SOCIAL", "Government social research profession"
-    GOV_STATISTICAL = "GOV_STATISTICAL", "Government statistical service profession"
-    GOV_TAX = "GOV_TAX", "Government tax profession"
-    GOV_VET = "GOV_VET", "Government veterinary profession"
-    HUMAN_RESOURCES = "HUMAN_RESOURCES", "Human resources profession"
-    INTELLIGENCE_ANALYSIS = "INTELLIGENCE_ANALYSIS", "Intelligence analysis"
-    INTERNAL_AUDIT = "INTERNAL_AUDIT", "Internal audit profession"
-    MEDICAL_PROFESSION = "MEDICAL_PROFESSION", "Medical profession"
-    OPERATION_DELIVERY = "OPERATION_DELIVERY", "Operational delivery profession"
-    POLICY_PROFIESSION = "POLICY_PROFIESSION", "Policy profession"
-    PROCUREMENT_PROFESSION = "PROCUREMENT_PROFESSION", "Procurement profession"
-    PROJECT_DELIVERY = "PROJECT_DELIVERY", "Project delivery profession"
-    INTERNATIONAL_TRADE = "INTERNATIONAL_TRADE", "International trade profession"
+    GOV_PROPERTY = "gov_property", "Government property profession"
+    GOV_SECURITY = "gov_security", "Government security profession"
+    GOV_SCIENCE = "gov_science", "Government science and engineering profession"
+    GOV_SOCIAL = "gov_social", "Government social research profession"
+    GOV_STATISTICAL = "gov_statistical", "Government statistical service profession"
+    GOV_TAX = "gov_tax", "Government tax profession"
+    GOV_VET = "gov_vet", "Government veterinary profession"
+    HUMAN_RESOURCES = "human_resources", "Human resources profession"
+    INTELLIGENCE_ANALYSIS = "intelligence_analysis", "Intelligence analysis"
+    INTERNAL_AUDIT = "internal_audit", "Internal audit profession"
+    MEDICAL_PROFESSION = "medical_profession", "Medical profession"
+    OPERATION_DELIVERY = "operation_delivery", "Operational delivery profession"
+    POLICY_PROFIESSION = "policy_profiession", "Policy profession"
+    PROCUREMENT_PROFESSION = "procurement_profession", "Procurement profession"
+    PROJECT_DELIVERY = "project_delivery", "Project delivery profession"
+    INTERNATIONAL_TRADE = "international_trade", "International trade profession"
 
 
 class Email(AbstractHistoricalModel):
