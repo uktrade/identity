@@ -37,6 +37,8 @@ def test_create(peoplefinder_profile):
         is_active=user.is_active,
         first_name="Tom",
         last_name="Doe",
+        email_address="tom@email.com",
+        contact_email_address="tom_contact@email.com",
         grade=Grade("grade_7"),
         country_id="CTHMTC00260",
         uk_office_location_id="test",

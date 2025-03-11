@@ -66,7 +66,10 @@ def test_create(combined_profile):
     url = reverse("people-finder:create_profile")
     test_uuid = str(uuid.uuid4())
     test_profile = CreateProfileRequest(
-        slug=test_uuid, sso_email_id=combined_profile.sso_email_id
+        slug=test_uuid,
+        sso_email_id=combined_profile.sso_email_id,
+        contact_email_address=combined_profile.contact_email,
+        email_address=combined_profile.primary_email,
     )
 
     # Create a new PF Profile
@@ -99,15 +102,27 @@ def test_create(combined_profile):
 
     assert response.status_code == 422
     response_json = response.json()
+    print(response_json)
     assert response_json == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["body", "profile_request", "slug"],
-                "msg": "Field required",
-            }
-        ]
-    }
+            "detail": [
+                {
+                    "type": "missing",
+                    "loc": ["body", "profile_request", "email_address"],
+                    "msg": "Field required",
+                },
+                {
+                    "type": "missing",
+                    "loc": ["body", "profile_request", "contact_email_address"],
+                    "msg": "Field required",
+                },
+                {
+                    "type": "missing",
+                    "loc": ["body", "profile_request", "slug"],
+                    "msg": "Field required",
+                },
+            ],
+        }
+    
 
 
 def test_update(combined_profile, peoplefinder_profile):

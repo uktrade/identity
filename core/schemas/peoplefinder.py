@@ -1,12 +1,10 @@
 """People Finder Schemas"""
 
-from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
 from ninja import Field, ModelSchema, Schema
-from pydantic import ConfigDict
 
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Country, Grade, Profession, UkStaffLocation, Workday
@@ -16,7 +14,6 @@ from profiles.models.peoplefinder import (
     LearningInterest,
     RemoteWorking,
 )
-from profiles.types import Unset
 
 
 # Requests
@@ -34,8 +31,8 @@ class ProfileRequest(Schema):
     last_name: Optional[str] = None
     pronouns: Optional[str] = None
     name_pronunciation: Optional[str] = None
-    email_address: Optional[str] = None
-    contact_email_address: Optional[str] = None
+    email_address: str
+    contact_email_address: str
     primary_phone_number: Optional[str] = None
     secondary_phone_number: Optional[str] = None
     photo: Optional[str] = None
@@ -87,10 +84,8 @@ class ProfileMinimalResponse(Schema):
     preferred_first_name: Optional[str]
     pronouns: Optional[str]
     name_pronunciation: Optional[str]
-    email_address: Optional[str] = Field(alias="email.address", default=None)
-    contact_email_address: Optional[str] = Field(
-        alias="contact_email.address", default=None
-    )
+    email_address: str = Field(alias="email.address")
+    contact_email_address: str = Field(alias="contact_email.address")
     primary_phone_number: Optional[str]
     secondary_phone_number: Optional[str]
     photo: Optional[str]  # ImageField is represented as a string (file path or URL)

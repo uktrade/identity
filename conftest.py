@@ -53,6 +53,7 @@ def combined_profile(sso_profile):
         first_name="John",
         last_name="Doe",
         primary_email="email2@email.com",
+        contact_email="email@email.com",
         emails=[
             "email1@email.com",
             "email2@email.com",
@@ -73,11 +74,11 @@ def peoplefinder_profile(basic_user):
         email=email,
         contact_email=contact_email,
         grade="grade_7",
-        workdays=["Monday", "Tuesday"],
-        professions=["Developer"],
-        additional_roles=["BA"],
-        key_skills=["coding"],
-        learning_interests=["everything"],
+        workdays=["mon", "tue"],
+        professions=["commercial"],
+        additional_roles=["fire_warden"],
+        key_skills=["asset_management"],
+        learning_interests=["coding"],
         edited_or_confirmed_at=dt.datetime.now(),
     )
 

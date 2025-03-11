@@ -52,6 +52,8 @@ def create(
     slug: str,
     user: User,
     is_active: bool,
+    email_address: str,
+    contact_email_address: str,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
     login_count: int = 0,
@@ -60,8 +62,6 @@ def create(
     last_name: Optional[str] = None,
     pronouns: Optional[str] = None,
     name_pronunciation: Optional[str] = None,
-    email_address: Optional[str] = None,
-    contact_email_address: Optional[str] = None,
     primary_phone_number: Optional[str] = None,
     secondary_phone_number: Optional[str] = None,
     photo: Optional[str] = None,
@@ -90,7 +90,7 @@ def create(
         PeopleFinderProfile.objects.get(slug=slug)
         raise ProfileExists("Profile has been previously created")
     except PeopleFinderProfile.DoesNotExist:
-        return PeopleFinderProfile.objects.create(
+        peoplefinder_profile = PeopleFinderProfile(
             slug=slug,
             user=user,
             is_active=is_active,
@@ -130,6 +130,9 @@ def create(
             intermediate_languages=intermediate_languages,
             previous_experience=previous_experience,
         )
+        peoplefinder_profile.full_clean()
+        peoplefinder_profile.save()
+        return peoplefinder_profile
 
 
 def update(
@@ -186,6 +189,14 @@ def update(
     if country_id:
         peoplefinder_profile.country = set_country(country_id=country_id)
         update_fields.append("country")
+    if email_address:
+        peoplefinder_profile.email = set_email_details(address=email_address)
+        update_fields.append("email")
+    if contact_email_address:
+        peoplefinder_profile.contact_email = set_email_details(
+            address=contact_email_address
+        )
+        update_fields.append("contact_email")
 
     # Update fields that are optional on the PeopleFinderProfile
     if became_inactive is not None:
@@ -237,20 +248,6 @@ def update(
         else:
             peoplefinder_profile.name_pronunciation = name_pronunciation
         update_fields.append("name_pronunciation")
-    if email_address is not None:
-        if email_address is UNSET:
-            peoplefinder_profile.email = None
-        else:
-            peoplefinder_profile.email = set_email_details(address=email_address)
-        update_fields.append("email")
-    if contact_email_address is not None:
-        if contact_email_address is UNSET:
-            peoplefinder_profile.contact_email = None
-        else:
-            peoplefinder_profile.contact_email = set_email_details(
-                address=contact_email_address
-            )
-        update_fields.append("contact_email")
     if primary_phone_number is not None:
         if primary_phone_number is UNSET:
             peoplefinder_profile.primary_phone_number = None
@@ -390,6 +387,7 @@ def update(
         update_fields.append("previous_experience")
 
     # Save the changes to the PeopleFinderProfile
+    peoplefinder_profile.full_clean()
     peoplefinder_profile.save(update_fields=update_fields)
 
 

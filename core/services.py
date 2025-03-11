@@ -50,6 +50,8 @@ def get_profile_by_slug(
 def create_peoplefinder_profile(
     slug: str,
     sso_email_id: str,
+    email_address: str,
+    contact_email_address: str,
     became_inactive: Optional[datetime] = None,
     edited_or_confirmed_at: Optional[datetime] = None,
     login_count: int = 0,
@@ -58,8 +60,6 @@ def create_peoplefinder_profile(
     last_name: Optional[str] = None,
     pronouns: Optional[str] = None,
     name_pronunciation: Optional[str] = None,
-    email_address: Optional[str] = None,
-    contact_email_address: Optional[str] = None,
     primary_phone_number: Optional[str] = None,
     secondary_phone_number: Optional[str] = None,
     photo: Optional[str] = None,

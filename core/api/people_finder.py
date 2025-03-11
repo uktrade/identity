@@ -104,26 +104,30 @@ def create_profile(
             secondary_phone_number=profile_request.secondary_phone_number,
             photo=profile_request.photo,
             photo_small=profile_request.photo_small,
-            grade=Grade(profile_request.grade) if profile_request.grade else None,
+            grade=(
+                None if profile_request.grade is None else Grade(profile_request.grade)
+            ),
             manager_slug=profile_request.manager_slug,
             not_employee=profile_request.not_employee,
-            workdays=workdays_list if workdays_list else None,
+            workdays=None if workdays_list is None else workdays_list,
             remote_working=(
-                RemoteWorking(profile_request.remote_working)
-                if profile_request.remote_working
-                else None
+                None
+                if profile_request.remote_working is None
+                else RemoteWorking(profile_request.remote_working)
             ),
             usual_office_days=profile_request.usual_office_days,
             uk_office_location_id=profile_request.uk_office_location_id,
             location_in_building=profile_request.location_in_building,
             international_building=profile_request.international_building,
             country_id=profile_request.country_id,
-            professions=professions_list if professions_list else None,
-            additional_roles=additional_roles_list if additional_roles_list else None,
-            key_skills=key_skills_list if key_skills_list else None,
+            professions=None if professions_list is None else professions_list,
+            additional_roles=(
+                None if additional_roles_list is None else additional_roles_list
+            ),
+            key_skills=None if key_skills_list is None else key_skills_list,
             other_key_skills=profile_request.other_key_skills,
             learning_interests=(
-                learning_interests_list if learning_interests_list else None
+                None if learning_interests_list is None else learning_interests_list
             ),
             other_learning_interests=profile_request.other_learning_interests,
             fluent_languages=profile_request.fluent_languages,
@@ -223,16 +227,8 @@ def update_profile(
                 if profile_request.name_pronunciation is None
                 else profile_request.name_pronunciation
             ),
-            email_address=(
-                UNSET
-                if profile_request.email_address is None
-                else profile_request.email_address
-            ),
-            contact_email_address=(
-                UNSET
-                if profile_request.contact_email_address is None
-                else profile_request.contact_email_address
-            ),
+            email_address=profile_request.email_address,
+            contact_email_address=profile_request.contact_email_address,
             primary_phone_number=(
                 UNSET
                 if profile_request.primary_phone_number is None
