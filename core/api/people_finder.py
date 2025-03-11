@@ -25,7 +25,7 @@ router.add_router("reference", reference_router)
 
 
 @profile_router.get(
-    "{slug}/",
+    "{slug}",
     response={
         200: ProfileMinimalResponse,
         404: Error,
@@ -41,7 +41,7 @@ def get_profile(request, slug: str):
         }
 
 
-@profile_router.post("/", response={201: ProfileResponse, 404: Error, 409: Error})
+@profile_router.post("", response={201: ProfileResponse, 404: Error, 409: Error})
 def create_profile(
     request, profile_request: CreateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
@@ -96,7 +96,7 @@ def create_profile(
         }
 
 
-@profile_router.put("{slug}/", response={200: ProfileResponse, 404: Error})
+@profile_router.put("{slug}", response={200: ProfileResponse, 404: Error})
 def update_profile(
     request, slug: str, profile_request: UpdateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
@@ -152,7 +152,7 @@ def update_profile(
 
 
 @reference_router.get(
-    "countries/",
+    "countries",
     response={
         200: list[CountryResponse],
         500: Error,
@@ -167,7 +167,7 @@ def get_countries(request) -> tuple[int, list[Country] | dict]:
 
 
 @reference_router.get(
-    "uk_staff_locations/",
+    "uk_staff_locations",
     response={
         200: list[UkStaffLocationResponse],
         500: Error,
@@ -183,7 +183,7 @@ def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
 
 
 @reference_router.get(
-    "remote_working/",
+    "remote_working",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -203,7 +203,7 @@ def get_remote_working(request):
 
 
 @reference_router.get(
-    "workdays/",
+    "workdays",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -220,7 +220,7 @@ def get_workdays(request):
 
 
 @reference_router.get(
-    "learning_interests/",
+    "learning_interests",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -240,7 +240,7 @@ def get_learning_interests(request):
 
 
 @reference_router.get(
-    "professions/",
+    "professions",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
