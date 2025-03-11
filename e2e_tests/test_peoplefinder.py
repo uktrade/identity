@@ -102,7 +102,6 @@ def test_create(combined_profile):
 
     assert response.status_code == 422
     response_json = response.json()
-    print(response_json)
     assert response_json == {
         "detail": [
             {
