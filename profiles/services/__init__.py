@@ -496,3 +496,10 @@ def get_professions() -> list[tuple[Profession, str]]:
     Gets all professions
     """
     return peoplefinder.get_professions()
+
+
+def get_grades() -> list[tuple[Grade, str]]:
+    """
+    Gets all grades
+    """
+    return peoplefinder.get_grades()

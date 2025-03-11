@@ -378,3 +378,10 @@ def get_professions() -> list[tuple[Profession, str]]:
     Function for getting a list of all professions
     """
     return profile_services.get_professions()
+
+
+def get_grades() -> list[tuple[Grade, str]]:
+    """
+    Function for getting a list of all grades
+    """
+    return profile_services.get_grades()

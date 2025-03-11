@@ -489,3 +489,46 @@ def test_get_professions(mocker):
     assert json.loads(response.content) == {
         "message": "Could not get professions, reason: mocked-test-exception"
     }
+
+
+def test_get_grades(mocker):
+    url = reverse("people-finder:get_grades")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert json.loads(response.content) == [
+        {"key": key, "value": value} for key, value in Grade.choices
+    ]
+
+    mocker.patch(
+        "core.services.get_grades",
+        return_value={
+            "fco_s1": "FCO S1",
+        },
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get grades, reason: too many values to unpack (expected 2)"
+    }
+
+    mocker.patch(
+        "core.services.get_grades", side_effect=Exception("mocked-test-exception")
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get grades, reason: mocked-test-exception"
+    }
