@@ -131,13 +131,15 @@ def manager_user():
 
 @pytest.fixture(scope="function")
 def manager(manager_user):
+    email = Email.objects.create(address="jane@email.com")
+    contact_email = Email.objects.create(address="jane_contact@email.com")
     return PeopleFinderProfile.objects.create(
         slug="734e7872-27f7-481b-9659-6632adf02268",
         user=manager_user,
         first_name="Jane",
         last_name="Manager",
-        email="jane@email.com",
-        contact_email="jane_contact@email.com",
+        email=email,
+        contact_email=contact_email,
         grade="grade_6",
         workdays=["mon", "wed"],
         professions=["gov_it"],
