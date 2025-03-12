@@ -580,3 +580,10 @@ def get_grades() -> list[tuple[Grade, str]]:
     Gets all grades
     """
     return Grade.choices
+
+
+def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
+    """
+    Get all additional roles
+    """
+    return AdditionalRole.choices

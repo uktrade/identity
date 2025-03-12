@@ -455,3 +455,23 @@ def get_grades(request):
         return 200, grades
     except Exception as unknown_error:
         return 500, {"message": f"Could not get grades, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "additional_roles",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_additional_roles(request):
+    try:
+        additional_roles = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_additional_roles()
+        ]
+        return 200, additional_roles
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get additional roles, reason: {unknown_error}"
+        }

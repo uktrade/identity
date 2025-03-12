@@ -532,3 +532,47 @@ def test_get_grades(mocker):
     assert json.loads(response.content) == {
         "message": "Could not get grades, reason: mocked-test-exception"
     }
+
+
+def test_get_additional_roles(mocker):
+    url = reverse("people-finder:get_additional_roles")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert json.loads(response.content) == [
+        {"key": key, "value": value} for key, value in AdditionalRole.choices
+    ]
+
+    mocker.patch(
+        "core.services.get_additional_roles",
+        return_value={
+            "fire_warden": "Fire warden",
+        },
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get additional roles, reason: too many values to unpack (expected 2)"
+    }
+
+    mocker.patch(
+        "core.services.get_additional_roles",
+        side_effect=Exception("mocked-test-exception"),
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get additional roles, reason: mocked-test-exception"
+    }

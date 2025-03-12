@@ -503,3 +503,10 @@ def get_grades() -> list[tuple[Grade, str]]:
     Gets all grades
     """
     return peoplefinder.get_grades()
+
+
+def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
+    """
+    Get all additional roles
+    """
+    return peoplefinder.get_additional_roles()
