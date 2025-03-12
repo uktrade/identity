@@ -299,6 +299,55 @@ def test_get_key_skills():
     ]
 
 
+def test_get_grades():
+    options = peoplefinder_services.get_grades()
+    assert options == [
+        ("fco_s1", "FCO S1"),
+        ("fco_s2", "FCO S2"),
+        ("fco_s3", "FCO S3"),
+        ("admin_assistant", "Administrative assistant (AA)"),
+        ("admin_officer", "Administrative officer (AO/A2)"),
+        ("executive_officer", "Executive officer (EO/B3)"),
+        ("higher_executive_officer", "Higher executive officer (HEO/C4)"),
+        ("senior_executive_officer", "Senior executive officer (SEO/C5)"),
+        ("grade_7", "Grade 7 (G7/D6)"),
+        ("grade_6", "Grade 6 (G6/D7)"),
+        ("scs_1", "Senior civil service 1 (SCS1/SMS1)"),
+        ("scs_2", "Senior civil service 2 (SCS2/SMS2)"),
+        ("scs_3", "Senior civil service 3 (SCS3/SMS3)"),
+        ("scs_4", "Senior civil service 4 (SCS4/SMS4)"),
+        ("fast_stream", "Fast Stream"),
+        ("fast_track", "Fast Track"),
+        ("apprentice", "Apprentice"),
+        ("non_graded_special_advisor", "Non graded - special advisor (SPAD)"),
+        ("non_graded_contractor", "Non graded - contractor"),
+        ("non_graded_secondee", "Non graded - secondee"),
+        ("non_graded_post", "Non graded - post"),
+    ]
+
+
+def test_get_additional_roles():
+    options = peoplefinder_services.get_additional_roles()
+    assert options == [
+        ("fire_warden", "Fire warden"),
+        ("first_aider", "First aider"),
+        ("mental_health_first_aider", "Mental health first aider"),
+        ("mentor", "Mentor"),
+        ("network_lead", "Network lead"),
+        ("network_deputy_lead", "Network deputy lead"),
+        ("cirrus_champion", "Cirrus champion"),
+        ("health_wellbeing_champion", "Health & wellbeing champion"),
+        ("fast_stream_rep", "Fast stream rep"),
+        ("overseas_staff_rep", "Overseas staff rep"),
+        ("digital_champion", "Digital champion"),
+        ("information_manager", "Information manager"),
+        ("independent_panel_member", "Independent panel member"),
+        ("divisional_security_coordinator", "Divisional security coordinator"),
+        ("ddat_champion", "DDaT champion"),
+        ("honours_champion", "Honours champion"),
+    ]
+
+
 def test_create_team():
     # Create a peoplefinder team
     peoplefinder_services.create_team(

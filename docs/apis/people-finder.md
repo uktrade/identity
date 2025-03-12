@@ -23,4 +23,5 @@ The ID service exposes an API that provides read and edit functionality designed
 - `learning_interests` : list of learning interests
 - `professions` : list of professions
 - `grades` : list of grades
-- `key_skills` : list of key skills
+- `key_skills` : list of key skills- `additional_roles` list of additional roles
+

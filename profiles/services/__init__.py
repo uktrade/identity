@@ -510,3 +510,10 @@ def get_key_skills() -> list[tuple[KeySkill, str]]:
     Gets all key skills
     """
     return peoplefinder.get_key_skills()
+
+
+def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
+    """
+    Get all additional roles
+    """
+    return peoplefinder.get_additional_roles()

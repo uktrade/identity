@@ -392,3 +392,10 @@ def get_key_skills() -> list[tuple[KeySkill, str]]:
     Function for getting a list of all key skills
     """
     return profile_services.get_key_skills()
+
+
+def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
+    """
+    Function for getting a list of all additional roles
+    """
+    return profile_services.get_additional_roles()
