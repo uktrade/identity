@@ -582,6 +582,13 @@ def get_grades() -> list[tuple[Grade, str]]:
     return Grade.choices
 
 
+def get_key_skills() -> list[tuple[KeySkill, str]]:
+    """
+    Gets all key skills
+    """
+    return KeySkill.choices
+
+
 def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
     """
     Get all additional roles

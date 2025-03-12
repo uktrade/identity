@@ -534,6 +534,53 @@ def test_get_grades(mocker):
     }
 
 
+def test_get_key_skills(mocker):
+    url = reverse("people-finder:get_key_skills")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == [
+        {"key": key, "value": value} for key, value in KeySkill.choices
+    ]
+
+    mocker.patch(
+        "core.services.get_key_skills",
+        return_value={
+            "asset_management": "Asset management",
+            "assurance": "Assurance",
+            "benefits_realisation": "Benefits realisation",
+            "change_management": "Change management",
+            "coaching": "Coaching",
+        },
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get key skills, reason: too many values to unpack (expected 2)"
+    }
+
+    mocker.patch(
+        "core.services.get_key_skills", side_effect=Exception("mocked-test-exception")
+    )
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get key skills, reason: mocked-test-exception"
+    }
+
+
 def test_get_additional_roles(mocker):
     url = reverse("people-finder:get_additional_roles")
     client = Client()

@@ -239,6 +239,66 @@ def test_get_professions():
     ]
 
 
+def test_get_key_skills():
+    options = peoplefinder_services.get_key_skills()
+
+    assert options == [
+        ("asset_management", "Asset management"),
+        ("assurance", "Assurance"),
+        ("benefits_realisation", "Benefits realisation"),
+        ("change_management", "Change management"),
+        ("coaching", "Coaching"),
+        ("commercial_specialist", "Commercial specialist"),
+        ("commissioning", "Commissioning"),
+        ("contract_management", "Contract management"),
+        ("credit_risk_analysis", "Credit risk analysis"),
+        ("customer_service", "Customer service"),
+        ("digital", "Digital"),
+        ("digital_workspace_publisher", "Digital Workspace publisher"),
+        ("economist", "Economist"),
+        ("financial_reporting", "Financial reporting"),
+        ("graphic_design", "Graphic Design"),
+        ("hr", "HR"),
+        ("income_generation", "Income generation"),
+        ("information_management", "Information management"),
+        ("interviewing", "Interviewing"),
+        ("it", "IT"),
+        ("law", "Law"),
+        ("lean", "Lean/ Six sigma"),
+        ("line_management", "Line management"),
+        ("media_trained", "Media trained"),
+        ("mentoring", "Mentoring"),
+        ("policy_design", "Policy design"),
+        ("policy_implementation", "Policy implementation"),
+        ("presenting", "Presenting"),
+        ("project_delivery", "Project delivery"),
+        ("project_management", "Project management"),
+        ("property_estates", "Property / Estates"),
+        ("research_operational", "Research - operational"),
+        ("research_economic", "Research - economic"),
+        ("research_statistical", "Research - statistical"),
+        ("research_social", "Research - social"),
+        ("risk_management", "Risk management"),
+        ("security", "Security"),
+        ("service_design", "Service and process design"),
+        ("skills_and_capability", "Skills and capability management"),
+        ("sponsorship", "Sponsorship and partnerships"),
+        ("stakeholder_management", "Stakeholder management"),
+        ("statistics", "Statistics"),
+        ("strategy", "Strategy"),
+        ("submission_writing", "Submission writing"),
+        ("talent_management", "Talent Management"),
+        ("tax", "Tax"),
+        ("training", "Training"),
+        ("underwriting", "Underwriting"),
+        ("user_research", "User research"),
+        ("valution", "Valuation"),
+        ("working_with_devolved_admin", "Working with Devolved Administrations"),
+        ("working_with_ministers", "Working with Ministers"),
+        ("working_with_govt_depts", "Working with other government departments"),
+    ]
+
+
 def test_get_grades():
     options = peoplefinder_services.get_grades()
     assert options == [
