@@ -455,3 +455,21 @@ def get_grades(request):
         return 200, grades
     except Exception as unknown_error:
         return 500, {"message": f"Could not get grades, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "key_skills",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_key_skills(request):
+    try:
+        key_skills = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_key_skills()
+        ]
+        return 200, key_skills
+    except Exception as unknown_error:
+        return 500, {"message": f"Could not get key skills, reason: {unknown_error}"}

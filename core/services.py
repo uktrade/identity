@@ -385,3 +385,10 @@ def get_grades() -> list[tuple[Grade, str]]:
     Function for getting a list of all grades
     """
     return profile_services.get_grades()
+
+
+def get_key_skills() -> list[tuple[KeySkill, str]]:
+    """
+    Function for getting a list of all key skills
+    """
+    return profile_services.get_key_skills()
