@@ -1,4 +1,6 @@
-from ninja import Router
+from ninja import Router, File
+from ninja.files import UploadedFile
+from pathlib import Path
 
 from core import services as core_services
 from core.schemas import Error
@@ -32,7 +34,7 @@ router.add_router("reference", reference_router)
     },
 )
 def get_profile(request, slug: str):
-    """Optimised, low-flexibility endpoint to return a minimal peoplefinder profile record"""
+    """Endpoint to return a full peoplefinder profile record"""
     try:
         return core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
@@ -65,8 +67,6 @@ def create_profile(
             contact_email_address=profile_request.contact_email_address,
             primary_phone_number=profile_request.primary_phone_number,
             secondary_phone_number=profile_request.secondary_phone_number,
-            photo=profile_request.photo,
-            photo_small=profile_request.photo_small,
             grade=profile_request.grade,
             manager_slug=profile_request.manager_slug,
             workdays=profile_request.workdays,
@@ -119,8 +119,6 @@ def update_profile(
             contact_email_address=profile_request.contact_email_address,
             primary_phone_number=profile_request.primary_phone_number,
             secondary_phone_number=profile_request.secondary_phone_number,
-            photo=profile_request.photo,
-            photo_small=profile_request.photo_small,
             grade=profile_request.grade,
             manager_slug=profile_request.manager_slug,
             not_employee=profile_request.not_employee,
@@ -148,6 +146,37 @@ def update_profile(
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
 
+
+@profile_router.post(
+    path="{slug}/photo",
+    response={
+        200: ProfileResponse,  # @TODO custom minimal response
+        404: Error,
+    },
+)
+def upload_profile_photo(request, slug: str, file: UploadedFile):
+    """
+    Endpoint to upload a new profile photo for the given profile
+    """
+    try:
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {
+            "message": "Unable to find people finder profile",
+        }
+
+    photo_ext = Path(file.name).suffix.lstrip(".")
+    # Pillow doesn't like JPG as a file extension ¯\_(ツ)_/¯
+    if photo_ext.upper() == "JPG":
+        photo_ext = "JPEG"
+
+    data = file.read()
+    resized_photo = data.resize(512, 512)
+    profile.photo.save(file.name, content=resized_photo)
+    # @TODO do we want to crop the photo, save the small version etc? This approach is pretty basic ATM.
+    # @TODO it feels like all of this should be deferred to celery
+
+    return profile
 
 @reference_router.get(
     "countries/",
