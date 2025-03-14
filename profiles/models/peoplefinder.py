@@ -22,95 +22,110 @@ def person_photo_small_path(instance, filename):
 
 
 class LearningInterest(models.TextChoices):
-    SHADOWING = "Work shadowing"
-    MENTORING = "Mentoring"
-    RESEARCH = "Research"
-    OVERSEAS_POSTS = "Overseas posts"
-    SECONDMENT = "Secondment"
-    PARLIAMENTARY_WORK = "Parliamentary work"
-    MINISTERIAL_SUBMISSIONS = "Ministerial submissions"
-    CODING = "Coding"
+    SHADOWING = "shadowing", "Work shadowing"
+    MENTORING = "mentoring", "Mentoring"
+    RESEARCH = "research", "Research"
+    OVERSEAS_POSTS = "overseas_posts", "Overseas posts"
+    SECONDMENT = "secondment", "Secondment"
+    PARLIAMENTARY_WORK = "parliamentary_work", "Parliamentary work"
+    MINISTERIAL_SUBMISSIONS = "ministerial_submissions", "Ministerial submissions"
+    CODING = "coding", "Coding"
 
 
 class KeySkill(models.TextChoices):
-    ASSET_MANAGEMENT = "Asset management"
-    ASSURANCE = "Assurance"
-    BENEFITS_REALISATION = "Benefits realisation"
-    CHANGE_MANAGEMENT = "Change management"
-    COACHING = "Coaching"
-    COMMERCIAL_SPECIALIST = "Commercial specialist"
-    COMMISSIONING = "Commissioning"
-    CONTRACT_MANAGEMENT = "Contract management"
-    CREDIT_RISK_ANALYSIS = "Credit risk analysis"
-    CUSTOMER_SERVICE = "Customer service"
-    DIGITAL = "Digital"
-    DIGITAL_WORKSPACE_PUBLISHER = "Digital Workspace publisher"
-    ECONOMIST = "Economist"
-    FINANCIAL_REPORTING = "Financial reporting"
-    GRAPHIC_DESIGN = "Graphic Design"
-    HR = "HR"
-    INCOME_GENERATION = "Income generation"
-    INFORMATION_MANAGEMENT = "Information management"
-    INTERVIEWING = "Interviewing"
-    IT = "IT"
-    LAW = "Law"
-    LEAN = "Lean/ Six sigma"
-    LINE_MANAGEMENT = "Line management"
-    MEDIA_TRAINED = "Media trained"
-    MENTORING = "Mentoring"
-    POLICY_DESIGN = "Policy design"
-    POLICY_IMPLEMENTATION = "Policy implementation"
-    PRESENTING = "Presenting"
-    PROJECT_DELIVERY = "Project delivery"
-    PROJECT_MANAGEMENT = "Project management"
-    PROPERTY_ESTATES = "Property / Estates"
-    RESEARCH_OPERATIONAL = "Research - operational"
-    RESEARCH_ECONOMIC = "Research - economic"
-    RESEARCH_STATISTICAL = "Research - statistical"
-    RESEARCH_SOCIAL = "Research - social"
-    RISK_MANAGEMENT = "Risk management"
-    SECURITY = "Security"
-    SERVICE_DESIGN = "Service and process design"
-    SKILLS_AND_CAPABILITY = "Skills and capability management"
-    SPONSORSHIP = "Sponsorship and partnerships"
-    STAKEHOLDER_MANAGEMENT = "Stakeholder management"
-    STATISTICS = "Statistics"
-    STRATEGY = "Strategy"
-    SUBMISSION_WRITING = "Submission writing"
-    TALENT_MANAGEMENT = "Talent Management"
-    TAX = "Tax"
-    TRAINING = "Training"
-    UNDERWRITING = "Underwriting"
-    USER_RESEARCH = "User research"
-    VALUTION = "Valuation"
-    WORKING_WITH_DEVOLVED_ADMIN = "Working with Devolved Administrations"
-    WORKING_WITH_MINISTERS = "Working with Ministers"
-    WORKING_WITH_GOVT_DEPTS = "Working with other government departments"
+    ASSET_MANAGEMENT = "asset_management", "Asset management"
+    ASSURANCE = "assurance", "Assurance"
+    BENEFITS_REALISATION = "benefits_realisation", "Benefits realisation"
+    CHANGE_MANAGEMENT = "change_management", "Change management"
+    COACHING = "coaching", "Coaching"
+    COMMERCIAL_SPECIALIST = "commercial_specialist", "Commercial specialist"
+    COMMISSIONING = "commissioning", "Commissioning"
+    CONTRACT_MANAGEMENT = "contract_management", "Contract management"
+    CREDIT_RISK_ANALYSIS = "credit_risk_analysis", "Credit risk analysis"
+    CUSTOMER_SERVICE = "customer_service", "Customer service"
+    DIGITAL = "digital", "Digital"
+    DIGITAL_WORKSPACE_PUBLISHER = (
+        "digital_workspace_publisher",
+        "Digital Workspace publisher",
+    )
+    ECONOMIST = "economist", "Economist"
+    FINANCIAL_REPORTING = "financial_reporting", "Financial reporting"
+    GRAPHIC_DESIGN = "graphic_design", "Graphic Design"
+    HR = "hr", "HR"
+    INCOME_GENERATION = "income_generation", "Income generation"
+    INFORMATION_MANAGEMENT = "information_management", "Information management"
+    INTERVIEWING = "interviewing", "Interviewing"
+    IT = "it", "IT"
+    LAW = "law", "Law"
+    LEAN = "lean", "Lean/ Six sigma"
+    LINE_MANAGEMENT = "line_management", "Line management"
+    MEDIA_TRAINED = "media_trained", "Media trained"
+    MENTORING = "mentoring", "Mentoring"
+    POLICY_DESIGN = "policy_design", "Policy design"
+    POLICY_IMPLEMENTATION = "policy_implementation", "Policy implementation"
+    PRESENTING = "presenting", "Presenting"
+    PROJECT_DELIVERY = "project_delivery", "Project delivery"
+    PROJECT_MANAGEMENT = "project_management", "Project management"
+    PROPERTY_ESTATES = "property_estates", "Property / Estates"
+    RESEARCH_OPERATIONAL = "research_operational", "Research - operational"
+    RESEARCH_ECONOMIC = "research_economic", "Research - economic"
+    RESEARCH_STATISTICAL = "research_statistical", "Research - statistical"
+    RESEARCH_SOCIAL = "research_social", "Research - social"
+    RISK_MANAGEMENT = "risk_management", "Risk management"
+    SECURITY = "security", "Security"
+    SERVICE_DESIGN = "service_design", "Service and process design"
+    SKILLS_AND_CAPABILITY = "skills_and_capability", "Skills and capability management"
+    SPONSORSHIP = "sponsorship", "Sponsorship and partnerships"
+    STAKEHOLDER_MANAGEMENT = "stakeholder_management", "Stakeholder management"
+    STATISTICS = "statistics", "Statistics"
+    STRATEGY = "strategy", "Strategy"
+    SUBMISSION_WRITING = "submission_writing", "Submission writing"
+    TALENT_MANAGEMENT = "talent_management", "Talent Management"
+    TAX = "tax", "Tax"
+    TRAINING = "training", "Training"
+    UNDERWRITING = "underwriting", "Underwriting"
+    USER_RESEARCH = "user_research", "User research"
+    VALUTION = "valution", "Valuation"
+    WORKING_WITH_DEVOLVED_ADMIN = (
+        "working_with_devolved_admin",
+        "Working with Devolved Administrations",
+    )
+    WORKING_WITH_MINISTERS = "working_with_ministers", "Working with Ministers"
+    WORKING_WITH_GOVT_DEPTS = (
+        "working_with_govt_depts",
+        "Working with other government departments",
+    )
 
 
 class AdditionalRole(models.TextChoices):
-    FIRE_WARDEN = "Fire warden"
-    FIRST_AIDER = "First aider"
-    MENTAL_HEALTH_FIRST_AIDER = "Mental health first aider"
-    MENTOR = "Mentor"
-    NETWORK_LEAD = "Network lead"
-    NETWORK_DEPUTY_LEAD = "Network deputy lead"
-    CIRRUS_CHAMPION = "Cirrus champion"
-    HEALTH_WELLBEING_CHAMPION = "Health & wellbeing champion"
-    FAST_STREAM_REP = "Fast stream rep"
-    OVERSEAS_STAFF_REP = "Overseas staff rep"
-    DIGITAL_CHAMPION = "Digital champion"
-    INFORMATION_MANAGER = "Information manager"
-    INDEPENDENT_PANEL_MEMBER = "Independent panel member"
-    DIVISIONAL_SECURITY_COORDINATOR = "Divisional security coordinator"
-    DDAT_CHAMPION = "DDaT champion"
-    HONOURS_CHAMPION = "Honours champion"
+    FIRE_WARDEN = "fire_warden", "Fire warden"
+    FIRST_AIDER = "first_aider", "First aider"
+    MENTAL_HEALTH_FIRST_AIDER = "mental_health_first_aider", "Mental health first aider"
+    MENTOR = "mentor", "Mentor"
+    NETWORK_LEAD = "network_lead", "Network lead"
+    NETWORK_DEPUTY_LEAD = "network_deputy_lead", "Network deputy lead"
+    CIRRUS_CHAMPION = "cirrus_champion", "Cirrus champion"
+    HEALTH_WELLBEING_CHAMPION = (
+        "health_wellbeing_champion",
+        "Health & wellbeing champion",
+    )
+    FAST_STREAM_REP = "fast_stream_rep", "Fast stream rep"
+    OVERSEAS_STAFF_REP = "overseas_staff_rep", "Overseas staff rep"
+    DIGITAL_CHAMPION = "digital_champion", "Digital champion"
+    INFORMATION_MANAGER = "information_manager", "Information manager"
+    INDEPENDENT_PANEL_MEMBER = "independent_panel_member", "Independent panel member"
+    DIVISIONAL_SECURITY_COORDINATOR = (
+        "divisional_security_coordinator",
+        "Divisional security coordinator",
+    )
+    DDAT_CHAMPION = "ddat_champion", "DDaT champion"
+    HONOURS_CHAMPION = "honours_champion", "Honours champion"
 
 
 class RemoteWorking(models.TextChoices):
-    OFFICE_WORKER = "office_worker"
-    REMOTE_WORKER = "remote_worker"
-    SPLIT = "split"
+    OFFICE_WORKER = "office_worker", "Office worker"
+    REMOTE_WORKER = "remote_worker", "Remote worker"
+    SPLIT = "split", "Split"
 
 
 class PeopleFinderProfile(AbstractHistoricalModel):
@@ -131,7 +146,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
 
     # Basic Profile info
     #
-    first_name = models.CharField(
+    first_name = models.CharField(  # TODO: Why is this different from the PF field? when will a profile have no first name?
         max_length=200,
         null=True,
         blank=True,
@@ -141,7 +156,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         null=True,
         blank=True,
     )
-    last_name = models.CharField(
+    last_name = models.CharField(  # TODO: Why is this different from the PF field? when will a profile have no last name?
         max_length=200,
         null=True,
         blank=True,
@@ -156,12 +171,14 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         "profiles.Email",
         models.SET_NULL,
         null=True,
+        blank=True,
         related_name="+",
     )
     contact_email = models.ForeignKey(
         "profiles.Email",
         models.SET_NULL,
         null=True,
+        blank=True,
         related_name="+",
     )
     primary_phone_number = models.CharField(
@@ -330,7 +347,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
     #
     is_active = models.BooleanField(default=True)
     became_inactive = models.DateTimeField(null=True, blank=True)
-    edited_or_confirmed_at = models.DateTimeField(null=True, blank=True)
+    edited_or_confirmed_at = models.DateTimeField(
+        null=True, blank=True
+    )  # TODO: This is defined in the PF codebase as `models.DateTimeField(default=timezone.now)`
     login_count = models.IntegerField(default=0)
     profile_completion = models.IntegerField(default=0)
     ical_token = models.CharField(

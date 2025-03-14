@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 
 from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
-from profiles.models.generic import UkStaffLocation
+from profiles.models.generic import Grade, UkStaffLocation
 from profiles.services import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
@@ -37,9 +37,9 @@ def test_create(peoplefinder_profile):
         is_active=user.is_active,
         first_name="Tom",
         last_name="Doe",
-        contact_email_address="contact_email@email.com",
-        email_address="email@email.com",
-        grade="FCO S2",
+        email_address="tom@email.com",
+        contact_email_address="tom_contact@email.com",
+        grade=Grade("grade_7"),
         country_id="CTHMTC00260",
         uk_office_location_id="test",
         manager_slug=manager.slug,
@@ -47,7 +47,7 @@ def test_create(peoplefinder_profile):
 
     assert peoplefinder_profile.first_name == "Tom"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "FCO S2"
+    assert peoplefinder_profile.grade == "grade_7"
     assert peoplefinder_profile.uk_office_location == UkStaffLocation.objects.get(
         code="test"
     )
@@ -58,7 +58,7 @@ def test_update(peoplefinder_profile, combined_profile):
     # Check the first_name last_name and grade before update
     assert peoplefinder_profile.first_name == "John"
     assert peoplefinder_profile.last_name == "Doe"
-    assert peoplefinder_profile.grade == "FCO S1"
+    assert peoplefinder_profile.grade == "grade_7"
 
     peoplefinder_services.update(
         peoplefinder_profile=peoplefinder_profile,
@@ -166,10 +166,9 @@ def test_get_uk_staff_locations():
 
 def test_get_remote_working_options():
     options = peoplefinder_services.get_remote_working()
-
     assert options == [
-        ("office_worker", "Office Worker"),
-        ("remote_worker", "Remote Worker"),
+        ("office_worker", "Office worker"),
+        ("remote_worker", "Remote worker"),
         ("split", "Split"),
     ]
 
@@ -178,13 +177,13 @@ def test_get_workday_options():
     options = peoplefinder_services.get_workdays()
 
     assert options == [
-        ("Monday", "Mon"),
-        ("Tuesday", "Tue"),
-        ("Wednesday", "Wed"),
-        ("Thursday", "Thu"),
-        ("Friday", "Fri"),
-        ("Saturday", "Sat"),
-        ("Sunday", "Sun"),
+        ("mon", "Monday"),
+        ("tue", "Tuesday"),
+        ("wed", "Wednesday"),
+        ("thu", "Thursday"),
+        ("fri", "Friday"),
+        ("sat", "Saturday"),
+        ("sun", "Sunday"),
     ]
 
 
@@ -192,14 +191,14 @@ def test_get_learning_interest_options():
     options = peoplefinder_services.get_learning_interests()
 
     assert options == [
-        ("Work shadowing", "Shadowing"),
-        ("Mentoring", "Mentoring"),
-        ("Research", "Research"),
-        ("Overseas posts", "Overseas Posts"),
-        ("Secondment", "Secondment"),
-        ("Parliamentary work", "Parliamentary Work"),
-        ("Ministerial submissions", "Ministerial Submissions"),
-        ("Coding", "Coding"),
+        ("shadowing", "Work shadowing"),
+        ("mentoring", "Mentoring"),
+        ("research", "Research"),
+        ("overseas_posts", "Overseas posts"),
+        ("secondment", "Secondment"),
+        ("parliamentary_work", "Parliamentary work"),
+        ("ministerial_submissions", "Ministerial submissions"),
+        ("coding", "Coding"),
     ]
 
 
@@ -207,36 +206,145 @@ def test_get_professions():
     options = peoplefinder_services.get_professions()
 
     assert options == [
-        ("Government commercial and contract management", "Commercial"),
-        ("Corporate finance profession", "Corp Finance"),
-        ("Counter-fraud standards and profession", "Counter Fraud"),
-        ("Digital, data and technology profession", "Digital Data Tech"),
-        ("Government communication service", "Gov Comms"),
-        ("Government economic service", "Gov Economics"),
-        ("Government finance profession", "Gov Finance"),
-        ("Government IT profession", "Gov It"),
-        ("Government knowledge and information management profession", "Gov Knowledge"),
-        ("Government legal service", "Gov Legal"),
-        ("Government occupational psychology profession", "Gov Occupational"),
-        ("Government operational research service", "Gov Operational"),
-        ("Government planning inspectors", "Gov Planning Inspectors"),
-        ("Government planning profession", "Gov Planning Profession"),
-        ("Government property profession", "Gov Property"),
-        ("Government security profession", "Gov Security"),
-        ("Government science and engineering profession", "Gov Science"),
-        ("Government social research profession", "Gov Social"),
-        ("Government statistical service profession", "Gov Statistical"),
-        ("Government tax profession", "Gov Tax"),
-        ("Government veterinary profession", "Gov Vet"),
-        ("Human resources profession", "Human Resources"),
-        ("Intelligence analysis", "Intelligence Analysis"),
-        ("Internal audit profession", "Internal Audit"),
-        ("Medical profession", "Medical Profession"),
-        ("Operational delivery profession", "Operation Delivery"),
-        ("Policy profession", "Policy Profiession"),
-        ("Procurement profession", "Procurement Profession"),
-        ("Project delivery profession", "Project Delivery"),
-        ("International trade profession", "International Trade"),
+        ("commercial", "Government commercial and contract management"),
+        ("corp_finance", "Corporate finance profession"),
+        ("counter_fraud", "Counter-fraud standards and profession"),
+        ("digital_data_tech", "Digital, data and technology profession"),
+        ("gov_comms", "Government communication service"),
+        ("gov_economics", "Government economic service"),
+        ("gov_finance", "Government finance profession"),
+        ("gov_it", "Government IT profession"),
+        ("gov_knowledge", "Government knowledge and information management profession"),
+        ("gov_legal", "Government legal service"),
+        ("gov_occupational", "Government occupational psychology profession"),
+        ("gov_operational", "Government operational research service"),
+        ("gov_planning_inspectors", "Government planning inspectors"),
+        ("gov_planning_profession", "Government planning profession"),
+        ("gov_property", "Government property profession"),
+        ("gov_security", "Government security profession"),
+        ("gov_science", "Government science and engineering profession"),
+        ("gov_social", "Government social research profession"),
+        ("gov_statistical", "Government statistical service profession"),
+        ("gov_tax", "Government tax profession"),
+        ("gov_vet", "Government veterinary profession"),
+        ("human_resources", "Human resources profession"),
+        ("intelligence_analysis", "Intelligence analysis"),
+        ("internal_audit", "Internal audit profession"),
+        ("medical_profession", "Medical profession"),
+        ("operation_delivery", "Operational delivery profession"),
+        ("policy_profiession", "Policy profession"),
+        ("procurement_profession", "Procurement profession"),
+        ("project_delivery", "Project delivery profession"),
+        ("international_trade", "International trade profession"),
+    ]
+
+
+def test_get_key_skills():
+    options = peoplefinder_services.get_key_skills()
+
+    assert options == [
+        ("asset_management", "Asset management"),
+        ("assurance", "Assurance"),
+        ("benefits_realisation", "Benefits realisation"),
+        ("change_management", "Change management"),
+        ("coaching", "Coaching"),
+        ("commercial_specialist", "Commercial specialist"),
+        ("commissioning", "Commissioning"),
+        ("contract_management", "Contract management"),
+        ("credit_risk_analysis", "Credit risk analysis"),
+        ("customer_service", "Customer service"),
+        ("digital", "Digital"),
+        ("digital_workspace_publisher", "Digital Workspace publisher"),
+        ("economist", "Economist"),
+        ("financial_reporting", "Financial reporting"),
+        ("graphic_design", "Graphic Design"),
+        ("hr", "HR"),
+        ("income_generation", "Income generation"),
+        ("information_management", "Information management"),
+        ("interviewing", "Interviewing"),
+        ("it", "IT"),
+        ("law", "Law"),
+        ("lean", "Lean/ Six sigma"),
+        ("line_management", "Line management"),
+        ("media_trained", "Media trained"),
+        ("mentoring", "Mentoring"),
+        ("policy_design", "Policy design"),
+        ("policy_implementation", "Policy implementation"),
+        ("presenting", "Presenting"),
+        ("project_delivery", "Project delivery"),
+        ("project_management", "Project management"),
+        ("property_estates", "Property / Estates"),
+        ("research_operational", "Research - operational"),
+        ("research_economic", "Research - economic"),
+        ("research_statistical", "Research - statistical"),
+        ("research_social", "Research - social"),
+        ("risk_management", "Risk management"),
+        ("security", "Security"),
+        ("service_design", "Service and process design"),
+        ("skills_and_capability", "Skills and capability management"),
+        ("sponsorship", "Sponsorship and partnerships"),
+        ("stakeholder_management", "Stakeholder management"),
+        ("statistics", "Statistics"),
+        ("strategy", "Strategy"),
+        ("submission_writing", "Submission writing"),
+        ("talent_management", "Talent Management"),
+        ("tax", "Tax"),
+        ("training", "Training"),
+        ("underwriting", "Underwriting"),
+        ("user_research", "User research"),
+        ("valution", "Valuation"),
+        ("working_with_devolved_admin", "Working with Devolved Administrations"),
+        ("working_with_ministers", "Working with Ministers"),
+        ("working_with_govt_depts", "Working with other government departments"),
+    ]
+
+
+def test_get_grades():
+    options = peoplefinder_services.get_grades()
+    assert options == [
+        ("fco_s1", "FCO S1"),
+        ("fco_s2", "FCO S2"),
+        ("fco_s3", "FCO S3"),
+        ("admin_assistant", "Administrative assistant (AA)"),
+        ("admin_officer", "Administrative officer (AO/A2)"),
+        ("executive_officer", "Executive officer (EO/B3)"),
+        ("higher_executive_officer", "Higher executive officer (HEO/C4)"),
+        ("senior_executive_officer", "Senior executive officer (SEO/C5)"),
+        ("grade_7", "Grade 7 (G7/D6)"),
+        ("grade_6", "Grade 6 (G6/D7)"),
+        ("scs_1", "Senior civil service 1 (SCS1/SMS1)"),
+        ("scs_2", "Senior civil service 2 (SCS2/SMS2)"),
+        ("scs_3", "Senior civil service 3 (SCS3/SMS3)"),
+        ("scs_4", "Senior civil service 4 (SCS4/SMS4)"),
+        ("fast_stream", "Fast Stream"),
+        ("fast_track", "Fast Track"),
+        ("apprentice", "Apprentice"),
+        ("non_graded_special_advisor", "Non graded - special advisor (SPAD)"),
+        ("non_graded_contractor", "Non graded - contractor"),
+        ("non_graded_secondee", "Non graded - secondee"),
+        ("non_graded_post", "Non graded - post"),
+    ]
+
+
+def test_get_additional_roles():
+    options = peoplefinder_services.get_additional_roles()
+    assert options == [
+        ("fire_warden", "Fire warden"),
+        ("first_aider", "First aider"),
+        ("mental_health_first_aider", "Mental health first aider"),
+        ("mentor", "Mentor"),
+        ("network_lead", "Network lead"),
+        ("network_deputy_lead", "Network deputy lead"),
+        ("cirrus_champion", "Cirrus champion"),
+        ("health_wellbeing_champion", "Health & wellbeing champion"),
+        ("fast_stream_rep", "Fast stream rep"),
+        ("overseas_staff_rep", "Overseas staff rep"),
+        ("digital_champion", "Digital champion"),
+        ("information_manager", "Information manager"),
+        ("independent_panel_member", "Independent panel member"),
+        ("divisional_security_coordinator", "Divisional security coordinator"),
+        ("ddat_champion", "DDaT champion"),
+        ("honours_champion", "Honours champion"),
     ]
 
 

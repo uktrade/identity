@@ -15,8 +15,15 @@ from core.schemas.peoplefinder import (
 )
 from profiles.exceptions import ProfileExists
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
-from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.models.generic import Country, Grade, Profession, UkStaffLocation, Workday
+from profiles.models.peoplefinder import (
+    AdditionalRole,
+    KeySkill,
+    LearningInterest,
+    PeopleFinderProfile,
+    RemoteWorking,
+)
+from profiles.types import UNSET, Unset
 
 
 router = Router()
@@ -47,10 +54,41 @@ def get_profile(request, slug: str):
 def create_profile(
     request, profile_request: CreateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
+    """Endpoint to create a new people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
         )
+
+        workdays_list: list[Workday] | None = None
+        if profile_request.workdays:
+            workdays_list = [Workday(workday) for workday in profile_request.workdays]
+
+        professions_list: list[Profession] | None = None
+        if profile_request.professions:
+            professions_list = [
+                Profession(profession) for profession in profile_request.professions
+            ]
+
+        learning_interests_list: list[LearningInterest] | None = None
+        if profile_request.learning_interests:
+            learning_interests_list = [
+                LearningInterest(learning_interest)
+                for learning_interest in profile_request.learning_interests
+            ]
+
+        key_skills_list: list[KeySkill] | None = None
+        if profile_request.key_skills:
+            key_skills_list = [
+                KeySkill(key_skill) for key_skill in profile_request.key_skills
+            ]
+
+        additional_roles_list: list[AdditionalRole] | None = None
+        if profile_request.additional_roles:
+            additional_roles_list = [
+                AdditionalRole(additional_role)
+                for additional_role in profile_request.additional_roles
+            ]
 
         core_services.create_peoplefinder_profile(
             slug=profile_request.slug,
@@ -67,20 +105,31 @@ def create_profile(
             contact_email_address=profile_request.contact_email_address,
             primary_phone_number=profile_request.primary_phone_number,
             secondary_phone_number=profile_request.secondary_phone_number,
-            grade=profile_request.grade,
+            grade=(
+                None if profile_request.grade is None else Grade(profile_request.grade)
+            ),
             manager_slug=profile_request.manager_slug,
-            workdays=profile_request.workdays,
-            remote_working=profile_request.remote_working,
+            not_employee=profile_request.not_employee,
+            workdays=None if workdays_list is None else workdays_list,
+            remote_working=(
+                None
+                if profile_request.remote_working is None
+                else RemoteWorking(profile_request.remote_working)
+            ),
             usual_office_days=profile_request.usual_office_days,
             uk_office_location_id=profile_request.uk_office_location_id,
             location_in_building=profile_request.location_in_building,
             international_building=profile_request.international_building,
             country_id=profile_request.country_id,
-            professions=profile_request.professions,
-            additional_roles=profile_request.additional_roles,
-            key_skills=profile_request.key_skills,
+            professions=None if professions_list is None else professions_list,
+            additional_roles=(
+                None if additional_roles_list is None else additional_roles_list
+            ),
+            key_skills=None if key_skills_list is None else key_skills_list,
             other_key_skills=profile_request.other_key_skills,
-            learning_interests=profile_request.learning_interests,
+            learning_interests=(
+                None if learning_interests_list is None else learning_interests_list
+            ),
             other_learning_interests=profile_request.other_learning_interests,
             fluent_languages=profile_request.fluent_languages,
             intermediate_languages=profile_request.intermediate_languages,
@@ -99,46 +148,176 @@ def create_profile(
 def update_profile(
     request, slug: str, profile_request: UpdateProfileRequest
 ) -> tuple[int, PeopleFinderProfile | dict]:
+    """Endpoint to update an existing people finder profile"""
     try:
         combined_profile = core_services.get_identity_by_id(
             id=profile_request.sso_email_id
         )
+
+        workdays_list: Unset | list[Workday]
+        if profile_request.workdays is None:
+            workdays_list = UNSET
+        else:
+            workdays_list = [Workday(workday) for workday in profile_request.workdays]
+
+        professions_list: Unset | list[Profession]
+        if profile_request.professions is None:
+            professions_list = UNSET
+        else:
+            professions_list = [
+                Profession(profession) for profession in profile_request.professions
+            ]
+
+        learning_interests_list: Unset | list[LearningInterest]
+        if profile_request.learning_interests is None:
+            learning_interests_list = UNSET
+        else:
+            learning_interests_list = [
+                LearningInterest(learning_interest)
+                for learning_interest in profile_request.learning_interests
+            ]
+
+        key_skills_list: Unset | list[KeySkill]
+        if profile_request.key_skills is None:
+            key_skills_list = UNSET
+        else:
+            key_skills_list = [
+                KeySkill(key_skill) for key_skill in profile_request.key_skills
+            ]
+
+        additional_roles_list: Unset | list[AdditionalRole]
+        if profile_request.additional_roles is None:
+            additional_roles_list = UNSET
+        else:
+            additional_roles_list = [
+                AdditionalRole(additional_role)
+                for additional_role in profile_request.additional_roles
+            ]
+
         core_services.update_peoplefinder_profile(
             profile=combined_profile,
             slug=slug,
-            is_active=combined_profile.is_active,
-            became_inactive=profile_request.became_inactive,
-            edited_or_confirmed_at=profile_request.edited_or_confirmed_at,
+            is_active=combined_profile.is_active,  # TODO: Cam/Marcel to discuss, shouldn't the first step just be to store PF data and not change it's behaviour/purpose?
+            became_inactive=(
+                UNSET
+                if profile_request.became_inactive is None
+                else profile_request.became_inactive
+            ),
+            edited_or_confirmed_at=(
+                UNSET
+                if profile_request.edited_or_confirmed_at is None
+                else profile_request.edited_or_confirmed_at
+            ),
             login_count=profile_request.login_count,
-            first_name=profile_request.first_name,
-            last_name=profile_request.last_name,
-            preferred_first_name=profile_request.preferred_first_name,
-            pronouns=profile_request.pronouns,
-            name_pronunciation=profile_request.name_pronunciation,
-            email_address=profile_request.email_address,
-            contact_email_address=profile_request.contact_email_address,
-            primary_phone_number=profile_request.primary_phone_number,
-            secondary_phone_number=profile_request.secondary_phone_number,
-            grade=profile_request.grade,
-            manager_slug=profile_request.manager_slug,
+            first_name=(
+                UNSET
+                if profile_request.first_name is None
+                else profile_request.first_name
+            ),
+            last_name=profile_request.last_name if profile_request.last_name else UNSET,
+            preferred_first_name=(
+                UNSET
+                if profile_request.preferred_first_name is None
+                else profile_request.preferred_first_name
+            ),
+            pronouns=(
+                UNSET if profile_request.pronouns is None else profile_request.pronouns
+            ),
+            name_pronunciation=(
+                UNSET
+                if profile_request.name_pronunciation is None
+                else profile_request.name_pronunciation
+            ),
+            email_address=(
+                UNSET
+                if profile_request.email_address is None
+                else profile_request.email_address
+            ),
+            contact_email_address=(
+                UNSET
+                if profile_request.contact_email_address is None
+                else profile_request.contact_email_address
+            ),
+            primary_phone_number=(
+                UNSET
+                if profile_request.primary_phone_number is None
+                else profile_request.primary_phone_number
+            ),
+            secondary_phone_number=(
+                UNSET
+                if profile_request.secondary_phone_number is None
+                else profile_request.secondary_phone_number
+            ),
+            grade=(
+                UNSET if profile_request.grade is None else Grade(profile_request.grade)
+            ),
+            manager_slug=(
+                UNSET
+                if profile_request.manager_slug is None
+                else profile_request.manager_slug
+            ),
             not_employee=profile_request.not_employee,
-            workdays=profile_request.workdays,
-            remote_working=profile_request.remote_working,
-            usual_office_days=profile_request.usual_office_days,
-            uk_office_location_id=profile_request.uk_office_location_id,
-            location_in_building=profile_request.location_in_building,
-            international_building=profile_request.international_building,
+            workdays=workdays_list,
+            remote_working=(
+                UNSET
+                if profile_request.remote_working is None
+                else RemoteWorking(profile_request.remote_working)
+            ),
+            usual_office_days=(
+                UNSET
+                if profile_request.usual_office_days is None
+                else profile_request.usual_office_days
+            ),
+            uk_office_location_id=(
+                UNSET
+                if profile_request.uk_office_location_id is None
+                else profile_request.uk_office_location_id
+            ),
+            location_in_building=(
+                UNSET
+                if profile_request.location_in_building is None
+                else profile_request.location_in_building
+            ),
+            international_building=(
+                UNSET
+                if profile_request.international_building is None
+                else profile_request.international_building
+            ),
             country_id=profile_request.country_id,
-            professions=profile_request.professions,
-            additional_roles=profile_request.additional_roles,
-            other_additional_roles=profile_request.other_additional_roles,
-            key_skills=profile_request.key_skills,
-            other_key_skills=profile_request.other_key_skills,
-            learning_interests=profile_request.learning_interests,
-            other_learning_interests=profile_request.other_learning_interests,
-            fluent_languages=profile_request.fluent_languages,
-            intermediate_languages=profile_request.intermediate_languages,
-            previous_experience=profile_request.previous_experience,
+            professions=professions_list,
+            additional_roles=additional_roles_list,
+            other_additional_roles=(
+                UNSET
+                if profile_request.other_additional_roles is None
+                else profile_request.other_additional_roles
+            ),
+            key_skills=key_skills_list,
+            other_key_skills=(
+                UNSET
+                if profile_request.other_key_skills is None
+                else profile_request.other_key_skills
+            ),
+            learning_interests=learning_interests_list,
+            other_learning_interests=(
+                UNSET
+                if profile_request.other_learning_interests is None
+                else profile_request.other_learning_interests
+            ),
+            fluent_languages=(
+                UNSET
+                if profile_request.fluent_languages is None
+                else profile_request.fluent_languages
+            ),
+            intermediate_languages=(
+                UNSET
+                if profile_request.intermediate_languages is None
+                else profile_request.intermediate_languages
+            ),
+            previous_experience=(
+                UNSET
+                if profile_request.previous_experience is None
+                else profile_request.previous_experience
+            ),
         )
         return 200, core_services.get_profile_by_slug(slug=slug)
     except Profile.DoesNotExist:
@@ -179,46 +358,38 @@ def upload_profile_photo(request, slug: str, file: UploadedFile):
     return profile
 
 @reference_router.get(
-    "countries/",
+    "countries",
     response={
         200: list[CountryResponse],
-        404: Error,
+        500: Error,
     },
 )
 def get_countries(request) -> tuple[int, list[Country] | dict]:
     try:
         # Get a list of all countries
-        countries = core_services.get_countries()
-        if len(countries) > 0:
-            return 200, countries
-        else:
-            return 404, {"message": "No Countries to display"}
+        return 200, core_services.get_countries()
     except Exception as unknown_error:
-        return 404, {"message": f"Could not get Countries, reason: {unknown_error}"}
+        return 500, {"message": f"Could not get Countries, reason: {unknown_error}"}
 
 
 @reference_router.get(
-    "uk_staff_locations/",
+    "uk_staff_locations",
     response={
         200: list[UkStaffLocationResponse],
-        404: Error,
+        500: Error,
     },
 )
 def get_uk_staff_locations(request) -> tuple[int, list[UkStaffLocation] | dict]:
     try:
-        uk_staff_locations = core_services.get_uk_staff_locations()
-        if len(uk_staff_locations) > 0:
-            return 200, uk_staff_locations
-        else:
-            return 404, {"message": "No UK staff location to display"}
+        return 200, core_services.get_uk_staff_locations()
     except Exception as unknown_error:
-        return 404, {
+        return 500, {
             "message": f"Could not get UK staff locations, reason: {unknown_error}"
         }
 
 
 @reference_router.get(
-    "remote_working/",
+    "remote_working",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -238,7 +409,7 @@ def get_remote_working(request):
 
 
 @reference_router.get(
-    "workdays/",
+    "workdays",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -255,7 +426,7 @@ def get_workdays(request):
 
 
 @reference_router.get(
-    "learning_interests/",
+    "learning_interests",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -275,7 +446,7 @@ def get_learning_interests(request):
 
 
 @reference_router.get(
-    "professions/",
+    "professions",
     response={
         200: list[TextChoiceResponseSchema],
         500: Error,
@@ -290,3 +461,58 @@ def get_professions(request):
         return 200, professions
     except Exception as unknown_error:
         return 500, {"message": f"Could not get professions, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "grades",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_grades(request):
+    try:
+        grades = [
+            {"key": key, "value": value} for key, value in core_services.get_grades()
+        ]
+        return 200, grades
+    except Exception as unknown_error:
+        return 500, {"message": f"Could not get grades, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "key_skills",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_key_skills(request):
+    try:
+        key_skills = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_key_skills()
+        ]
+        return 200, key_skills
+    except Exception as unknown_error:
+        return 500, {"message": f"Could not get key skills, reason: {unknown_error}"}
+
+
+@reference_router.get(
+    "additional_roles",
+    response={
+        200: list[TextChoiceResponseSchema],
+        500: Error,
+    },
+)
+def get_additional_roles(request):
+    try:
+        additional_roles = [
+            {"key": key, "value": value}
+            for key, value in core_services.get_additional_roles()
+        ]
+        return 200, additional_roles
+    except Exception as unknown_error:
+        return 500, {
+            "message": f"Could not get additional roles, reason: {unknown_error}"
+        }
