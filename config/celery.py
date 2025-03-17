@@ -1,7 +1,6 @@
 import os
 
 from celery import Celery
-from celery.schedules import crontab
 from dbt_copilot_python.celery_health_check import healthcheck
 
 
