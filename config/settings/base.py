@@ -98,6 +98,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "authbroker_client",
     "django_chunk_upload_handlers",
+    "django_celery_beat",
     "simple_history",
 ]
 
@@ -170,10 +171,12 @@ AUTHBROKER_ANONYMOUS_PATHS = (
 AUTH_USER_MODEL = "user.User"
 
 # Hawk API auth setup
-DJANGO_HAWK = {
-    "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
-    "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
-}
+# Celery does not make use of any API endpoints so doesn't need hawk keys
+if INFRA_SERVICE != "CELERY":
+    DJANGO_HAWK = {
+        "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
+        "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
+    }
 
 
 LOGGING = {
@@ -303,6 +306,14 @@ if is_copilot():
     IDENTITY_REDIS_URL = IDENTITY_REDIS_URL
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
+    
+# Celery
+CELERY_BROKER_URL=IDENTITY_REDIS_URL
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+# Celery beat
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 # Disabled as Ninja calls shouldn't be cached.
 CACHES: dict[str, Any] = {
