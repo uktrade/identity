@@ -19,8 +19,8 @@ from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email
 from profiles.models.staff_sso import StaffSSOProfile
-from profiles.services import peoplefinder as peoplefinder_services
 from profiles.services import staff_sso as sso_profile_services
+from profiles.services.peoplefinder import peoplefinder as peoplefinder_services
 from user import services as user_services
 from user.exceptions import UserExists
 from user.models import User

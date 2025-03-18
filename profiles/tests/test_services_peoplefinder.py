@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Grade, UkStaffLocation
-from profiles.services import peoplefinder as peoplefinder_services
+from profiles.services.peoplefinder import peoplefinder as peoplefinder_services
 from profiles.types import UNSET
 from user.models import User
 

@@ -21,7 +21,8 @@ from profiles.models.peoplefinder import (
     RemoteWorking,
 )
 from profiles.models.staff_sso import StaffSSOProfile
-from profiles.services import combined, peoplefinder, staff_sso
+from profiles.services import combined, staff_sso
+from profiles.services.peoplefinder import peoplefinder
 from profiles.types import Unset
 from user import services as user_services
 from user.models import User
