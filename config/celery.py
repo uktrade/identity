@@ -1,6 +1,7 @@
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 from dbt_copilot_python.celery_health_check import healthcheck
 
 
@@ -11,6 +12,10 @@ celery_app = healthcheck.setup(celery_app)
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 celery_app.autodiscover_tasks()
 
-# add real tasks once created.
-# celery_app.conf.beat_schedule = {
-# }
+# celery tasks to run
+celery_app.conf.beat_schedule = {
+    "ingest-uk-staff-locations": {
+        "task": "core.tasks.ingest_uk_staff_locations",
+        "schedule": crontab(minute="0", hour="3"),
+    },
+}

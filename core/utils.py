@@ -12,6 +12,7 @@ from core.services import (
 )
 from data_flow_s3_import import ingest
 from profiles.models.combined import Profile
+from profiles.models.generic import UkStaffLocation
 
 
 logger = logging.getLogger(__name__)
@@ -106,3 +107,30 @@ class StaffSSOUserS3Ingest(DataFlowS3Ingest):
         for sso_email_id in user_ids_to_delete:
             profile = get_identity_by_id(id=sso_email_id, include_inactive=True)
             delete_identity(profile=profile)
+
+
+class UkStaffLocationsS3Ingest(DataFlowS3Ingest):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_directory: str = settings.DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY
+
+    def process_object(self, obj, **kwargs):
+        (
+            _,
+            location_created,
+        ) = UkStaffLocation.objects.update_or_create(
+            code=obj["location_code"],
+            name=obj["location_name"],
+            city=obj["city"],
+            organisation=obj["organisation"],
+            building_name=obj["building_name"],
+        )
+
+        if location_created:
+            logger.info(
+                f"DataFlow S3 {self.__class__}: Added staff location {obj["location_code"]}"
+            )
+        else:
+            logger.info(
+                f"DataFlow S3 {self.__class__}: Updated staff location {obj["location_code"]}"
+            )
