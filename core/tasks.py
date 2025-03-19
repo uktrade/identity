@@ -8,5 +8,5 @@ def ingest_countries():
 
 
 @celery_app.task()
-def ingest_uk_staff_locations(self):
+def ingest_uk_staff_locations():
     UkStaffLocationsS3Ingest()
