@@ -1,7 +1,12 @@
 from config.celery import celery_app
-from core.utils import UkStaffLocationsS3Ingest
+from core.utils import CountriesS3Ingest, UkStaffLocationsS3Ingest
 
 
-@celery_app.task(bind=True)
+@celery_app.task()
+def ingest_countries():
+    CountriesS3Ingest()
+
+
+@celery_app.task()
 def ingest_uk_staff_locations(self):
     UkStaffLocationsS3Ingest()

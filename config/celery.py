@@ -12,10 +12,13 @@ celery_app = healthcheck.setup(celery_app)
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 celery_app.autodiscover_tasks()
 
-# celery tasks to run
 celery_app.conf.beat_schedule = {
+    "ingest_countries": {
+        "task": "core.tasks.ingest_countries",
+        "schedule": crontab(minute=0, hour=8),
+    },
     "ingest-uk-staff-locations": {
         "task": "core.tasks.ingest_uk_staff_locations",
-        "schedule": crontab(minute="0", hour="3"),
+        "schedule": crontab(minute=0, hour=8),
     },
 }
