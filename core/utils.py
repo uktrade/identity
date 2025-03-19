@@ -134,28 +134,15 @@ class CountriesS3Ingest(DataFlowS3IngestToModel):
     }
 
 
-class UkStaffLocationsS3Ingest(DataFlowS3Ingest):
+class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory: str = settings.DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY
-
-    def process_object(self, obj, **kwargs):
-        (
-            _,
-            location_created,
-        ) = UkStaffLocation.objects.update_or_create(
-            code=obj["location_code"],
-            name=obj["location_name"],
-            city=obj["city"],
-            organisation=obj["organisation"],
-            building_name=obj["building_name"],
-        )
-
-        if location_created:
-            logger.info(
-                f"DataFlow S3 {self.__class__}: Added staff location {obj["location_code"]}"
-            )
-        else:
-            logger.info(
-                f"DataFlow S3 {self.__class__}: Updated staff location {obj["location_code"]}"
-            )
+    model = UkStaffLocation
+    mapping = {
+        "code": "location_code",
+        "name": "location_name",
+        "city": "city",
+        "organisation": "organisation",
+        "building_name": "building_name",
+    }
