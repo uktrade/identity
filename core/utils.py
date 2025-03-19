@@ -127,8 +127,8 @@ class CountriesS3Ingest(DataFlowS3IngestToModel):
         "reference_id": "reference_id",
         "name": "name",
         "type": "type",
-        "iso1_code": "iso_1_code",
-        "iso2_code": "iso_2_code",
-        "iso3_code": "iso_3_code",
+        "iso_1_code": "iso1_code",
+        "iso_2_code": "iso2_code",
+        "iso_3_code": "iso3_code",
         "overseas_region": "overseas_region",
     }
