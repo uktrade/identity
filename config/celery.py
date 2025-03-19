@@ -17,4 +17,8 @@ celery_app.conf.beat_schedule = {
         "task": "core.tasks.ingest_countries",
         "schedule": crontab(minute=0, hour=8),
     },
+    "ingest-uk-staff-locations": {
+        "task": "core.tasks.ingest_uk_staff_locations",
+        "schedule": crontab(minute=0, hour=8),
+    },
 }
