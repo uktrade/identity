@@ -119,7 +119,7 @@ def test_create_from_sso(mocker):
 
 
 def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile):
-    mock_pf_update = mocker.patch("profiles.services.peoplefinder.update")
+    mock_pf_update = mocker.patch("profiles.services.peoplefinder.peoplefinder.update")
     services.update_from_peoplefinder(
         profile=combined_profile,
         is_active=combined_profile.is_active,
@@ -169,7 +169,9 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
 
 
 def test_update_peoplefinder_team(mocker, peoplefinder_team):
-    mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.update_team")
+    mock_pft_update_team = mocker.patch(
+        "profiles.services.peoplefinder.peoplefinder.update_team"
+    )
     services.update_peoplefinder_team(
         slug=peoplefinder_team.slug,
         name=peoplefinder_team.name,
@@ -230,7 +232,9 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
 
 
 def test_create_peoplefinder_team(mocker):
-    mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.create_team")
+    mock_pf_create_team = mocker.patch(
+        "profiles.services.peoplefinder.peoplefinder.create_team"
+    )
     services.create_peoplefinder_team(
         slug="employee-experience",
         name="Employee Experience",
