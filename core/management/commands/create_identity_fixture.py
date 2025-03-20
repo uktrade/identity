@@ -20,6 +20,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "-s", "--staff", action="store_true", help="Set user to staff"
         )
+        parser.add_argument("-a", "--active", action="store_true")
         parser.add_argument(
             "-ss", "--superuser", action="store_true", help="Set user to Superuser"
         )
@@ -32,7 +33,7 @@ class Command(BaseCommand):
         last_name = kwargs["last_name"]
         staff = kwargs["staff"]
         superuser = kwargs["superuser"]
-        is_active = kwargs["is_active"]
+        is_active = kwargs["active"]
         dry_run = kwargs["dry_run"]
 
         factory_faker = faker.Faker()

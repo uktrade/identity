@@ -326,6 +326,16 @@ def update_profile(
         return 404, {"message": "People finder profile does not exist"}
 
 
+# @TODO ensure request is uthenticated
+def get_profile_photo(request, slug: str, w:int, h: int):
+    try:
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+    except PeopleFinderProfile.DoesNotExist:
+        # @TODO return a non-API style error
+        ...
+    return profile.photo
+
+
 @profile_router.post(
     path="{slug}/photo",
     response={
@@ -333,7 +343,7 @@ def update_profile(
         404: Error,
     },
 )
-def upload_profile_photo(request, slug: str, file: UploadedFile):
+def upload_profile_photo(request, slug: str, image: UploadedFile):
     """
     Endpoint to upload a new profile photo for the given profile
     """
@@ -344,14 +354,14 @@ def upload_profile_photo(request, slug: str, file: UploadedFile):
             "message": "Unable to find people finder profile",
         }
 
-    photo_ext = Path(file.name).suffix.lstrip(".")
+    photo_ext = Path(image.name).suffix.lstrip(".")
     # Pillow doesn't like JPG as a file extension ¯\_(ツ)_/¯
     if photo_ext.upper() == "JPG":
         photo_ext = "JPEG"
 
-    data = file.read()
-    resized_photo = data.resize(512, 512)
-    profile.photo.save(file.name, content=resized_photo)
+    photo: UploadedFile = image.open()
+    # resized_photo = photo.resize(512, 512)
+    profile.photo.save(image.name, content=photo)
     # @TODO do we want to crop the photo, save the small version etc? This approach is pretty basic ATM.
     # @TODO it feels like all of this should be deferred to celery
 

@@ -30,6 +30,7 @@ django-chunk-upload-handlers = "^0.0.15"
 pillow = "^11.1.0"
 celery = "^5.4.0"
 django-celery-beat = "^2.7.0"
+django-storages = "^1.14.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
