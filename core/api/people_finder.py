@@ -326,16 +326,6 @@ def update_profile(
         return 404, {"message": "People finder profile does not exist"}
 
 
-# @TODO ensure request is uthenticated
-def get_profile_photo(request, slug: str, w:int, h: int):
-    try:
-        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
-    except PeopleFinderProfile.DoesNotExist:
-        # @TODO return a non-API style error
-        ...
-    return profile.photo
-
-
 @profile_router.post(
     path="{slug}/photo",
     response={
