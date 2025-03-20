@@ -1,24 +1,19 @@
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
 
-from profiles.models.peoplefinder import (
-    PeopleFinderProfileTeam,
-    PeopleFinderTeam,
-    PeopleFinderTeamTree,
-)
-
-
-class TeamServiceError(Exception):
-    pass
+from profiles.exceptions import TeamServiceError
+from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
 
 
 class TeamService:
-    def add_team_to_teamtree(self, team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
+    def add_team_to_teamtree(
+        self, team: PeopleFinderTeam, parent: PeopleFinderTeam
+    ) -> None:
         """Add a team into the hierarchy.
 
         Args:
-            team (Team): The team to be added.
-            parent (Team): The parent team.
+            team (PeopleFinderTeam): The team to be added.
+            parent (PeopleFinderTeam): The parent team.
         """
         PeopleFinderTeamTree.objects.bulk_create(
             [
@@ -40,8 +35,8 @@ class TeamService:
         """Validate that the new parent is valid for the given team.
 
         Args:
-            team (Team):The team to be updated.
-            parent (Team): The given parent team.
+            team (PeopleFinderTeam):The team to be updated.
+            parent (PeopleFinderTeam): The given parent team.
 
         Raises:
             TeamServiceError: If team's parent is not a valid parent.
@@ -65,8 +60,8 @@ class TeamService:
         https://www.percona.com/blog/2011/02/14/moving-subtrees-in-closure-table/
 
         Args:
-            team (Team): The team to be updated.
-            parent (Team): The given parent team.
+            team (PeopleFinderTeam): The team to be updated.
+            parent (PeopleFinderTeam): The given parent team.
         """
         self.validate_team_parent_update(team, parent)
 
@@ -83,13 +78,13 @@ class TeamService:
         with connection.cursor() as c:
             c.execute(
                 """
-                INSERT INTO peoplefinder_peoplefinderteamtree (parent_id, child_id, depth)
+                INSERT INTO profiles_peoplefinderteamtree (parent_id, child_id, depth)
                 SELECT
                     supertree.parent_id,
                     subtree.child_id,
                     (supertree.depth + subtree.depth + 1)
-                FROM peoplefinder_peoplefinderteamtree AS supertree
-                CROSS JOIN peoplefinder_peoplefinderteamtree AS subtree
+                FROM profiles_peoplefinderteamtree AS supertree
+                CROSS JOIN profiles_peoplefinderteamtree AS subtree
                 WHERE
                     subtree.parent_id = %s
                     AND supertree.child_id = %s
@@ -103,20 +98,35 @@ class TeamService:
         """Return all child teams of the given parent team.
 
         Args:
-            parent (Team): The given parent team.
+            parent (PeopleFinderTeam): The given parent team.
 
         Returns:
-            QuerySet: A queryset of teams.
+            QuerySet: A queryset of peoplefinder teams.
         """
         return PeopleFinderTeam.objects.filter(children__parent=parent).exclude(
             children__child=parent
+        )
+
+    def get_immediate_child_teams(
+        self, parent: PeopleFinderTeam
+    ) -> QuerySet[PeopleFinderTeam]:
+        """Return all immediate child teams of the given parent team.
+
+        Args:
+            parent (PeopleFinderTeam): The given parent team.
+
+        Returns:
+            QuerySet: A queryset of peoplefinder teams.
+        """
+        return PeopleFinderTeam.objects.filter(
+            children__parent=parent, children__depth=1
         )
 
     def get_root_team(self) -> PeopleFinderTeam:
         """Return the root team.
 
         Returns:
-            Team: The root team.
+            PeopleFinderTeam: The root team.
         """
         teams_with_parents = PeopleFinderTeamTree.objects.filter(depth__gt=0)
 
@@ -124,7 +134,32 @@ class TeamService:
             id__in=Subquery(teams_with_parents.values("child"))
         ).get()
 
-    def get_team_members(
-        self, team: PeopleFinderTeam
-    ) -> QuerySet[PeopleFinderProfileTeam]:
+    def can_team_be_deleted(self, team: PeopleFinderTeam) -> tuple[bool, list[str]]:
+        """Check and return whether a team can be deleted.
+
+        Args:
+            team (PeopleFinderTeam): The team to be deleted.
+
+        Returns:
+            tuple[bool, list[str]]: Whether the team can be deleted and the reasons why.
+        """
+        reasons = []
+
         sub_teams = self.get_all_child_teams(team)
+        if sub_teams:
+            reasons.append("sub-teams")
+
+        has_members = self.get_team_members(team).exists()
+        if has_members:
+            reasons.append("members")
+
+        if reasons:
+            return False, reasons
+
+        return True, []
+
+    def get_team_members(self, team: PeopleFinderTeam):
+        # TODO: We don't have active field in PeopleFinderProfileTeam model
+        # In current people finder we use active to check if there are members
+        # in a team.
+        return NotImplementedError

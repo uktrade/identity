@@ -21,3 +21,8 @@ class NonCombinedProfileExists(Exception):
 class TeamExists(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class TeamServiceError(Exception):
+    def __init__(self, message):
+        self.message = message
