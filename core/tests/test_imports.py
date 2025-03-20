@@ -62,7 +62,7 @@ jane_doe = {
 
 
 @pytest.fixture(autouse=False, scope="function")
-@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="dataflow.identity.local")
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def create_ingest_source_files():
@@ -333,7 +333,7 @@ def test_delete_unimported_profiles(mocker):
 
 
 @pytest.mark.e2e
-@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="dataflow.identity.local")
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def test_new_users_are_added(create_ingest_source_files):
@@ -361,7 +361,7 @@ def test_new_users_are_added(create_ingest_source_files):
 
 
 @pytest.mark.e2e
-@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="dataflow.identity.local")
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def test_changed_users_are_updated(create_ingest_source_files):
@@ -401,7 +401,7 @@ def test_changed_users_are_updated(create_ingest_source_files):
 
 
 @pytest.mark.e2e
-@override_settings(DATA_FLOW_UPLOADS_BUCKET="identity.local")
+@override_settings(DATA_FLOW_UPLOADS_BUCKET="dataflow.identity.local")
 @override_settings(DATA_FLOW_UPLOADS_BUCKET_PATH="test-e2e")
 @override_settings(DATA_FLOW_USERS_DIRECTORY="users/")
 def test_missing_users_are_deleted(create_ingest_source_files):

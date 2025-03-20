@@ -20,6 +20,6 @@ CELERY_ALWAYS_EAGER = True
 
 logging.disable(logging.WARN)
 
-DATA_FLOW_UPLOADS_BUCKET = "identity.local"
+DATA_FLOW_UPLOADS_BUCKET = "dataflow.identity.local"
 DATA_FLOW_UPLOADS_BUCKET_PATH = "test-e2e"
 DATA_FLOW_USERS_DIRECTORY = "users/"
