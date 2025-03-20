@@ -48,6 +48,10 @@ S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
 DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
 DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
 DATA_FLOW_USERS_DIRECTORY = env.str("DATA_FLOW_USERS_DIRECTORY", None)
+DATA_FLOW_COUNTRIES_DIRECTORY = env.str("DATA_FLOW_COUNTRIES_DIRECTORY", None)
+DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY = env.str(
+    "DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY", None
+)
 
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
@@ -98,6 +102,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "authbroker_client",
     "django_chunk_upload_handlers",
+    "django_celery_beat",
     "simple_history",
 ]
 
@@ -170,10 +175,12 @@ AUTHBROKER_ANONYMOUS_PATHS = (
 AUTH_USER_MODEL = "user.User"
 
 # Hawk API auth setup
-DJANGO_HAWK = {
-    "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
-    "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
-}
+# Celery does not make use of any API endpoints so doesn't need hawk keys
+if INFRA_SERVICE != "CELERY":
+    DJANGO_HAWK = {
+        "HAWK_INCOMING_ACCESS_KEY": env(f"{INFRA_SERVICE}_HAWK_ID", None),
+        "HAWK_INCOMING_SECRET_KEY": env(f"{INFRA_SERVICE}_HAWK_KEY", None),
+    }
 
 
 LOGGING = {
@@ -296,13 +303,20 @@ else:
 
 # Redis
 # https://docs.djangoproject.com/en/5.1/topics/cache/
-IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
 IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
 
 if is_copilot():
-    IDENTITY_REDIS_URL = IDENTITY_REDIS_URL
+    IDENTITY_REDIS_URL = IDENTITY_REDIS + "?ssl_cert_reqs=required"
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
+
+# Celery
+CELERY_BROKER_URL = IDENTITY_REDIS_URL
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+# Celery beat
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 # Disabled as Ninja calls shouldn't be cached.
 CACHES: dict[str, Any] = {
