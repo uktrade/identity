@@ -1,6 +1,7 @@
 from ninja import Router, File
 from ninja.files import UploadedFile
 from pathlib import Path
+from PIL import Image
 
 from core import services as core_services
 from core.schemas import Error
@@ -353,6 +354,9 @@ def upload_profile_photo(request, slug: str, image: UploadedFile):
     # resized_photo = photo.resize(512, 512)
     profile.photo.save(image.name, content=photo)
     # @TODO do we want to crop the photo, save the small version etc? This approach is pretty basic ATM.
+    small_photo = Image.open(image)
+    small_photo.resize((128, 128))
+    # profile.photo_small.save(small_photo.name, content=small_photo.)
     # @TODO it feels like all of this should be deferred to celery
 
     return profile
