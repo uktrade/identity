@@ -12,6 +12,7 @@ from core.services import (
 )
 from data_flow_s3_import import ingest
 from profiles.models.combined import Profile
+from profiles.models.generic import Country, UkStaffLocation
 
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,15 @@ def get_s3_resource():
 class DataFlowS3Ingest(ingest.DataFlowS3Ingest):
     """
     Set application specific behaviour for DataFlowS3Ingest.
+    """
+
+    def get_s3_resource(self):
+        return get_s3_resource()
+
+
+class DataFlowS3IngestToModel(ingest.DataFlowS3IngestToModel):
+    """
+    Set  application specific behaviour for DataFlowS3IngestToModel.
     """
 
     def get_s3_resource(self):
@@ -106,3 +116,33 @@ class StaffSSOUserS3Ingest(DataFlowS3Ingest):
         for sso_email_id in user_ids_to_delete:
             profile = get_identity_by_id(id=sso_email_id, include_inactive=True)
             delete_identity(profile=profile)
+
+
+class CountriesS3Ingest(DataFlowS3IngestToModel):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_directory: str = settings.DATA_FLOW_COUNTRIES_DIRECTORY
+    model = Country
+    mapping = {
+        "reference_id": "reference_id",
+        "name": "name",
+        "type": "type",
+        "iso_1_code": "iso1_code",
+        "iso_2_code": "iso2_code",
+        "iso_3_code": "iso3_code",
+        "overseas_region": "overseas_region",
+    }
+
+
+class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_directory: str = settings.DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY
+    model = UkStaffLocation
+    mapping = {
+        "code": "location_code",
+        "name": "location_name",
+        "city": "city",
+        "organisation": "organisation",
+        "building_name": "building_name",
+    }

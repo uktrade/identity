@@ -91,6 +91,39 @@ services:
       - DD_TRACE_ENABLED=False
       - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
 
+  celery-worker:
+    image: identity/main:latest
+    command: celery -A config.celery worker -l INFO
+    profiles:
+      - services
+    volumes:
+      - .:/app 
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.developer
+      - INFRA_SERVICE=CELERY
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
+
+  celery-beat:
+    image: identity/main:latest
+    command: celery -A config.celery beat -l INFO
+    profiles:
+      - services
+    volumes:
+      - .:/app 
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.developer
+      - INFRA_SERVICE=CELERY
+      - DD_TRACE_ENABLED=False
+      - DD_INSTRUMENTATION_TELEMETRY_ENABLED=False
+
+
   localstack:
     build:
       context: ./docker
