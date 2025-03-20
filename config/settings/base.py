@@ -307,7 +307,7 @@ IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
 IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
 
 if is_copilot():
-    IDENTITY_REDIS_URL = IDENTITY_REDIS_URL
+    IDENTITY_REDIS_URL = IDENTITY_REDIS + "?ssl_cert_reqs=required"
 else:
     IDENTITY_REDIS_URL = IDENTITY_REDIS
 
