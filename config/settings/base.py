@@ -303,7 +303,6 @@ else:
 
 # Redis
 # https://docs.djangoproject.com/en/5.1/topics/cache/
-IDENTITY_REDIS_URL: str = env.str("IDENTITY_REDIS_URL", None)
 IDENTITY_REDIS: str = env.str("IDENTITY_REDIS", None)
 
 if is_copilot():
