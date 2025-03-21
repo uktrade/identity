@@ -7,7 +7,7 @@ from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.staff_sso import StaffSSOProfile
-from profiles.services.peoplefinder import profile as peoplefinder_services
+from profiles.services.peoplefinder import profile as peoplefinder_profile_services
 
 
 pytestmark = pytest.mark.django_db
@@ -225,7 +225,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
     # Successfully delete a People Finder profile
     services.delete_peoplefinder_profile(peoplefinder_profile)
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
-        peoplefinder_services.get_by_slug(
+        peoplefinder_profile_services.get_by_slug(
             slug=peoplefinder_profile.slug,
             include_inactive=True,
         )

@@ -5,16 +5,13 @@ from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.exceptions import ProfileExists, TeamExists
-from profiles.models import LearningInterest, PeopleFinderTeam, Workday
+from profiles.exceptions import ProfileExists
+from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Email, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
     PeopleFinderProfile,
-    PeopleFinderTeam,
-    PeopleFinderTeamLeadersOrdering,
-    PeopleFinderTeamType,
     RemoteWorking,
 )
 from profiles.types import UNSET, Unset
