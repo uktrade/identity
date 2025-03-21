@@ -128,7 +128,7 @@ class TeamService:
           B     B       0
           A     B       1
 
-        Hierarchy after adding new node C:
+        Hierarchy after adding the new node C (A -> B -> C):
         parent child depth
           A     A       0
           B     B       0
@@ -141,16 +141,17 @@ class TeamService:
         """
         PeopleFinderTeamTree.objects.bulk_create(
             [
-                # Add a reference to the created team itself
+                # Add a reference to the team itself
                 PeopleFinderTeamTree(parent=team, child=team, depth=0),
                 # Add all required tree connections
                 *(
+                    # Here we add entries to the PeopleFinderTeamTree representing the depth and
+                    # relationships of the team (new team we are adding to the hierarchy) with each
+                    # of its parents, not only with its immediate parent! We set child=parent to get
+                    # ALL the parents of the team's immediate parent.
                     PeopleFinderTeamTree(
                         parent=tt.parent, child=team, depth=tt.depth + 1
                     )
-                    # Loops over all the parents (not only the immediate parent) of the
-                    # parent to the team we are adding to the hierarchy that's why we set
-                    # child=parent
                     for tt in PeopleFinderTeamTree.objects.filter(child=parent)
                 ),
             ]
