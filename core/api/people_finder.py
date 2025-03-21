@@ -1,7 +1,5 @@
 from ninja import Router, File
 from ninja.files import UploadedFile
-from pathlib import Path
-from PIL import Image
 
 from core import services as core_services
 from core.schemas import Error
@@ -345,21 +343,11 @@ def upload_profile_photo(request, slug: str, image: UploadedFile):
             "message": "Unable to find people finder profile",
         }
 
-    photo_ext = Path(image.name).suffix.lstrip(".")
-    # Pillow doesn't like JPG as a file extension ¯\_(ツ)_/¯
-    if photo_ext.upper() == "JPG":
-        photo_ext = "JPEG"
-
     photo: UploadedFile = image.open()
-    # resized_photo = photo.resize(512, 512)
     profile.photo.save(image.name, content=photo)
-    # @TODO do we want to crop the photo, save the small version etc? This approach is pretty basic ATM.
-    small_photo = Image.open(image)
-    small_photo.resize((128, 128))
-    # profile.photo_small.save(small_photo.name, content=small_photo.)
-    # @TODO it feels like all of this should be deferred to celery
 
     return profile
+
 
 @reference_router.get(
     "countries",
