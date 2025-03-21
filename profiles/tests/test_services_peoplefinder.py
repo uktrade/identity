@@ -5,13 +5,12 @@ import pytest
 from django.contrib.admin.models import LogEntry
 from django.core.exceptions import ValidationError
 
-from profiles.exceptions import TeamExists, TeamServiceError
+from profiles.exceptions import TeamExists, TeamParentError
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Grade, UkStaffLocation
 from profiles.models.peoplefinder import PeopleFinderTeam
 from profiles.services.peoplefinder import profile as peoplefinder_profile_services
 from profiles.services.peoplefinder import team as peoplefinder_team_services
-from profiles.services.peoplefinder.team import TeamService
 from profiles.types import UNSET
 from user.models import User
 
@@ -338,7 +337,7 @@ def test_get_additional_roles():
 # Test peoplefinder team service
 def test_create_team():
     # Create a peoplefinder team
-    peoplefinder_team_services.create_team(
+    peoplefinder_team_services.create(
         slug="employee-experience",
         name="Employee Experience",
         abbreviation="EX",
@@ -350,7 +349,7 @@ def test_create_team():
 
     # Try to create a team with the same slug
     with pytest.raises(TeamExists) as ex:
-        peoplefinder_team_services.create_team(
+        peoplefinder_team_services.create(
             slug="employee-experience",
             name="Employees' Experiences",
             abbreviation="EXs",
@@ -364,7 +363,7 @@ def test_create_team():
 
     # Try to create a team with a wrong team type
     with pytest.raises(ValidationError):
-        peoplefinder_team_services.create_team(
+        peoplefinder_team_services.create(
             slug="software-development",
             name="Software Development",
             abbreviation="SD",
@@ -382,7 +381,7 @@ def test_update_team(peoplefinder_team):
     assert peoplefinder_team.description == "Team description"
     assert peoplefinder_team.cost_code == "CC1"
 
-    peoplefinder_team_services.update_team(
+    peoplefinder_team_services.update(
         peoplefinder_team=peoplefinder_team,
         name="New team name",
         description="New Team Description",
@@ -412,29 +411,27 @@ def test_team_service(db):
     # We need to start from fresh for these tests.
     PeopleFinderTeam.objects.all().delete()
 
-    team_service = TeamService()
-
     dit = PeopleFinderTeam.objects.create(name="DIT", slug="dit")
     coo = PeopleFinderTeam.objects.create(name="COO", slug="coo")
     gti = PeopleFinderTeam.objects.create(name="GTI", slug="gti")
-    team_service.add_team_to_teamtree(team=dit, parent=dit)
-    team_service.add_team_to_teamtree(team=coo, parent=dit)
-    team_service.add_team_to_teamtree(team=gti, parent=dit)
+    peoplefinder_team_services.add_team_to_teamtree(team=dit, parent=dit)
+    peoplefinder_team_services.add_team_to_teamtree(team=coo, parent=dit)
+    peoplefinder_team_services.add_team_to_teamtree(team=gti, parent=dit)
 
     coo_analysis = PeopleFinderTeam.objects.create(name="Analysis", slug="analysis")
     coo_change = PeopleFinderTeam.objects.create(name="Change", slug="change")
-    team_service.add_team_to_teamtree(team=coo_analysis, parent=coo)
-    team_service.add_team_to_teamtree(team=coo_change, parent=coo)
+    peoplefinder_team_services.add_team_to_teamtree(team=coo_analysis, parent=coo)
+    peoplefinder_team_services.add_team_to_teamtree(team=coo_change, parent=coo)
 
     gti_investment = PeopleFinderTeam.objects.create(
         name="Investment", slug="investment"
     )
     gti_defence = PeopleFinderTeam.objects.create(name="DEFEND", slug="defend")
-    team_service.add_team_to_teamtree(team=gti_investment, parent=gti)
-    team_service.add_team_to_teamtree(team=gti_defence, parent=gti)
+    peoplefinder_team_services.add_team_to_teamtree(team=gti_investment, parent=gti)
+    peoplefinder_team_services.add_team_to_teamtree(team=gti_defence, parent=gti)
 
     test_case.assertCountEqual(
-        list(team_service.get_all_child_teams(parent=dit)),
+        list(peoplefinder_team_services.get_all_child_teams(parent=dit)),
         [
             coo,
             gti,
@@ -446,24 +443,26 @@ def test_team_service(db):
     )
 
     test_case.assertCountEqual(
-        list(team_service.get_immediate_child_teams(parent=dit)), [coo, gti]
+        list(peoplefinder_team_services.get_immediate_child_teams(parent=dit)),
+        [coo, gti],
     )
 
     test_case.assertCountEqual(
-        list(team_service.get_all_parent_teams(child=coo_change)), [dit, coo]
+        list(peoplefinder_team_services.get_all_parent_teams(child=coo_change)),
+        [dit, coo],
     )
 
-    assert team_service.get_root_team() == dit
+    assert peoplefinder_team_services.get_root_team() == dit
 
-    assert team_service.get_immediate_parent_team(gti_defence) == gti
+    assert peoplefinder_team_services.get_immediate_parent_team(gti_defence) == gti
 
     # test update
-    team_service.update_team_parent(gti, coo)
+    peoplefinder_team_services.update_team_parent(gti, coo)
 
-    assert team_service.get_immediate_parent_team(gti) == coo
+    assert peoplefinder_team_services.get_immediate_parent_team(gti) == coo
 
     test_case.assertCountEqual(
-        list(team_service.get_all_child_teams(coo)),
+        list(peoplefinder_team_services.get_all_child_teams(coo)),
         [
             gti,
             coo_analysis,
@@ -473,25 +472,29 @@ def test_team_service(db):
         ],
     )
 
-    test_case.assertCountEqual(list(team_service.get_immediate_child_teams(dit)), [coo])
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_immediate_child_teams(dit)), [coo]
+    )
 
     # revert update
-    team_service.update_team_parent(gti, dit)
+    peoplefinder_team_services.update_team_parent(gti, dit)
 
-    assert team_service.get_immediate_parent_team(gti) == dit
+    assert peoplefinder_team_services.get_immediate_parent_team(gti) == dit
 
     # test `validate_team_parent_update` through `update_team_parent`
     with pytest.raises(
-        TeamServiceError, match="A team's parent cannot be the team itself"
+        TeamParentError, match="A team's parent cannot be the team itself"
     ):
-        team_service.update_team_parent(gti, gti)
+        peoplefinder_team_services.update_team_parent(gti, gti)
 
     with pytest.raises(
-        TeamServiceError, match="A team's parent cannot be a team's child"
+        TeamParentError, match="A team's parent cannot be a team's child"
     ):
-        team_service.update_team_parent(gti, gti_investment)
+        peoplefinder_team_services.update_team_parent(gti, gti_investment)
 
     with pytest.raises(
-        TeamServiceError, match="Cannot update the parent of the root team"
+        TeamParentError, match="Cannot update the parent of the root team"
     ):
-        team_service.update_team_parent(dit, PeopleFinderTeam(name="Test"))
+        peoplefinder_team_services.update_team_parent(
+            dit, PeopleFinderTeam(name="Test")
+        )

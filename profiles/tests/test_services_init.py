@@ -170,9 +170,7 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
 
 
 def test_update_peoplefinder_team(mocker, peoplefinder_team):
-    mock_pft_update_team = mocker.patch(
-        "profiles.services.peoplefinder.team.update_team"
-    )
+    mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.team.update")
     services.update_peoplefinder_team(
         slug=peoplefinder_team.slug,
         name=peoplefinder_team.name,
@@ -233,9 +231,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
 
 
 def test_create_peoplefinder_team(mocker):
-    mock_pf_create_team = mocker.patch(
-        "profiles.services.peoplefinder.team.create_team"
-    )
+    mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.team.create")
     services.create_peoplefinder_team(
         slug="employee-experience",
         name="Employee Experience",

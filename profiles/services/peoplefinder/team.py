@@ -3,7 +3,7 @@ from typing import Optional
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
 
-from profiles.exceptions import TeamExists, TeamServiceError
+from profiles.exceptions import TeamExists, TeamParentError
 from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
@@ -13,14 +13,14 @@ from profiles.models.peoplefinder import (
 from profiles.types import UNSET, Unset
 
 
-def get_team_by_slug(slug: str) -> PeopleFinderTeam:
+def get_by_slug(slug: str) -> PeopleFinderTeam:
     """
     Retrieve a People Finder Team by its Slug.
     """
     return PeopleFinderTeam.objects.get(slug=slug)
 
 
-def create_team(
+def create(
     slug: str,
     name: str,
     abbreviation: str,
@@ -50,7 +50,7 @@ def create_team(
         return team
 
 
-def update_team(
+def update(
     peoplefinder_team: PeopleFinderTeam,
     name: Optional[str | Unset] = None,
     abbreviation: Optional[str | Unset] = None,
@@ -103,229 +103,221 @@ def update_team(
     peoplefinder_team.save(update_fields=update_fields)
 
 
-class TeamService:
-    def add_team_to_teamtree(
-        self, team: PeopleFinderTeam, parent: PeopleFinderTeam
-    ) -> None:
-        """Add a team into the hierarchy.
+def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
+    """Add a team into the hierarchy.
 
-        Args:
-            team (PeopleFinderTeam): The team to be added.
-            parent (PeopleFinderTeam): The parent team.
+    Args:
+        team (PeopleFinderTeam): The team to be added.
+        parent (PeopleFinderTeam): The parent team.
 
-        Details of implementation:
+    Details of implementation:
 
-        The PeopleFinderTeamTree is a closure table where
-        we have PeopleFinderTeam objects as nodes and we use
-        the PeopleFinderTeamTree to store information about
-        the tree/hierarchy structure.
+    The PeopleFinderTeamTree is a closure table where
+    we have PeopleFinderTeam objects as nodes and we use
+    the PeopleFinderTeamTree to store information about
+    the tree/hierarchy structure.
 
-        Example: We have a team tree of A -> B and want to add a new node C to the hierarchy
+    Example: We have a team tree of A -> B and want to add a new node C to the hierarchy
 
-        Current hierarchy:
-        parent child depth
-          A     A       0
-          B     B       0
-          A     B       1
+    Current hierarchy:
+    parent child depth
+        A     A       0
+        B     B       0
+        A     B       1
 
-        Hierarchy after adding the new node C (A -> B -> C):
-        parent child depth
-          A     A       0
-          B     B       0
-          A     B       1
-          C     C       0  # reference to itself
-          B     C       1  # reference to immediate parent
-          A     C       2  # reference to parent with depth 2
+    Hierarchy after adding the new node C (A -> B -> C):
+    parent child depth
+        A     A       0
+        B     B       0
+        A     B       1
+        C     C       0  # reference to itself
+        B     C       1  # reference to immediate parent
+        A     C       2  # reference to parent with depth 2
 
-        For more information on closure tables: https://fueled.com/the-cache/posts/backend/closure-table/#closure-table
-        """
-        PeopleFinderTeamTree.objects.bulk_create(
-            [
-                # Add a reference to the team itself
-                PeopleFinderTeamTree(parent=team, child=team, depth=0),
-                # Add all required tree connections
-                *(
-                    # Here we add entries to the PeopleFinderTeamTree representing the depth and
-                    # relationships of the team (new team we are adding to the hierarchy) with each
-                    # of its parents, not only with its immediate parent! We set child=parent to get
-                    # ALL the parents of the team's immediate parent.
-                    PeopleFinderTeamTree(
-                        parent=tt.parent, child=team, depth=tt.depth + 1
-                    )
-                    for tt in PeopleFinderTeamTree.objects.filter(child=parent)
-                ),
-            ]
+    For more information on closure tables: https://fueled.com/the-cache/posts/backend/closure-table/#closure-table
+    """
+    PeopleFinderTeamTree.objects.bulk_create(
+        [
+            # Add a reference to the team itself
+            PeopleFinderTeamTree(parent=team, child=team, depth=0),
+            # Add all required tree connections
+            *(
+                # Here we add entries to the PeopleFinderTeamTree representing the depth and
+                # relationships of the team (new team we are adding to the hierarchy) with each
+                # of its parents, not only with its immediate parent! We set child=parent to get
+                # ALL the parents of the team's immediate parent.
+                PeopleFinderTeamTree(parent=tt.parent, child=team, depth=tt.depth + 1)
+                for tt in PeopleFinderTeamTree.objects.filter(child=parent)
+            ),
+        ]
+    )
+
+
+def validate_team_parent_update(
+    team: PeopleFinderTeam, parent: PeopleFinderTeam
+) -> None:
+    """Validate that the new parent is valid for the given team.
+
+    Args:
+        team (PeopleFinderTeam):The team to be updated.
+        parent (PeopleFinderTeam): The given parent team.
+
+    Raises:
+        TeamParentError: If team's parent is not a valid parent.
+    """
+    if parent == team:
+        raise TeamParentError("A team's parent cannot be the team itself")
+
+    if parent in get_all_child_teams(team):
+        raise TeamParentError("A team's parent cannot be a team's child")
+
+    if parent and (team == get_root_team()):
+        raise TeamParentError("Cannot update the parent of the root team")
+
+
+@transaction.atomic
+def update_team_parent(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
+    """Update a team's parent with the given parent team.
+
+    The implementation was informed by the following blog:
+    https://www.percona.com/blog/2011/02/14/moving-subtrees-in-closure-table/
+
+    Args:
+        team (PeopleFinderTeam): The team to be updated.
+        parent (PeopleFinderTeam): The given parent team.
+    """
+    validate_team_parent_update(team, parent)
+
+    PeopleFinderTeamTree.objects.filter(
+        child__in=Subquery(
+            PeopleFinderTeamTree.objects.filter(parent=team).values("child")
+        )
+    ).exclude(
+        parent__in=Subquery(
+            PeopleFinderTeamTree.objects.filter(parent=team).values("child")
+        )
+    ).delete()
+
+    with connection.cursor() as c:
+        c.execute(
+            """
+            INSERT INTO profiles_peoplefinderteamtree (parent_id, child_id, depth)
+            SELECT
+                supertree.parent_id,
+                subtree.child_id,
+                (supertree.depth + subtree.depth + 1)
+            FROM profiles_peoplefinderteamtree AS supertree
+            CROSS JOIN profiles_peoplefinderteamtree AS subtree
+            WHERE
+                subtree.parent_id = %s
+                AND supertree.child_id = %s
+            """,
+            [team.id, parent.id],
         )
 
-    def validate_team_parent_update(
-        self, team: PeopleFinderTeam, parent: PeopleFinderTeam
-    ) -> None:
-        """Validate that the new parent is valid for the given team.
 
-        Args:
-            team (PeopleFinderTeam):The team to be updated.
-            parent (PeopleFinderTeam): The given parent team.
+def get_all_parent_teams(child: PeopleFinderTeam) -> QuerySet[PeopleFinderTeam]:
+    """Return all parent teams for the given child team.
 
-        Raises:
-            TeamServiceError: If team's parent is not a valid parent.
-        """
-        if parent == team:
-            raise TeamServiceError("A team's parent cannot be the team itself")
+    Args:
+        child (PeopleFinderTeam): The given child team.
 
-        if parent in self.get_all_child_teams(team):
-            raise TeamServiceError("A team's parent cannot be a team's child")
-
-        if parent and (team == self.get_root_team()):
-            raise TeamServiceError("Cannot update the parent of the root team")
-
-    @transaction.atomic
-    def update_team_parent(
-        self, team: PeopleFinderTeam, parent: PeopleFinderTeam
-    ) -> None:
-        """Update a team's parent with the given parent team.
-
-        The implementation was informed by the following blog:
-        https://www.percona.com/blog/2011/02/14/moving-subtrees-in-closure-table/
-
-        Args:
-            team (PeopleFinderTeam): The team to be updated.
-            parent (PeopleFinderTeam): The given parent team.
-        """
-        self.validate_team_parent_update(team, parent)
-
-        PeopleFinderTeamTree.objects.filter(
-            child__in=Subquery(
-                PeopleFinderTeamTree.objects.filter(parent=team).values("child")
-            )
-        ).exclude(
-            parent__in=Subquery(
-                PeopleFinderTeamTree.objects.filter(parent=team).values("child")
-            )
-        ).delete()
-
-        with connection.cursor() as c:
-            c.execute(
-                """
-                INSERT INTO profiles_peoplefinderteamtree (parent_id, child_id, depth)
-                SELECT
-                    supertree.parent_id,
-                    subtree.child_id,
-                    (supertree.depth + subtree.depth + 1)
-                FROM profiles_peoplefinderteamtree AS supertree
-                CROSS JOIN profiles_peoplefinderteamtree AS subtree
-                WHERE
-                    subtree.parent_id = %s
-                    AND supertree.child_id = %s
-                """,
-                [team.id, parent.id],
-            )
-
-    def get_all_parent_teams(
-        self, child: PeopleFinderTeam
-    ) -> QuerySet[PeopleFinderTeam]:
-        """Return all parent teams for the given child team.
-
-        Args:
-            child (PeopleFinderTeam): The given child team.
-
-        Returns:
-            QuerySet: A query of teams.
-        """
-        return (
-            PeopleFinderTeam.objects.filter(parents__child=child).exclude(
-                parents__parent=child
-            )
-            # TODO: Not sure if we should order here or at the call sites.
-            .order_by("-parents__depth")
+    Returns:
+        QuerySet: A query of teams.
+    """
+    return (
+        PeopleFinderTeam.objects.filter(parents__child=child).exclude(
+            parents__parent=child
         )
+        # TODO: Not sure if we should order here or at the call sites.
+        .order_by("-parents__depth")
+    )
 
-    def get_immediate_parent_team(
-        self, child: PeopleFinderTeam
-    ) -> Optional[PeopleFinderTeam]:
-        """Return the immediate parent team for the given team.
 
-        Args:
-            child (PeopleFinderTeam): The given team.
+def get_immediate_parent_team(child: PeopleFinderTeam) -> Optional[PeopleFinderTeam]:
+    """Return the immediate parent team for the given team.
 
-        Returns:
-            PeopleFinderTeam: The immediate parent team.
-        """
-        try:
-            return PeopleFinderTeam.objects.filter(
-                parents__child=child, parents__depth=1
-            ).get()
-        except PeopleFinderTeam.DoesNotExist:
-            return None
+    Args:
+        child (PeopleFinderTeam): The given team.
 
-    def get_all_child_teams(
-        self, parent: PeopleFinderTeam
-    ) -> QuerySet[PeopleFinderTeam]:
-        """Return all child teams of the given parent team.
-
-        Args:
-            parent (PeopleFinderTeam): The given parent team.
-
-        Returns:
-            QuerySet: A queryset of peoplefinder teams.
-        """
-        return PeopleFinderTeam.objects.filter(children__parent=parent).exclude(
-            children__child=parent
-        )
-
-    def get_immediate_child_teams(
-        self, parent: PeopleFinderTeam
-    ) -> QuerySet[PeopleFinderTeam]:
-        """Return all immediate child teams of the given parent team.
-
-        Args:
-            parent (PeopleFinderTeam): The given parent team.
-
-        Returns:
-            QuerySet: A queryset of peoplefinder teams.
-        """
+    Returns:
+        PeopleFinderTeam: The immediate parent team.
+    """
+    try:
         return PeopleFinderTeam.objects.filter(
-            children__parent=parent, children__depth=1
-        )
-
-    def get_root_team(self) -> PeopleFinderTeam:
-        """Return the root team.
-
-        Returns:
-            PeopleFinderTeam: The root team.
-        """
-        teams_with_parents = PeopleFinderTeamTree.objects.filter(depth__gt=0)
-
-        return PeopleFinderTeam.objects.exclude(
-            id__in=Subquery(teams_with_parents.values("child"))
+            parents__child=child, parents__depth=1
         ).get()
+    except PeopleFinderTeam.DoesNotExist:
+        return None
 
-    def can_team_be_deleted(self, team: PeopleFinderTeam) -> tuple[bool, list[str]]:
-        """Check and return whether a team can be deleted.
 
-        Args:
-            team (PeopleFinderTeam): The team to be deleted.
+def get_all_child_teams(parent: PeopleFinderTeam) -> QuerySet[PeopleFinderTeam]:
+    """Return all child teams of the given parent team.
 
-        Returns:
-            tuple[bool, list[str]]: Whether the team can be deleted and the reasons why.
-        """
-        reasons = []
+    Args:
+        parent (PeopleFinderTeam): The given parent team.
 
-        sub_teams = self.get_all_child_teams(team)
-        if sub_teams:
-            reasons.append("sub-teams")
+    Returns:
+        QuerySet: A queryset of peoplefinder teams.
+    """
+    return PeopleFinderTeam.objects.filter(children__parent=parent).exclude(
+        children__child=parent
+    )
 
-        has_members = self.get_team_members(team).exists()
-        if has_members:
-            reasons.append("members")
 
-        if reasons:
-            return False, reasons
+def get_immediate_child_teams(parent: PeopleFinderTeam) -> QuerySet[PeopleFinderTeam]:
+    """Return all immediate child teams of the given parent team.
 
-        return True, []
+    Args:
+        parent (PeopleFinderTeam): The given parent team.
 
-    def get_team_members(self, team: PeopleFinderTeam):
-        # TODO: We don't have active field in PeopleFinderProfileTeam model
-        # In current people finder we use active to check if there are members
-        # in a team.
-        # return team.peoplefinder_members.exclude(peoplefinder_profile__is_active=False)
-        return NotImplementedError
+    Returns:
+        QuerySet: A queryset of peoplefinder teams.
+    """
+    return PeopleFinderTeam.objects.filter(children__parent=parent, children__depth=1)
+
+
+def get_root_team() -> PeopleFinderTeam:
+    """Return the root team.
+
+    Returns:
+        PeopleFinderTeam: The root team.
+    """
+    teams_with_parents = PeopleFinderTeamTree.objects.filter(depth__gt=0)
+
+    return PeopleFinderTeam.objects.exclude(
+        id__in=Subquery(teams_with_parents.values("child"))
+    ).get()
+
+
+def can_team_be_deleted(team: PeopleFinderTeam) -> tuple[bool, list[str]]:
+    """Check and return whether a team can be deleted.
+
+    Args:
+        team (PeopleFinderTeam): The team to be deleted.
+
+    Returns:
+        tuple[bool, list[str]]: Whether the team can be deleted and the reasons why.
+    """
+    reasons = []
+
+    sub_teams = get_all_child_teams(team)
+    if sub_teams:
+        reasons.append("sub-teams")
+
+    has_members = get_team_members(team).exists()
+    if has_members:
+        reasons.append("members")
+
+    if reasons:
+        return False, reasons
+
+    return True, []
+
+
+def get_team_members(team: PeopleFinderTeam):
+    # TODO: We don't have active field in PeopleFinderProfileTeam model
+    # In current people finder we use active to check if there are members
+    # in a team.
+    # return team.peoplefinder_members.exclude(peoplefinder_profile__is_active=False)
+    return NotImplementedError

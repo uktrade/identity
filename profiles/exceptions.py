@@ -23,6 +23,6 @@ class TeamExists(Exception):
         self.message = message
 
 
-class TeamServiceError(Exception):
+class TeamParentError(Exception):
     def __init__(self, message):
         self.message = message

@@ -430,7 +430,7 @@ def create_peoplefinder_team(
     """
     Creates a people finder team
     """
-    return peoplefinder_team_services.create_team(
+    return peoplefinder_team_services.create(
         slug=slug,
         name=name,
         abbreviation=abbreviation,
@@ -450,8 +450,8 @@ def update_peoplefinder_team(
     cost_code: Optional[str | Unset] = None,
     team_type: Optional[str | Unset] = None,
 ) -> None:
-    peoplefinder_team = peoplefinder_team_services.get_team_by_slug(slug=slug)
-    peoplefinder_team_services.update_team(
+    peoplefinder_team = peoplefinder_team_services.get_by_slug(slug=slug)
+    peoplefinder_team_services.update(
         peoplefinder_team=peoplefinder_team,
         name=name,
         abbreviation=abbreviation,
