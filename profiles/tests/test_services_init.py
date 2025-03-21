@@ -7,6 +7,7 @@ from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.staff_sso import StaffSSOProfile
+from profiles.services.peoplefinder import profile as peoplefinder_profile_services
 
 
 pytestmark = pytest.mark.django_db
@@ -119,7 +120,7 @@ def test_create_from_sso(mocker):
 
 
 def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile):
-    mock_pf_update = mocker.patch("profiles.services.peoplefinder.update")
+    mock_pf_update = mocker.patch("profiles.services.peoplefinder.profile.update")
     services.update_from_peoplefinder(
         profile=combined_profile,
         is_active=combined_profile.is_active,
@@ -169,7 +170,7 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
 
 
 def test_update_peoplefinder_team(mocker, peoplefinder_team):
-    mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.update_team")
+    mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.team.update")
     services.update_peoplefinder_team(
         slug=peoplefinder_team.slug,
         name=peoplefinder_team.name,
@@ -222,7 +223,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
     # Successfully delete a People Finder profile
     services.delete_peoplefinder_profile(peoplefinder_profile)
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
-        services.peoplefinder.get_by_slug(
+        peoplefinder_profile_services.get_by_slug(
             slug=peoplefinder_profile.slug,
             include_inactive=True,
         )
@@ -230,7 +231,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
 
 
 def test_create_peoplefinder_team(mocker):
-    mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.create_team")
+    mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.team.create")
     services.create_peoplefinder_team(
         slug="employee-experience",
         name="Employee Experience",

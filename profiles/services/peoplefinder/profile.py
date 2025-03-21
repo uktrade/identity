@@ -5,16 +5,13 @@ from django.contrib.admin.models import DELETION, LogEntry
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import get_user_model
 
-from profiles.exceptions import ProfileExists, TeamExists
-from profiles.models import LearningInterest, PeopleFinderTeam, Workday
+from profiles.exceptions import ProfileExists
+from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Email, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
     PeopleFinderProfile,
-    PeopleFinderTeam,
-    PeopleFinderTeamLeadersOrdering,
-    PeopleFinderTeamType,
     RemoteWorking,
 )
 from profiles.types import UNSET, Unset
@@ -39,13 +36,6 @@ def get_by_slug(slug: str, include_inactive: bool = False) -> PeopleFinderProfil
         return PeopleFinderProfile.objects.get(slug=slug)
 
     return PeopleFinderProfile.objects.get(slug=slug, is_active=True)
-
-
-def get_team_by_slug(slug: str) -> PeopleFinderTeam:
-    """
-    Retrieve a People Finder Team by its Slug.
-    """
-    return PeopleFinderTeam.objects.get(slug=slug)
 
 
 def create(
@@ -418,89 +408,6 @@ def delete_from_database(
     )
 
     peoplefinder_profile.delete()
-
-
-def create_team(
-    slug: str,
-    name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
-) -> PeopleFinderTeam:
-    """
-    Creates a people finder team
-    """
-    try:
-        PeopleFinderTeam.objects.get(slug=slug)
-        raise TeamExists("Team has been previously created")
-    except PeopleFinderTeam.DoesNotExist:
-        team = PeopleFinderTeam(
-            slug=slug,
-            name=name,
-            abbreviation=abbreviation,
-            description=description,
-            leaders_ordering=leaders_ordering,
-            cost_code=cost_code,
-            team_type=team_type,
-        )
-        team.full_clean()
-        team.save()
-        return team
-
-
-def update_team(
-    peoplefinder_team: PeopleFinderTeam,
-    name: Optional[str | Unset] = None,
-    abbreviation: Optional[str | Unset] = None,
-    description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
-    cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
-) -> None:
-
-    update_fields: list = []
-
-    if name is not None:
-        if name is UNSET:
-            peoplefinder_team.name = None
-        else:
-            peoplefinder_team.name = name
-        update_fields.append("name")
-    if abbreviation is not None:
-        if abbreviation is UNSET:
-            peoplefinder_team.abbreviation = None
-        else:
-            peoplefinder_team.abbreviation = abbreviation
-        update_fields.append("abbreviation")
-    if description is not None:
-        if description is UNSET:
-            peoplefinder_team.description = None
-        else:
-            peoplefinder_team.description = description
-        update_fields.append("description")
-    if leaders_ordering is not None:
-        if leaders_ordering is UNSET:
-            peoplefinder_team.leaders_ordering = None
-        else:
-            peoplefinder_team.leaders_ordering = leaders_ordering
-        update_fields.append("leaders_ordering")
-    if cost_code is not None:
-        if cost_code is UNSET:
-            peoplefinder_team.cost_code = None
-        else:
-            peoplefinder_team.cost_code = cost_code
-        update_fields.append("cost_code")
-    if team_type is not None:
-        if team_type is UNSET:
-            peoplefinder_team.team_type = None
-        else:
-            peoplefinder_team.team_type = team_type
-        update_fields.append("team_type")
-
-    peoplefinder_team.full_clean()
-    peoplefinder_team.save(update_fields=update_fields)
 
 
 ###############################################################

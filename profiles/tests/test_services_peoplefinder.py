@@ -1,13 +1,16 @@
+import unittest
 import uuid
 
 import pytest
 from django.contrib.admin.models import LogEntry
 from django.core.exceptions import ValidationError
 
-from profiles.exceptions import TeamExists
+from profiles.exceptions import TeamExists, TeamParentError
 from profiles.models import PeopleFinderProfile
 from profiles.models.generic import Grade, UkStaffLocation
-from profiles.services import peoplefinder as peoplefinder_services
+from profiles.models.peoplefinder import PeopleFinderTeam
+from profiles.services.peoplefinder import profile as peoplefinder_profile_services
+from profiles.services.peoplefinder import team as peoplefinder_team_services
 from profiles.types import UNSET
 from user.models import User
 
@@ -31,7 +34,7 @@ def test_create(peoplefinder_profile):
     # User
     user = User.objects.create(sso_email_id="tom@email.com")
 
-    peoplefinder_profile = peoplefinder_services.create(
+    peoplefinder_profile = peoplefinder_profile_services.create(
         slug=str(uuid.uuid4()),
         user=user,
         is_active=user.is_active,
@@ -60,7 +63,7 @@ def test_update(peoplefinder_profile, combined_profile):
     assert peoplefinder_profile.last_name == "Doe"
     assert peoplefinder_profile.grade == "grade_7"
 
-    peoplefinder_services.update(
+    peoplefinder_profile_services.update(
         peoplefinder_profile=peoplefinder_profile,
         is_active=combined_profile.is_active,
         first_name="James",
@@ -73,31 +76,12 @@ def test_update(peoplefinder_profile, combined_profile):
     assert peoplefinder_profile.grade == None
 
 
-def test_update_team(peoplefinder_team):
-
-    # Check the team name, cost code and description before update
-    assert peoplefinder_team.name == "Team1Name"
-    assert peoplefinder_team.description == "Team description"
-    assert peoplefinder_team.cost_code == "CC1"
-
-    peoplefinder_services.update_team(
-        peoplefinder_team=peoplefinder_team,
-        name="New team name",
-        description="New Team Description",
-        cost_code=UNSET,
-    )
-    # Check the team name, cost code and description after update
-    assert peoplefinder_team.name == "New team name"
-    assert peoplefinder_team.description == "New Team Description"
-    assert peoplefinder_team.cost_code is None
-
-
 def test_delete_from_database(peoplefinder_profile):
     obj_repr = str(peoplefinder_profile)
     peoplefinder_profile.refresh_from_db()
-    peoplefinder_services.delete_from_database(peoplefinder_profile)
+    peoplefinder_profile_services.delete_from_database(peoplefinder_profile)
     with pytest.raises(peoplefinder_profile.DoesNotExist):
-        peoplefinder_services.get_by_slug(
+        peoplefinder_profile_services.get_by_slug(
             slug=peoplefinder_profile.slug, include_inactive=True
         )
 
@@ -111,14 +95,14 @@ def test_delete_from_database(peoplefinder_profile):
 
 def test_get_by_id(peoplefinder_profile):
     # Get an active people finder profile
-    actual = peoplefinder_services.get_by_slug(slug=peoplefinder_profile.slug)
+    actual = peoplefinder_profile_services.get_by_slug(slug=peoplefinder_profile.slug)
     assert actual.user.sso_email_id == peoplefinder_profile.user.sso_email_id
 
     # Get a soft-deleted people finder profile when inactive profiles are included
     peoplefinder_profile.is_active = False
     peoplefinder_profile.save()
 
-    soft_deleted_profile = peoplefinder_services.get_by_slug(
+    soft_deleted_profile = peoplefinder_profile_services.get_by_slug(
         peoplefinder_profile.slug, include_inactive=True
     )
     assert soft_deleted_profile.is_active == False
@@ -126,18 +110,20 @@ def test_get_by_id(peoplefinder_profile):
     # Try to get a soft-deleted profile when inactive profiles are not included
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
         # no custom error to keep overheads low
-        peoplefinder_services.get_by_slug(slug=soft_deleted_profile.slug)
+        peoplefinder_profile_services.get_by_slug(slug=soft_deleted_profile.slug)
 
     assert ex.value.args[0] == "PeopleFinderProfile matching query does not exist."
 
     # Try to get a non-existent profile
     with pytest.raises(PeopleFinderProfile.DoesNotExist) as ex:
-        peoplefinder_services.get_by_slug(slug="550e8400-e29b-41d4-a716-446655440000")
+        peoplefinder_profile_services.get_by_slug(
+            slug="550e8400-e29b-41d4-a716-446655440000"
+        )
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
 
 
 def test_get_countries():
-    countries = peoplefinder_services.get_countries()
+    countries = peoplefinder_profile_services.get_countries()
     # Check if country properties exist in fetched country
     expected = {
         "reference_id": "CTHMTC00260",
@@ -154,7 +140,7 @@ def test_get_countries():
 
 
 def test_get_uk_staff_locations():
-    locations = peoplefinder_services.get_uk_staff_locations()
+    locations = peoplefinder_profile_services.get_uk_staff_locations()
     # Check if code, name, organisation and building_name exists in the location dict
     assert {
         "code": "location_1",
@@ -165,7 +151,7 @@ def test_get_uk_staff_locations():
 
 
 def test_get_remote_working_options():
-    options = peoplefinder_services.get_remote_working()
+    options = peoplefinder_profile_services.get_remote_working()
     assert options == [
         ("office_worker", "Office worker"),
         ("remote_worker", "Remote worker"),
@@ -174,7 +160,7 @@ def test_get_remote_working_options():
 
 
 def test_get_workday_options():
-    options = peoplefinder_services.get_workdays()
+    options = peoplefinder_profile_services.get_workdays()
 
     assert options == [
         ("mon", "Monday"),
@@ -188,7 +174,7 @@ def test_get_workday_options():
 
 
 def test_get_learning_interest_options():
-    options = peoplefinder_services.get_learning_interests()
+    options = peoplefinder_profile_services.get_learning_interests()
 
     assert options == [
         ("shadowing", "Work shadowing"),
@@ -203,7 +189,7 @@ def test_get_learning_interest_options():
 
 
 def test_get_professions():
-    options = peoplefinder_services.get_professions()
+    options = peoplefinder_profile_services.get_professions()
 
     assert options == [
         ("commercial", "Government commercial and contract management"),
@@ -240,7 +226,7 @@ def test_get_professions():
 
 
 def test_get_key_skills():
-    options = peoplefinder_services.get_key_skills()
+    options = peoplefinder_profile_services.get_key_skills()
 
     assert options == [
         ("asset_management", "Asset management"),
@@ -300,7 +286,7 @@ def test_get_key_skills():
 
 
 def test_get_grades():
-    options = peoplefinder_services.get_grades()
+    options = peoplefinder_profile_services.get_grades()
     assert options == [
         ("fco_s1", "FCO S1"),
         ("fco_s2", "FCO S2"),
@@ -327,7 +313,7 @@ def test_get_grades():
 
 
 def test_get_additional_roles():
-    options = peoplefinder_services.get_additional_roles()
+    options = peoplefinder_profile_services.get_additional_roles()
     assert options == [
         ("fire_warden", "Fire warden"),
         ("first_aider", "First aider"),
@@ -348,9 +334,10 @@ def test_get_additional_roles():
     ]
 
 
+# Test peoplefinder team service
 def test_create_team():
     # Create a peoplefinder team
-    peoplefinder_services.create_team(
+    peoplefinder_team_services.create(
         slug="employee-experience",
         name="Employee Experience",
         abbreviation="EX",
@@ -362,7 +349,7 @@ def test_create_team():
 
     # Try to create a team with the same slug
     with pytest.raises(TeamExists) as ex:
-        peoplefinder_services.create_team(
+        peoplefinder_team_services.create(
             slug="employee-experience",
             name="Employees' Experiences",
             abbreviation="EXs",
@@ -376,7 +363,7 @@ def test_create_team():
 
     # Try to create a team with a wrong team type
     with pytest.raises(ValidationError):
-        peoplefinder_services.create_team(
+        peoplefinder_team_services.create(
             slug="software-development",
             name="Software Development",
             abbreviation="SD",
@@ -384,4 +371,130 @@ def test_create_team():
             leaders_ordering="alphabetical",
             cost_code="SD_cost_code",
             team_type="Folio",
+        )
+
+
+def test_update_team(peoplefinder_team):
+
+    # Check the team name, cost code and description before update
+    assert peoplefinder_team.name == "Team1Name"
+    assert peoplefinder_team.description == "Team description"
+    assert peoplefinder_team.cost_code == "CC1"
+
+    peoplefinder_team_services.update(
+        peoplefinder_team=peoplefinder_team,
+        name="New team name",
+        description="New Team Description",
+        cost_code=UNSET,
+    )
+    # Check the team name, cost code and description after update
+    assert peoplefinder_team.name == "New team name"
+    assert peoplefinder_team.description == "New Team Description"
+    assert peoplefinder_team.cost_code is None
+
+
+# TODO: Write separate tests for each function.
+# Test TeamService
+def test_team_service(db):
+    """
+    .
+    └── DIT
+        ├── COO
+        │   ├── Analysis
+        │   └── Change
+        └── GTI
+            └── DEFEND
+            ├── Investment
+    """
+    test_case = unittest.TestCase()
+
+    # We need to start from fresh for these tests.
+    PeopleFinderTeam.objects.all().delete()
+
+    dit = PeopleFinderTeam.objects.create(name="DIT", slug="dit")
+    coo = PeopleFinderTeam.objects.create(name="COO", slug="coo")
+    gti = PeopleFinderTeam.objects.create(name="GTI", slug="gti")
+    peoplefinder_team_services.add_team_to_teamtree(team=dit, parent=dit)
+    peoplefinder_team_services.add_team_to_teamtree(team=coo, parent=dit)
+    peoplefinder_team_services.add_team_to_teamtree(team=gti, parent=dit)
+
+    coo_analysis = PeopleFinderTeam.objects.create(name="Analysis", slug="analysis")
+    coo_change = PeopleFinderTeam.objects.create(name="Change", slug="change")
+    peoplefinder_team_services.add_team_to_teamtree(team=coo_analysis, parent=coo)
+    peoplefinder_team_services.add_team_to_teamtree(team=coo_change, parent=coo)
+
+    gti_investment = PeopleFinderTeam.objects.create(
+        name="Investment", slug="investment"
+    )
+    gti_defence = PeopleFinderTeam.objects.create(name="DEFEND", slug="defend")
+    peoplefinder_team_services.add_team_to_teamtree(team=gti_investment, parent=gti)
+    peoplefinder_team_services.add_team_to_teamtree(team=gti_defence, parent=gti)
+
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_all_child_teams(parent=dit)),
+        [
+            coo,
+            gti,
+            coo_analysis,
+            coo_change,
+            gti_investment,
+            gti_defence,
+        ],
+    )
+
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_immediate_child_teams(parent=dit)),
+        [coo, gti],
+    )
+
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_all_parent_teams(child=coo_change)),
+        [dit, coo],
+    )
+
+    assert peoplefinder_team_services.get_root_team() == dit
+
+    assert peoplefinder_team_services.get_immediate_parent_team(gti_defence) == gti
+
+    # test update
+    peoplefinder_team_services.update_team_parent(gti, coo)
+
+    assert peoplefinder_team_services.get_immediate_parent_team(gti) == coo
+
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_all_child_teams(coo)),
+        [
+            gti,
+            coo_analysis,
+            coo_change,
+            gti_investment,
+            gti_defence,
+        ],
+    )
+
+    test_case.assertCountEqual(
+        list(peoplefinder_team_services.get_immediate_child_teams(dit)), [coo]
+    )
+
+    # revert update
+    peoplefinder_team_services.update_team_parent(gti, dit)
+
+    assert peoplefinder_team_services.get_immediate_parent_team(gti) == dit
+
+    # test `validate_team_parent_update` through `update_team_parent`
+    with pytest.raises(
+        TeamParentError, match="A team's parent cannot be the team itself"
+    ):
+        peoplefinder_team_services.update_team_parent(gti, gti)
+
+    with pytest.raises(
+        TeamParentError, match="A team's parent cannot be a team's child"
+    ):
+        peoplefinder_team_services.update_team_parent(gti, gti_investment)
+
+    with pytest.raises(
+        TeamParentError, match="Cannot update the parent of the root team"
+    ):
+        peoplefinder_team_services.update_team_parent(
+            dit, PeopleFinderTeam(name="Test")
         )
