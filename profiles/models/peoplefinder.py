@@ -363,9 +363,9 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         return self.full_name
 
     def save(self, *args, **kwargs):
-        from profiles.services.peoplefinder import peoplefinder
+        from profiles.services.peoplefinder import profile
 
-        self.profile_completion = peoplefinder.get_profile_completion(
+        self.profile_completion = profile.get_profile_completion(
             peoplefinder_profile=self
         )
         return super().save(*args, **kwargs)

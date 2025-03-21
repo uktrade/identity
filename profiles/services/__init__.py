@@ -22,7 +22,8 @@ from profiles.models.peoplefinder import (
 )
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import combined, staff_sso
-from profiles.services.peoplefinder import peoplefinder
+from profiles.services.peoplefinder import profile as peoplefinder_profile_services
+from profiles.services.peoplefinder import team as peoplefinder_team_services
 from profiles.types import Unset
 from user import services as user_services
 from user.models import User
@@ -44,7 +45,9 @@ def get_by_slug(slug: str, include_inactive: bool = False) -> PeopleFinderProfil
     """
     Retrieve a peoplefinder profile by its slug.
     """
-    return peoplefinder.get_by_slug(slug=slug, include_inactive=include_inactive)
+    return peoplefinder_profile_services.get_by_slug(
+        slug=slug, include_inactive=include_inactive
+    )
 
 
 def generate_combined_profile_data(sso_email_id: str):
@@ -185,7 +188,7 @@ def create_from_peoplefinder(
     intermediate_languages: Optional[str] = None,
     previous_experience: Optional[str] = None,
 ) -> PeopleFinderProfile:
-    return peoplefinder.create(
+    return peoplefinder_profile_services.create(
         slug=slug,
         user=user,
         is_active=is_active,
@@ -268,8 +271,10 @@ def update_from_peoplefinder(
     previous_experience: Optional[str | Unset] = None,
 ) -> None:
     # TODO: use get_by_id to get the peoplefinder_profile
-    peoplefinder_profile = peoplefinder.get_by_slug(slug=slug, include_inactive=True)
-    peoplefinder.update(
+    peoplefinder_profile = peoplefinder_profile_services.get_by_slug(
+        slug=slug, include_inactive=True
+    )
+    peoplefinder_profile_services.update(
         peoplefinder_profile=peoplefinder_profile,
         is_active=is_active,
         became_inactive=became_inactive,
@@ -329,7 +334,7 @@ def delete_sso_profile(profile: StaffSSOProfile) -> None:
 
 def delete_peoplefinder_profile(profile: PeopleFinderProfile) -> None:
     try:
-        peoplefinder.delete_from_database(peoplefinder_profile=profile)
+        peoplefinder_profile_services.delete_from_database(peoplefinder_profile=profile)
     except PeopleFinderProfile.DoesNotExist:
         logger.debug(
             f"Failed to delete People Finder profile for {profile.user.sso_email_id}. people Finder profile is already deleted."
@@ -410,7 +415,7 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     Gets peoplefinder profile from peoplefinder service
     :param slug: Peoplefinder profile slug
     """
-    return peoplefinder.get_by_slug(slug=slug)
+    return peoplefinder_profile_services.get_by_slug(slug=slug)
 
 
 def create_peoplefinder_team(
@@ -425,7 +430,7 @@ def create_peoplefinder_team(
     """
     Creates a people finder team
     """
-    return peoplefinder.create_team(
+    return peoplefinder_team_services.create_team(
         slug=slug,
         name=name,
         abbreviation=abbreviation,
@@ -445,8 +450,8 @@ def update_peoplefinder_team(
     cost_code: Optional[str | Unset] = None,
     team_type: Optional[str | Unset] = None,
 ) -> None:
-    peoplefinder_team = peoplefinder.get_team_by_slug(slug=slug)
-    peoplefinder.update_team(
+    peoplefinder_team = peoplefinder_team_services.get_team_by_slug(slug=slug)
+    peoplefinder_team_services.update_team(
         peoplefinder_team=peoplefinder_team,
         name=name,
         abbreviation=abbreviation,
@@ -461,60 +466,60 @@ def get_countries() -> list[Country]:
     """
     Gets all countries service
     """
-    return peoplefinder.get_countries()
+    return peoplefinder_profile_services.get_countries()
 
 
 def get_uk_staff_locations() -> list[UkStaffLocation]:
     """
     Gets all UK staff locations
     """
-    return peoplefinder.get_uk_staff_locations()
+    return peoplefinder_profile_services.get_uk_staff_locations()
 
 
 def get_remote_working() -> list[tuple[RemoteWorking, str]]:
     """
     Gets all remote working options
     """
-    return peoplefinder.get_remote_working()
+    return peoplefinder_profile_services.get_remote_working()
 
 
 def get_workdays() -> list[tuple[Workday, str]]:
     """
     Gets all workdays
     """
-    return peoplefinder.get_workdays()
+    return peoplefinder_profile_services.get_workdays()
 
 
 def get_learning_interests() -> list[tuple[LearningInterest, str]]:
     """
     Gets all learning interests
     """
-    return peoplefinder.get_learning_interests()
+    return peoplefinder_profile_services.get_learning_interests()
 
 
 def get_professions() -> list[tuple[Profession, str]]:
     """
     Gets all professions
     """
-    return peoplefinder.get_professions()
+    return peoplefinder_profile_services.get_professions()
 
 
 def get_grades() -> list[tuple[Grade, str]]:
     """
     Gets all grades
     """
-    return peoplefinder.get_grades()
+    return peoplefinder_profile_services.get_grades()
 
 
 def get_key_skills() -> list[tuple[KeySkill, str]]:
     """
     Gets all key skills
     """
-    return peoplefinder.get_key_skills()
+    return peoplefinder_profile_services.get_key_skills()
 
 
 def get_additional_roles() -> list[tuple[AdditionalRole, str]]:
     """
     Get all additional roles
     """
-    return peoplefinder.get_additional_roles()
+    return peoplefinder_profile_services.get_additional_roles()

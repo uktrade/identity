@@ -1,8 +1,106 @@
+from typing import Optional
+
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
 
-from profiles.exceptions import TeamServiceError
-from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
+from profiles.exceptions import TeamExists, TeamServiceError
+from profiles.models.peoplefinder import (
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamTree,
+    PeopleFinderTeamType,
+)
+from profiles.types import UNSET, Unset
+
+
+def get_team_by_slug(slug: str) -> PeopleFinderTeam:
+    """
+    Retrieve a People Finder Team by its Slug.
+    """
+    return PeopleFinderTeam.objects.get(slug=slug)
+
+
+def create_team(
+    slug: str,
+    name: str,
+    abbreviation: str,
+    description: str,
+    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    cost_code: str,
+    team_type: str | PeopleFinderTeamType,
+) -> PeopleFinderTeam:
+    """
+    Creates a people finder team
+    """
+    try:
+        PeopleFinderTeam.objects.get(slug=slug)
+        raise TeamExists("Team has been previously created")
+    except PeopleFinderTeam.DoesNotExist:
+        team = PeopleFinderTeam(
+            slug=slug,
+            name=name,
+            abbreviation=abbreviation,
+            description=description,
+            leaders_ordering=leaders_ordering,
+            cost_code=cost_code,
+            team_type=team_type,
+        )
+        team.full_clean()
+        team.save()
+        return team
+
+
+def update_team(
+    peoplefinder_team: PeopleFinderTeam,
+    name: Optional[str | Unset] = None,
+    abbreviation: Optional[str | Unset] = None,
+    description: Optional[str | Unset] = None,
+    leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
+    cost_code: Optional[str | Unset] = None,
+    team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
+) -> None:
+
+    update_fields: list = []
+
+    if name is not None:
+        if name is UNSET:
+            peoplefinder_team.name = None
+        else:
+            peoplefinder_team.name = name
+        update_fields.append("name")
+    if abbreviation is not None:
+        if abbreviation is UNSET:
+            peoplefinder_team.abbreviation = None
+        else:
+            peoplefinder_team.abbreviation = abbreviation
+        update_fields.append("abbreviation")
+    if description is not None:
+        if description is UNSET:
+            peoplefinder_team.description = None
+        else:
+            peoplefinder_team.description = description
+        update_fields.append("description")
+    if leaders_ordering is not None:
+        if leaders_ordering is UNSET:
+            peoplefinder_team.leaders_ordering = None
+        else:
+            peoplefinder_team.leaders_ordering = leaders_ordering
+        update_fields.append("leaders_ordering")
+    if cost_code is not None:
+        if cost_code is UNSET:
+            peoplefinder_team.cost_code = None
+        else:
+            peoplefinder_team.cost_code = cost_code
+        update_fields.append("cost_code")
+    if team_type is not None:
+        if team_type is UNSET:
+            peoplefinder_team.team_type = None
+        else:
+            peoplefinder_team.team_type = team_type
+        update_fields.append("team_type")
+
+    peoplefinder_team.full_clean()
+    peoplefinder_team.save(update_fields=update_fields)
 
 
 class TeamService:
@@ -14,16 +112,45 @@ class TeamService:
         Args:
             team (PeopleFinderTeam): The team to be added.
             parent (PeopleFinderTeam): The parent team.
+
+        Details of implementation:
+
+        The PeopleFinderTeamTree is a closure table where
+        we have PeopleFinderTeam objects as nodes and we use
+        the PeopleFinderTeamTree to store information about
+        the tree/hierarchy structure.
+
+        Example: We have a team tree of A -> B and want to add a new node C to the hierarchy
+
+        Current hierarchy:
+        parent child depth
+          A     A       0
+          B     B       0
+          A     B       1
+
+        Hierarchy after adding new node C:
+        parent child depth
+          A     A       0
+          B     B       0
+          A     B       1
+          C     C       0  # reference to itself
+          B     C       1  # reference to immediate parent
+          A     C       2  # reference to parent with depth 2
+
+        For more information on closure tables: https://fueled.com/the-cache/posts/backend/closure-table/#closure-table
         """
         PeopleFinderTeamTree.objects.bulk_create(
             [
-                # reference to itself
+                # Add a reference to the created team itself
                 PeopleFinderTeamTree(parent=team, child=team, depth=0),
-                # all required tree connections
+                # Add all required tree connections
                 *(
                     PeopleFinderTeamTree(
                         parent=tt.parent, child=team, depth=tt.depth + 1
                     )
+                    # Loops over all the parents (not only the immediate parent) of the
+                    # parent to the team we are adding to the hierarchy that's why we set
+                    # child=parent
                     for tt in PeopleFinderTeamTree.objects.filter(child=parent)
                 ),
             ]
@@ -91,6 +218,43 @@ class TeamService:
                 """,
                 [team.id, parent.id],
             )
+
+    def get_all_parent_teams(
+        self, child: PeopleFinderTeam
+    ) -> QuerySet[PeopleFinderTeam]:
+        """Return all parent teams for the given child team.
+
+        Args:
+            child (PeopleFinderTeam): The given child team.
+
+        Returns:
+            QuerySet: A query of teams.
+        """
+        return (
+            PeopleFinderTeam.objects.filter(parents__child=child).exclude(
+                parents__parent=child
+            )
+            # TODO: Not sure if we should order here or at the call sites.
+            .order_by("-parents__depth")
+        )
+
+    def get_immediate_parent_team(
+        self, child: PeopleFinderTeam
+    ) -> Optional[PeopleFinderTeam]:
+        """Return the immediate parent team for the given team.
+
+        Args:
+            child (PeopleFinderTeam): The given team.
+
+        Returns:
+            PeopleFinderTeam: The immediate parent team.
+        """
+        try:
+            return PeopleFinderTeam.objects.filter(
+                parents__child=child, parents__depth=1
+            ).get()
+        except PeopleFinderTeam.DoesNotExist:
+            return None
 
     def get_all_child_teams(
         self, parent: PeopleFinderTeam
@@ -162,4 +326,5 @@ class TeamService:
         # TODO: We don't have active field in PeopleFinderProfileTeam model
         # In current people finder we use active to check if there are members
         # in a team.
+        # return team.peoplefinder_members.exclude(peoplefinder_profile__is_active=False)
         return NotImplementedError
