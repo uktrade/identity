@@ -97,7 +97,7 @@ services:
     profiles:
       - services
     volumes:
-      - .:/app 
+      - .:/app
     depends_on:
       - postgres
       - redis
@@ -113,7 +113,7 @@ services:
     profiles:
       - services
     volumes:
-      - .:/app 
+      - .:/app
     depends_on:
       - postgres
       - redis
@@ -129,7 +129,8 @@ services:
       context: ./docker
       dockerfile: Dockerfile.localstack
     ports:
-      - '4563-4599:4563-4599'
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
     environment:
       - DISABLE_CORS_CHECKS=1
       - DISABLE_CUSTOM_CORS_S3=1
