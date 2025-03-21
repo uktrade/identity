@@ -77,25 +77,6 @@ def test_update(peoplefinder_profile, combined_profile):
     assert peoplefinder_profile.grade == None
 
 
-def test_update_team(peoplefinder_team):
-
-    # Check the team name, cost code and description before update
-    assert peoplefinder_team.name == "Team1Name"
-    assert peoplefinder_team.description == "Team description"
-    assert peoplefinder_team.cost_code == "CC1"
-
-    peoplefinder_team_services.update_team(
-        peoplefinder_team=peoplefinder_team,
-        name="New team name",
-        description="New Team Description",
-        cost_code=UNSET,
-    )
-    # Check the team name, cost code and description after update
-    assert peoplefinder_team.name == "New team name"
-    assert peoplefinder_team.description == "New Team Description"
-    assert peoplefinder_team.cost_code is None
-
-
 def test_delete_from_database(peoplefinder_profile):
     obj_repr = str(peoplefinder_profile)
     peoplefinder_profile.refresh_from_db()
@@ -355,8 +336,6 @@ def test_get_additional_roles():
 
 
 # Test peoplefinder team service
-
-
 def test_create_team():
     # Create a peoplefinder team
     peoplefinder_team_services.create_team(
@@ -394,6 +373,25 @@ def test_create_team():
             cost_code="SD_cost_code",
             team_type="Folio",
         )
+
+
+def test_update_team(peoplefinder_team):
+
+    # Check the team name, cost code and description before update
+    assert peoplefinder_team.name == "Team1Name"
+    assert peoplefinder_team.description == "Team description"
+    assert peoplefinder_team.cost_code == "CC1"
+
+    peoplefinder_team_services.update_team(
+        peoplefinder_team=peoplefinder_team,
+        name="New team name",
+        description="New Team Description",
+        cost_code=UNSET,
+    )
+    # Check the team name, cost code and description after update
+    assert peoplefinder_team.name == "New team name"
+    assert peoplefinder_team.description == "New Team Description"
+    assert peoplefinder_team.cost_code is None
 
 
 # TODO: Write separate tests for each function.
