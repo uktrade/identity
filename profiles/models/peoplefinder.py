@@ -196,7 +196,7 @@ class PeopleFinderProfile(AbstractHistoricalModel):
         null=True,
         blank=True,
         upload_to=person_photo_path,
-        validators=[validate_virus_check_result],
+        validators=[ validate_virus_check_result],
     )
     photo_small = models.ImageField(
         max_length=255,

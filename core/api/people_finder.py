@@ -1,5 +1,6 @@
-from ninja import Router, File
+from ninja import File, Router
 from ninja.files import UploadedFile
+from PIL import Image
 
 from core import services as core_services
 from core.schemas import Error
@@ -330,6 +331,7 @@ def update_profile(
     response={
         200: ProfileResponse,  # @TODO custom minimal response
         404: Error,
+        422: Error,
     },
 )
 def upload_profile_photo(request, slug: str, image: UploadedFile):
@@ -343,9 +345,39 @@ def upload_profile_photo(request, slug: str, image: UploadedFile):
             "message": "Unable to find people finder profile",
         }
 
-    photo: UploadedFile = image.open()
-    profile.photo.save(image.name, content=photo)
+    try:
+        im = Image.open(image)
+        im.verify()
+    except:
+        return 422, {
+            "message": "Not a valid image file",
+        }
 
+    photo: UploadedFile = image.open()
+    profile.photo.delete()
+    profile.photo.save(image.name, content=photo)
+    return profile
+
+
+@profile_router.delete(
+    path="{slug}/photo",
+    response={
+        200: ProfileResponse,
+        404: Error,
+    },
+)
+def delete_profile_photo(request, slug: str):
+    """
+    Endpoint to delete a profile photo for the given profile
+    """
+    try:
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {
+            "message": "Unable to find people finder profile",
+        }
+
+    profile.photo.delete()
     return profile
 
 

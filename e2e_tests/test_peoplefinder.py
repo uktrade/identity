@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import os
 import uuid
 
 import pytest
@@ -218,6 +219,39 @@ def test_update(combined_profile, peoplefinder_profile):
     assert response.status_code == 404
     response_json = response.json()
     assert response_json == {"message": "People finder profile does not exist"}
+
+
+def test_upload_delete_photo(peoplefinder_profile):
+    url = reverse(
+        "people-finder:upload_profile_photo", args=(str(peoplefinder_profile.slug),)
+    )
+    filepath = "docker/.localstack/fixtures/photo.jpg"
+    client = Client()
+
+    with open(filepath, "rb") as file:
+        response = client.post(
+            url,
+            data={"image": file},
+        )
+        assert response.status_code == 200
+        peoplefinder_profile.refresh_from_db()
+        assert peoplefinder_profile.photo.size == os.path.getsize(filepath)
+
+    response = client.delete(url)
+    assert response.status_code == 200
+    peoplefinder_profile.refresh_from_db()
+    assert bool(peoplefinder_profile.photo) is False
+
+    filepath = "docker/.localstack/fixtures/staff_sso.jsonl"
+    with open(filepath, "rb") as file:
+        response = client.post(
+            url,
+            data={"image": file},
+        )
+        assert response.status_code == 422
+        assert json.loads(response.content) == {
+            "message": "Not a valid image file"
+        }
 
 
 def test_get_countries(mocker):
