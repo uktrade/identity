@@ -249,9 +249,7 @@ def test_upload_delete_photo(peoplefinder_profile):
             data={"image": file},
         )
         assert response.status_code == 422
-        assert json.loads(response.content) == {
-            "message": "Not a valid image file"
-        }
+        assert json.loads(response.content) == {"message": "Not a valid image file"}
 
 
 def test_get_countries(mocker):
