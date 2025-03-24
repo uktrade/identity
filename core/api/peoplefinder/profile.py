@@ -2,7 +2,7 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder import (
+from core.schemas.peoplefinder.profile import (
     CountryResponse,
     CreateProfileRequest,
     ProfileMinimalResponse,

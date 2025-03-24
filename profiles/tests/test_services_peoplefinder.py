@@ -335,7 +335,7 @@ def test_get_additional_roles():
 
 
 # Test peoplefinder team service
-def test_create_team():
+def test_create_team(peoplefinder_team):
     # Create a peoplefinder team
     peoplefinder_team_services.create(
         slug="employee-experience",
@@ -345,6 +345,7 @@ def test_create_team():
         leaders_ordering="custom",
         cost_code="EX_cost_code",
         team_type="portfolio",
+        parent=peoplefinder_team,
     )
 
     # Try to create a team with the same slug
@@ -357,6 +358,7 @@ def test_create_team():
             leaders_ordering="alphabetical",
             cost_code="EXs_cost_code",
             team_type="portfolio",
+            parent=peoplefinder_team,
         )
 
     assert ex.value.args[0] == "Team has been previously created"
@@ -371,13 +373,14 @@ def test_create_team():
             leaders_ordering="alphabetical",
             cost_code="SD_cost_code",
             team_type="Folio",
+            parent=peoplefinder_team,
         )
 
 
 def test_update_team(peoplefinder_team):
 
     # Check the team name, cost code and description before update
-    assert peoplefinder_team.name == "Team1Name"
+    assert peoplefinder_team.name == "Team Number One"
     assert peoplefinder_team.description == "Team description"
     assert peoplefinder_team.cost_code == "CC1"
 

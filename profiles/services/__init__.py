@@ -17,6 +17,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamTree,
     PeopleFinderTeamType,
     RemoteWorking,
 )
@@ -426,6 +427,7 @@ def create_peoplefinder_team(
     leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
     cost_code: str,
     team_type: str | PeopleFinderTeamType,
+    parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -438,6 +440,7 @@ def create_peoplefinder_team(
         leaders_ordering=leaders_ordering,
         cost_code=cost_code,
         team_type=team_type,
+        parent=parent,
     )
 
 
@@ -449,6 +452,7 @@ def update_peoplefinder_team(
     leaders_ordering: Optional[str | Unset] = None,
     cost_code: Optional[str | Unset] = None,
     team_type: Optional[str | Unset] = None,
+    parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
     peoplefinder_team = peoplefinder_team_services.get_by_slug(slug=slug)
     peoplefinder_team_services.update(
@@ -459,7 +463,15 @@ def update_peoplefinder_team(
         leaders_ordering=leaders_ordering,
         cost_code=cost_code,
         team_type=team_type,
+        parent=parent,
     )
+
+
+def get_peoplefinder_team_hierarchy() -> list[PeopleFinderTeamTree]:
+    """
+    Get all teams in the team tree
+    """
+    return peoplefinder_team_services.get_team_hierarchy()
 
 
 def get_countries() -> list[Country]:

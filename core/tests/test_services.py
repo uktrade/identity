@@ -3,7 +3,6 @@ from unittest.mock import call
 
 import pytest
 
-from conftest import basic_user
 from core import services
 from core.services import (
     SSO_CONTACT_EMAIL_ADDRESS,
@@ -18,6 +17,7 @@ from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email
+from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import staff_sso as sso_profile_services
 from profiles.services.peoplefinder import profile as peoplefinder_services
@@ -224,7 +224,7 @@ def test_update_peoplefinder_profile(combined_profile, peoplefinder_profile, man
         )
 
 
-def test_create_peoplefinder_team_core_services():
+def test_create_peoplefinder_team_core_services(peoplefinder_team):
     # Create a peoplefinder team
     services.create_peoplefinder_team(
         slug="employee-experience",
@@ -234,7 +234,15 @@ def test_create_peoplefinder_team_core_services():
         leaders_ordering="custom",
         cost_code="EX_cost_code",
         team_type="portfolio",
+        parent=peoplefinder_team,
     )
+    print(PeopleFinderTeamTree.objects.all())
+    print(PeopleFinderTeamTree.objects.all().values_list("child", flat=True))
+
+    ex_team = PeopleFinderTeam.objects.get(slug="employee-experience")
+    ex_in_team_tree = PeopleFinderTeamTree.objects.filter(child=ex_team)
+    # Check if EX team entries are added to the team tree
+    assert set(ex_in_team_tree).issubset(set(PeopleFinderTeamTree.objects.all()))
 
     # Try to create a team with the same slug
     with pytest.raises(TeamExists) as ex:
@@ -246,6 +254,7 @@ def test_create_peoplefinder_team_core_services():
             leaders_ordering="alphabetical",
             cost_code="EXs_cost_code",
             team_type="portfolio",
+            parent=peoplefinder_team,
         )
 
     assert ex.value.args[0] == "Team has been previously created"

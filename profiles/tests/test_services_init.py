@@ -189,6 +189,7 @@ def test_update_peoplefinder_team(mocker, peoplefinder_team):
         leaders_ordering=peoplefinder_team.leaders_ordering,
         cost_code=peoplefinder_team.cost_code,
         team_type=peoplefinder_team.team_type,
+        parent=None,
     )
 
 
@@ -230,7 +231,7 @@ def test_delete_peoplefinder_profile(peoplefinder_profile) -> None:
     assert str(ex.value.args[0]) == "PeopleFinderProfile matching query does not exist."
 
 
-def test_create_peoplefinder_team(mocker):
+def test_create_peoplefinder_team(mocker, peoplefinder_team):
     mock_pf_create_team = mocker.patch("profiles.services.peoplefinder.team.create")
     services.create_peoplefinder_team(
         slug="employee-experience",
@@ -240,6 +241,7 @@ def test_create_peoplefinder_team(mocker):
         leaders_ordering="custom",
         cost_code="EX_cost_code",
         team_type="portfolio",
+        parent=peoplefinder_team,
     )
 
     mock_pf_create_team.assert_called_once_with(
@@ -250,4 +252,5 @@ def test_create_peoplefinder_team(mocker):
         leaders_ordering="custom",
         cost_code="EX_cost_code",
         team_type="portfolio",
+        parent=peoplefinder_team,
     )

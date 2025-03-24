@@ -28,6 +28,7 @@ def create(
     leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
     cost_code: str,
     team_type: str | PeopleFinderTeamType,
+    parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -47,6 +48,7 @@ def create(
         )
         team.full_clean()
         team.save()
+        add_team_to_teamtree(team=team, parent=parent)
         return team
 
 
@@ -58,6 +60,7 @@ def update(
     leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
     team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
+    parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
 
     update_fields: list = []
@@ -101,6 +104,19 @@ def update(
 
     peoplefinder_team.full_clean()
     peoplefinder_team.save(update_fields=update_fields)
+
+    # Update team parent
+    if parent:
+        validate_team_parent_update(team=peoplefinder_team, parent=parent)
+        update_team_parent(team=peoplefinder_team, parent=parent)
+
+
+# TODO: Do we want to return a nested list? - possibly
+def get_team_hierarchy() -> list[PeopleFinderTeamTree]:
+    """
+    Get all teams in the team tree
+    """
+    return list(PeopleFinderTeamTree.objects.all())
 
 
 def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:

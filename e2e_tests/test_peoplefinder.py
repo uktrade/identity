@@ -6,7 +6,7 @@ import pytest
 from django.test.client import Client
 from django.urls import reverse
 
-from core.schemas.peoplefinder import CreateProfileRequest, UpdateProfileRequest
+from core.schemas.peoplefinder.profile import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import AdditionalRole, KeySkill, RemoteWorking
