@@ -43,16 +43,6 @@ INFRA_SERVICE: str = env.str("INFRA_SERVICE", "MAIN")
 GIT_COMMIT: str = env.str("GIT_COMMIT", None)
 HOST_ALL_APIS = env.bool("HOST_ALL_APIS", default=False)
 
-# Boto
-S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
-DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
-DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
-DATA_FLOW_USERS_DIRECTORY = env.str("DATA_FLOW_USERS_DIRECTORY", None)
-DATA_FLOW_COUNTRIES_DIRECTORY = env.str("DATA_FLOW_COUNTRIES_DIRECTORY", None)
-DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY = env.str(
-    "DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY", None
-)
-
 # Django
 # https://docs.djangoproject.com/en/5.1/topics/settings/
 SECRET_KEY: str = env.str("SECRET_KEY")
@@ -73,15 +63,36 @@ STATICFILES_DIRS: list[Path] = [
 # Storage
 # https://docs.djangoproject.com/en/5.1/ref/settings/#storages
 
+FILE_UPLOAD_HANDLERS = (
+    "django_chunk_upload_handlers.clam_av.ClamAVFileUploadHandler",
+    "django_chunk_upload_handlers.s3.S3FileUploadHandler",
+)  # Order is important
+
 STORAGES: dict[str, Any] = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
     },
     # WhiteNoise
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+
+# Boto
+AWS_REGION = env("AWS_REGION", default="eu-west-2")
+AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-2")
+AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
+S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
+
+DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
+DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
+DATA_FLOW_USERS_DIRECTORY = env.str("DATA_FLOW_USERS_DIRECTORY", None)
+DATA_FLOW_COUNTRIES_DIRECTORY = env.str("DATA_FLOW_COUNTRIES_DIRECTORY", None)
+DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY = env.str(
+    "DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY", None
+)
+
 
 # Vite
 # https://vitejs.dev/guide/backend-integration.html

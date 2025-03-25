@@ -17,3 +17,12 @@ LOGGING["loggers"]["django.request"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.server"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["django.db.backends"]["handlers"] = ["simple"]  #  type:ignore
 LOGGING["loggers"]["mohawk"]["handlers"] = ["simple"]  #  type:ignore
+
+
+STORAGES["default"][  # noqa F405
+    "BACKEND"
+] = "django.core.files.storage.FileSystemStorage"  # noqa F405
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)

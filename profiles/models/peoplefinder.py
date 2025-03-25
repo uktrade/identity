@@ -14,11 +14,11 @@ DEFAULT_COUNTRY_PK = "CTHMTC00260"
 
 
 def person_photo_path(instance, filename):
-    return f"peoplefinder/person/{instance.slug}/photo/{filename}"
+    return f"profiles/{instance.slug}/photo/{filename}"
 
 
 def person_photo_small_path(instance, filename):
-    return f"peoplefinder/person/{instance.slug}/photo/small_{filename}"
+    return f"profiles/{instance.slug}/photo/small_{filename}"
 
 
 class LearningInterest(models.TextChoices):

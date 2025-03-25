@@ -1,4 +1,6 @@
-from ninja import Router
+from ninja import File, Router
+from ninja.files import UploadedFile
+from PIL import Image
 
 from core import services as core_services
 from core.schemas import Error
@@ -39,7 +41,7 @@ router.add_router("reference", reference_router)
     },
 )
 def get_profile(request, slug: str):
-    """Optimised, low-flexibility endpoint to return a minimal peoplefinder profile record"""
+    """Endpoint to return a full peoplefinder profile record"""
     try:
         return core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
@@ -103,8 +105,6 @@ def create_profile(
             contact_email_address=profile_request.contact_email_address,
             primary_phone_number=profile_request.primary_phone_number,
             secondary_phone_number=profile_request.secondary_phone_number,
-            photo=profile_request.photo,
-            photo_small=profile_request.photo_small,
             grade=(
                 None if profile_request.grade is None else Grade(profile_request.grade)
             ),
@@ -248,14 +248,6 @@ def update_profile(
                 if profile_request.secondary_phone_number is None
                 else profile_request.secondary_phone_number
             ),
-            photo=(
-                UNSET
-                if profile_request.preferred_first_name is None
-                else profile_request.photo
-            ),
-            photo_small=(
-                UNSET if profile_request.photo is None else profile_request.photo
-            ),
             grade=(
                 UNSET if profile_request.grade is None else Grade(profile_request.grade)
             ),
@@ -332,6 +324,61 @@ def update_profile(
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
+
+
+@profile_router.post(
+    path="{slug}/photo",
+    response={
+        200: ProfileResponse,  # @TODO custom minimal response
+        404: Error,
+        422: Error,
+    },
+)
+def upload_profile_photo(request, slug: str, image: UploadedFile):
+    """
+    Endpoint to upload a new profile photo for the given profile
+    """
+    try:
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {
+            "message": "Unable to find people finder profile",
+        }
+
+    try:
+        im = Image.open(image)
+        im.verify()
+    except:
+        return 422, {
+            "message": "Not a valid image file",
+        }
+
+    photo: UploadedFile = image.open()
+    profile.photo.delete()
+    profile.photo.save(image.name, content=photo)
+    return profile
+
+
+@profile_router.delete(
+    path="{slug}/photo",
+    response={
+        200: ProfileResponse,
+        404: Error,
+    },
+)
+def delete_profile_photo(request, slug: str):
+    """
+    Endpoint to delete a profile photo for the given profile
+    """
+    try:
+        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+    except PeopleFinderProfile.DoesNotExist:
+        return 404, {
+            "message": "Unable to find people finder profile",
+        }
+
+    profile.photo.delete()
+    return profile
 
 
 @reference_router.get(

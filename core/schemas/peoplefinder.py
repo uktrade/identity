@@ -35,8 +35,6 @@ class ProfileRequest(Schema):
     contact_email_address: Optional[str] = None
     primary_phone_number: Optional[str] = None
     secondary_phone_number: Optional[str] = None
-    photo: Optional[str] = None
-    photo_small: Optional[str] = None
     grade: Optional[Grade] = None
     manager_slug: Optional[str] = None
     not_employee: Optional[bool] = None
