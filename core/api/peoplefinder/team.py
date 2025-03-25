@@ -1,7 +1,7 @@
 from ninja import Router
 
 from core import services as core_services
-from core.schemas.peoplefinder.team import PeopleFinderTeamTreeResponse
+from core.schemas.peoplefinder.team import PeopleFinderTeamSchema
 
 
 router = Router()
@@ -12,7 +12,7 @@ router.add_router("team", team_router)
 @team_router.get(
     "all",
     response={
-        200: list[PeopleFinderTeamTreeResponse],
+        200: PeopleFinderTeamSchema,
     },
 )
 def get_all_teams(request):

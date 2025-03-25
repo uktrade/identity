@@ -1,7 +1,10 @@
+from typing import List
+
 from ninja import Field, Schema
 
 
-class PeopleFinderTeamTreeResponse(Schema):
-    parent: str = Field(alias="parent.slug")
-    child: str = Field(alias="child.slug")
-    depth: int = Field(alias="depth")
+class PeopleFinderTeamSchema(Schema):
+    slug: str = Field(alias="slug")
+    name: str = Field(alias="name")
+    abbreviation: str = Field(alias="abbreviation")
+    children: List["PeopleFinderTeamSchema"]

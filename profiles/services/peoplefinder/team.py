@@ -8,6 +8,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
     PeopleFinderTeamTree,
+    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
 )
 from profiles.types import UNSET, Unset
@@ -111,12 +112,32 @@ def update(
         update_team_parent(team=peoplefinder_team, parent=parent)
 
 
-# TODO: Do we want to return a nested list? - possibly
-def get_team_hierarchy() -> list[PeopleFinderTeamTree]:
+def get_team_hierarchy() -> PeopleFinderTeamTreeData:
     """
-    Get all teams in the team tree
+    Get all teams data in the team tree
     """
-    return list(PeopleFinderTeamTree.objects.all())
+    root_team = get_root_team()
+    children_relations = PeopleFinderTeamTree.objects.select_related(
+        "child", "parent"
+    ).filter(depth=1)
+    children_map: dict = {}
+
+    for relation in children_relations:
+        if relation.parent_id not in children_map:
+            children_map[relation.parent_id] = []
+        children_map[relation.parent_id].append(relation.child)
+
+    def build_team_node(node):
+        return {
+            "slug": node.slug,
+            "name": node.name,
+            "abbreviation": node.abbreviation,
+            "children": [
+                build_team_node(child) for child in children_map.get(node.id, [])
+            ],
+        }
+
+    return build_team_node(root_team)
 
 
 def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:

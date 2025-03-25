@@ -17,7 +17,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
-    PeopleFinderTeamTree,
+    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
     RemoteWorking,
 )
@@ -467,9 +467,9 @@ def update_peoplefinder_team(
     )
 
 
-def get_peoplefinder_team_hierarchy() -> list[PeopleFinderTeamTree]:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamTreeData:
     """
-    Get all teams in the team tree
+    Get all teams data in the team tree
     """
     return peoplefinder_team_services.get_team_hierarchy()
 
