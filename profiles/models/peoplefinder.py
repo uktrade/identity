@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from django.db import models
 from django.db.models import F, Q
@@ -402,7 +402,7 @@ class PeopleFinderTeamTreeData(TypedDict):
     slug: str
     name: str
     abbreviation: str
-    children: Optional[list]
+    children: list
 
 
 class PeopleFinderTeam(AbstractHistoricalModel):
