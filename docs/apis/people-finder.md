@@ -13,7 +13,7 @@ The ID service exposes an API that provides read and edit functionality designed
 #### Create Profile:
 `/person` : creates a new people finder profile and returns a full people finder profile as response
 #### Get Teams:
-`/team/all` : returns all teams in the team hierarchy
+`/teams` : returns all teams in the team hierarchy
 
 
 #### Reference data can be accessed via `/api/peoplefinder/reference/<endpoint>`. Here is the list of reference endpoints:

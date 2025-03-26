@@ -7,11 +7,11 @@ from core.schemas.peoplefinder.team import PeopleFinderTeamSchema
 
 router = Router()
 team_router = Router()
-router.add_router("team", team_router)
+router.add_router("teams", team_router)
 
 
 @team_router.get(
-    "all",
+    "",
     response={
         200: PeopleFinderTeamSchema,
         500: Error,
