@@ -6,5 +6,5 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
-    path("sentry-debug/", views.trigger_error),
+    path("sentry-debug/", views.trigger_error, name="sentry-debug"),
 ]
