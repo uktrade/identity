@@ -108,7 +108,6 @@ def update(
 
     # Update team parent
     if parent:
-        validate_team_parent_update(team=peoplefinder_team, parent=parent)
         update_team_parent(team=peoplefinder_team, parent=parent)
 
 

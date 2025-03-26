@@ -4,7 +4,7 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from profiles.exceptions import TeamExists, TeamParentError
-from profiles.models.peoplefinder import PeopleFinderTeam
+from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
 from profiles.services.peoplefinder import team as peoplefinder_team_services
 from profiles.types import UNSET
 
@@ -55,22 +55,83 @@ def test_create_team(peoplefinder_team):
 
 
 def test_update_team(peoplefinder_team):
-
-    # Check the team name, cost code and description before update
-    assert peoplefinder_team.name == "Team Number One"
-    assert peoplefinder_team.description == "Team description"
-    assert peoplefinder_team.cost_code == "CC1"
+    dit = peoplefinder_team_services.create(
+        slug="dit",
+        name="DIT",
+        abbreviation="DIT",
+        description="DIT team",
+        leaders_ordering="custom",
+        cost_code="cost_code",
+        team_type="standard",
+        parent=peoplefinder_team,
+    )
+    ex = peoplefinder_team_services.create(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="portfolio",
+        parent=peoplefinder_team,
+    )
+    # Check team hierarchy before updating the parent
+    old_hierarchy = peoplefinder_team_services.get_team_hierarchy()
+    assert old_hierarchy == {
+        "slug": peoplefinder_team.slug,
+        "name": peoplefinder_team.name,
+        "abbreviation": peoplefinder_team.abbreviation,
+        "children": [
+            {
+                "slug": dit.slug,
+                "name": dit.name,
+                "abbreviation": dit.abbreviation,
+                "children": [],
+            },
+            {
+                "slug": ex.slug,
+                "name": ex.name,
+                "abbreviation": ex.abbreviation,
+                "children": [],
+            },
+        ],
+    }
 
     peoplefinder_team_services.update(
-        peoplefinder_team=peoplefinder_team,
+        peoplefinder_team=ex,
         name="New team name",
         description="New Team Description",
         cost_code=UNSET,
+        parent=dit,
     )
+
     # Check the team name, cost code and description after update
-    assert peoplefinder_team.name == "New team name"
-    assert peoplefinder_team.description == "New Team Description"
-    assert peoplefinder_team.cost_code is None
+    assert ex.name == "New team name"
+    assert ex.description == "New Team Description"
+    assert ex.cost_code is None
+
+    # Check new hierarchy after updating the parent
+    new_hierarchy = peoplefinder_team_services.get_team_hierarchy()
+    assert new_hierarchy == {
+        "slug": peoplefinder_team.slug,
+        "name": peoplefinder_team.name,
+        "abbreviation": peoplefinder_team.abbreviation,
+        "children": [
+            {
+                "slug": dit.slug,
+                "name": dit.name,
+                "abbreviation": dit.abbreviation,
+                "children": [
+                    {
+                        "slug": ex.slug,
+                        "name": ex.name,
+                        "abbreviation": ex.abbreviation,
+                        "children": [],
+                    }
+                ],
+            }
+        ],
+    }
 
 
 def test_get_team_hierarchy(peoplefinder_team):
