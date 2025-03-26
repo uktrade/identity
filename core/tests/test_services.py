@@ -236,8 +236,6 @@ def test_create_peoplefinder_team_core_services(peoplefinder_team):
         team_type="portfolio",
         parent=peoplefinder_team,
     )
-    print(PeopleFinderTeamTree.objects.all())
-    print(PeopleFinderTeamTree.objects.all().values_list("child", flat=True))
 
     ex_team = PeopleFinderTeam.objects.get(slug="employee-experience")
     ex_in_team_tree = PeopleFinderTeamTree.objects.filter(child=ex_team)

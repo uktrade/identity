@@ -117,12 +117,12 @@ def get_team_hierarchy() -> PeopleFinderTeamTreeData:
     Get all teams data in the team tree
     """
     root_team = get_root_team()
-    children_relations = PeopleFinderTeamTree.objects.select_related(
+    children_depth_1 = PeopleFinderTeamTree.objects.select_related(
         "child", "parent"
     ).filter(depth=1)
     children_map: dict = {}
 
-    for relation in children_relations:
+    for relation in children_depth_1:
         if relation.parent_id not in children_map:
             children_map[relation.parent_id] = []
         children_map[relation.parent_id].append(relation.child)

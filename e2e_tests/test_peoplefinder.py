@@ -220,6 +220,40 @@ def test_update(combined_profile, peoplefinder_profile):
     assert response_json == {"message": "People finder profile does not exist"}
 
 
+def test_get_all_teams_hierarcy(mocker, peoplefinder_team):
+    url = reverse("people-finder:get_hierarcy_of_all_teams")
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    expected = {
+        "slug": peoplefinder_team.slug,
+        "name": peoplefinder_team.name,
+        "abbreviation": peoplefinder_team.abbreviation,
+        "children": [],
+    }
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    mocker.patch(
+        "core.services.get_peoplefinder_team_hierarchy",
+        side_effect=Exception("mocked-test-exception"),
+    )
+
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 500
+    assert json.loads(response.content) == {
+        "message": "Could not get the team hierarchy, reason: mocked-test-exception"
+    }
+
+
 def test_get_countries(mocker):
     url = reverse("people-finder:get_countries")
     client = Client()
