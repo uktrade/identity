@@ -2,7 +2,8 @@ from ninja import Router
 
 from core import services as core_services
 from core.schemas import Error
-from core.schemas.peoplefinder.team import PeopleFinderTeamSchema
+from core.schemas.peoplefinder.team import CreateTeamRequest, PeopleFinderTeamSchema
+from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
 
 
 router = Router()
@@ -24,3 +25,33 @@ def get_hierarcy_of_all_teams(request):
         return 500, {
             "message": f"Could not get the team hierarchy, reason: {unknown_error}"
         }
+
+
+@team_router.post(
+    "",
+    response={
+        200: PeopleFinderTeamSchema,
+        404: Error,
+    },
+)
+def create_team(request, team_request: CreateTeamRequest):
+    try:
+        parent = core_services.get_team_by_slug(team_request.parent_slug)
+    except PeopleFinderTeam.DoesNotExist:
+        return 404, {
+            "message": "Cannot create the people finder team, parent team does not exist"
+        }
+
+    if not PeopleFinderTeamTree.objects.filter(parent=parent).exists():
+        return 404, {"message": "Parent team is not in the team hierarchy"}
+
+    return 200, core_services.create_peoplefinder_team(
+        slug=team_request.slug,
+        name=team_request.name,
+        abbreviation=team_request.abbreviation,
+        description=team_request.description,
+        leaders_ordering=team_request.leaders_ordering,
+        cost_code=team_request.cost_code,
+        team_type=team_request.team_type,
+        parent=core_services.get_team_by_slug(team_request.parent_slug),
+    )
