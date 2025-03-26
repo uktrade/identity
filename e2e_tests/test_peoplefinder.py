@@ -251,6 +251,36 @@ def test_get_all_teams_hierarcy(mocker, peoplefinder_team):
     }
 
 
+def test_get_team(peoplefinder_team):
+    url = reverse("people-finder:get_team", args=[peoplefinder_team.slug])
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+
+    expected = {
+        "slug": peoplefinder_team.slug,
+        "name": peoplefinder_team.name,
+        "abbreviation": peoplefinder_team.abbreviation,
+        "parents": [],
+    }
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    url = reverse("people-finder:get_team", args=["employee-experience"])
+    client = Client()
+    response = client.get(
+        url,
+        content_type="application/json",
+    )
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "People finder team does not exist"
+    }
+
+
 def test_upload_delete_photo(peoplefinder_profile):
     url = reverse(
         "people-finder:upload_profile_photo", args=(str(peoplefinder_profile.slug),)

@@ -11,8 +11,8 @@ from profiles.models.peoplefinder import (
     KeySkill,
     PeopleFinderProfile,
     PeopleFinderTeam,
+    PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
-    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
     RemoteWorking,
 )
@@ -296,6 +296,13 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     return profile_services.get_peoplefinder_profile_by_slug(slug=slug)
 
 
+def get_team_by_slug(slug: str) -> PeopleFinderTeam:
+    """
+    Retrieve a People Finder Team by its slug.
+    """
+    return profile_services.get_team_by_slug(slug=slug)
+
+
 def create_peoplefinder_team(
     slug: str,
     name: str,
@@ -343,11 +350,18 @@ def update_peoplefinder_team(
     )
 
 
-def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamTreeData:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
     """
     Function for getting a dictionary of all teams in the team tree
     """
     return profile_services.get_peoplefinder_team_hierarchy()
+
+
+def get_peoplefinder_team(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+    """
+    Function to get a dictionary of a team and its parents
+    """
+    return profile_services.get_peoplefinder_team(team=team)
 
 
 def get_countries() -> list[Country]:

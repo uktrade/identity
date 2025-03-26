@@ -81,18 +81,18 @@ def test_update_team(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "children": [
+        "related_teams": [
             {
                 "slug": dit.slug,
                 "name": dit.name,
                 "abbreviation": dit.abbreviation,
-                "children": [],
+                "related_teams": [],
             },
             {
                 "slug": ex.slug,
                 "name": ex.name,
                 "abbreviation": ex.abbreviation,
-                "children": [],
+                "related_teams": [],
             },
         ],
     }
@@ -116,17 +116,17 @@ def test_update_team(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "children": [
+        "related_teams": [
             {
                 "slug": dit.slug,
                 "name": dit.name,
                 "abbreviation": dit.abbreviation,
-                "children": [
+                "related_teams": [
                     {
                         "slug": ex.slug,
                         "name": ex.name,
                         "abbreviation": ex.abbreviation,
-                        "children": [],
+                        "related_teams": [],
                     }
                 ],
             }
@@ -163,19 +163,49 @@ def test_get_team_hierarchy(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "children": [
+        "related_teams": [
             {
                 "slug": ex.slug,
                 "name": ex.name,
                 "abbreviation": ex.abbreviation,
-                "children": [
+                "related_teams": [
                     {
                         "slug": id.slug,
                         "name": id.name,
                         "abbreviation": id.abbreviation,
-                        "children": [],
+                        "related_teams": [],
                     }
                 ],
+            }
+        ],
+    }
+
+
+def test_get_team(peoplefinder_team):
+    # Create child team
+    ex = peoplefinder_team_services.create(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="portfolio",
+        parent=peoplefinder_team,
+    )
+
+    team_data = peoplefinder_team_services.get_team(team=ex)
+
+    assert team_data == {
+        "slug": ex.slug,
+        "name": ex.name,
+        "abbreviation": ex.abbreviation,
+        "related_teams": [
+            {
+                "slug": peoplefinder_team.slug,
+                "name": peoplefinder_team.name,
+                "abbreviation": peoplefinder_team.abbreviation,
+                "depth": 1,
             }
         ],
     }

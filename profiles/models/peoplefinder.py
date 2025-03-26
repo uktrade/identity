@@ -398,11 +398,11 @@ class PeopleFinderTeamType(models.TextChoices):
     PORTFOLIO = "portfolio", "Portfolio"
 
 
-class PeopleFinderTeamTreeData(TypedDict):
+class PeopleFinderTeamData(TypedDict):
     slug: str
     name: str
     abbreviation: str
-    children: list
+    related_teams: list
 
 
 class PeopleFinderTeam(AbstractHistoricalModel):
