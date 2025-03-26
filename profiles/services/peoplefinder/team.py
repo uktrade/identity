@@ -126,13 +126,13 @@ def get_team_hierarchy() -> PeopleFinderTeamTreeData:
             children_map[relation.parent_id] = []
         children_map[relation.parent_id].append(relation.child)
 
-    def build_team_node(node):
+    def build_team_node(team):
         return {
-            "slug": node.slug,
-            "name": node.name,
-            "abbreviation": node.abbreviation,
+            "slug": team.slug,
+            "name": team.name,
+            "abbreviation": team.abbreviation,
             "children": [
-                build_team_node(child) for child in children_map.get(node.id, [])
+                build_team_node(child) for child in children_map.get(team.id, [])
             ],
         }
 
