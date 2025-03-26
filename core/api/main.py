@@ -8,7 +8,7 @@ from profiles.models.combined import Profile
 
 router = Router()
 identity_router = Router()
-router.add_router("identity", identity_router)
+router.add_router("identities", identity_router)
 
 
 # NB this is a placeholder to get the router running, it may need editing or deleting etc.

@@ -7,11 +7,11 @@ The ID service exposes an API that provides read and edit functionality designed
 ### API Endpoints
 
 #### Get Profile:
-`/person/<slug>` : returns a minimal peoplefinder profile record
+`/people/<slug>` : returns a minimal peoplefinder profile record
 #### Update Profile:
-`/person/<slug>` : updates an existing people finder profile and returns a full people finder profile as response
+`/people/<slug>` : updates an existing people finder profile and returns a full people finder profile as response
 #### Create Profile:
-`/person` : creates a new people finder profile and returns a full people finder profile as response
+`/people` : creates a new people finder profile and returns a full people finder profile as response
 #### Get Teams:
 `/teams` : returns all teams in the team hierarchy
 
