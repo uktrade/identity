@@ -29,7 +29,7 @@ from profiles.types import UNSET, Unset
 router = Router()
 profile_router = Router()
 reference_router = Router()
-router.add_router("person", profile_router)
+router.add_router("people", profile_router)
 router.add_router("reference", reference_router)
 
 
