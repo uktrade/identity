@@ -138,10 +138,10 @@ MIDDLEWARE: list[str] = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# if INFRA_SERVICE == "MAIN":
-MIDDLEWARE.append(
-    "authbroker_client.middleware.ProtectAllViewsMiddleware",
-)
+if INFRA_SERVICE == "MAIN":
+    MIDDLEWARE.append(
+        "authbroker_client.middleware.ProtectAllViewsMiddleware",
+    )
 
 # Keep the order of Middleware, history is last.
 MIDDLEWARE.append(
