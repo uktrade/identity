@@ -7,11 +7,11 @@ The ID service exposes an API that provides read and edit functionality designed
 ### API Endpoints
 
 #### Get Profile:
-`/person/<slug>` : returns a minimal peoplefinder profile record
+`/people/<slug>` : returns a minimal peoplefinder profile record
 #### Update Profile:
-`/person/<slug>` : updates an existing people finder profile and returns a full people finder profile as response
+`/people/<slug>` : updates an existing people finder profile and returns a full people finder profile as response
 #### Create Profile:
-`/person` : creates a new people finder profile and returns a full people finder profile as response
+`/people` : creates a new people finder profile and returns a full people finder profile as response
 
 
 #### Reference data can be accessed via `/api/peoplefinder/reference/<endpoint>`. Here is the list of reference endpoints:
@@ -24,4 +24,3 @@ The ID service exposes an API that provides read and edit functionality designed
 - `professions` : list of professions
 - `grades` : list of grades
 - `key_skills` : list of key skills- `additional_roles` list of additional roles
-
