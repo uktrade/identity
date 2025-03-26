@@ -4,7 +4,8 @@ from django_hawk.utils import DjangoHawkAuthenticationFailed, authenticate_reque
 from ninja import NinjaAPI
 
 from core.api.main import router as main_router
-from core.api.people_finder import router as people_finder_router
+from core.api.peoplefinder.profile import router as peoplefinder_profile_router
+from core.api.peoplefinder.team import router as peoplefinder_team_router
 from core.api.scim import router as scim_router
 from core.api.sso_profile import router as sso_profile_router
 
@@ -60,7 +61,8 @@ people_finder_api = NinjaAPI(
     docs_decorator=staff_member_required,
 )
 if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
-    people_finder_api.add_router("", people_finder_router)
+    people_finder_api.add_router("", peoplefinder_profile_router)
+    people_finder_api.add_router("", peoplefinder_team_router)
 
 if settings.APP_ENV == "local":
     main_api.docs_decorator = None

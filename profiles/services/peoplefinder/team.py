@@ -8,6 +8,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
     PeopleFinderTeamTree,
+    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
 )
 from profiles.types import UNSET, Unset
@@ -28,6 +29,7 @@ def create(
     leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
     cost_code: str,
     team_type: str | PeopleFinderTeamType,
+    parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -47,6 +49,7 @@ def create(
         )
         team.full_clean()
         team.save()
+        add_team_to_teamtree(team=team, parent=parent)
         return team
 
 
@@ -58,6 +61,7 @@ def update(
     leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
     team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
+    parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
 
     update_fields: list = []
@@ -101,6 +105,38 @@ def update(
 
     peoplefinder_team.full_clean()
     peoplefinder_team.save(update_fields=update_fields)
+
+    # Update team parent
+    if parent:
+        update_team_parent(team=peoplefinder_team, parent=parent)
+
+
+def get_team_hierarchy() -> PeopleFinderTeamTreeData:
+    """
+    Get all teams data in the team tree
+    """
+    root_team = get_root_team()
+    children_depth_1 = PeopleFinderTeamTree.objects.select_related(
+        "child", "parent"
+    ).filter(depth=1)
+    children_map: dict = {}
+
+    for relation in children_depth_1:
+        if relation.parent_id not in children_map:
+            children_map[relation.parent_id] = []
+        children_map[relation.parent_id].append(relation.child)
+
+    def build_team_node(team):
+        return {
+            "slug": team.slug,
+            "name": team.name,
+            "abbreviation": team.abbreviation,
+            "children": [
+                build_team_node(child) for child in children_map.get(team.id, [])
+            ],
+        }
+
+    return build_team_node(root_team)
 
 
 def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
