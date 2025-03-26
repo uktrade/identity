@@ -12,7 +12,7 @@ pytestmark = [
 
 def test_photo_only_authorised_access(peoplefinder_profile):
     client = Client()
-    url = reverse("core:photo", args=( peoplefinder_profile.slug,))
+    url = reverse("core:photo", args=(peoplefinder_profile.slug,))
     response = client.get(url)
 
     assert response.status_code == 302
@@ -20,11 +20,11 @@ def test_photo_only_authorised_access(peoplefinder_profile):
     client.force_login(peoplefinder_profile.user)
     response = client.get(url)
     assert response.status_code == 200
-    assert len(response.content) == 0  # no photo exists
+    assert len(response.content) == 0  # no photo exists
 
-    local_file = open('docker/.localstack/fixtures/photo.jpg', 'rb')
+    local_file = open("docker/.localstack/fixtures/photo.jpg", "rb")
     djangofile = File(local_file)
-    peoplefinder_profile.photo.save('new', djangofile)
+    peoplefinder_profile.photo.save("new", djangofile)
     local_file.close()
 
     response = client.get(url)
