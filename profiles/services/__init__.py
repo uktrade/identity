@@ -481,13 +481,13 @@ def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
     return peoplefinder_team_services.get_team_hierarchy()
 
 
-def get_peoplefinder_team_and_parents_data(
+def get_peoplefinder_team_and_parents(
     team: PeopleFinderTeam,
 ) -> PeopleFinderTeamData:
     """
     Get a team and its parents
     """
-    return peoplefinder_team_services.get_team_and_parents_data(team=team)
+    return peoplefinder_team_services.get_team_and_parents(team=team)
 
 
 def get_countries() -> list[Country]:

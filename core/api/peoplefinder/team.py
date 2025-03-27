@@ -40,6 +40,6 @@ def get_hierarcy_of_all_teams(request):
 def get_team(request, slug: str):
     try:
         team = core_services.get_peoplefinder_team_by_slug(slug=slug)
-        return 200, core_services.get_peoplefinder_team_and_parents_data(team)
+        return 200, core_services.get_peoplefinder_team_and_parents(team)
     except PeopleFinderTeam.DoesNotExist:
         return 404, {"message": "People finder team does not exist"}

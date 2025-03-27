@@ -139,7 +139,7 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
     return build_team_node(root_team)
 
 
-def get_team_and_parents_data(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
     """
     Get a team and its parents data
     """

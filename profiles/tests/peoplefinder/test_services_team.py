@@ -181,7 +181,7 @@ def test_get_team_hierarchy(peoplefinder_team):
     }
 
 
-def test_get_team_and_parents_data(peoplefinder_team):
+def test_get_team_and_parents(peoplefinder_team):
     # Create child team
     ex = peoplefinder_team_services.create(
         slug="employee-experience",
@@ -194,7 +194,7 @@ def test_get_team_and_parents_data(peoplefinder_team):
         parent=peoplefinder_team,
     )
 
-    team_data = peoplefinder_team_services.get_team_and_parents_data(team=ex)
+    team_data = peoplefinder_team_services.get_team_and_parents(team=ex)
 
     assert team_data == {
         "slug": ex.slug,
