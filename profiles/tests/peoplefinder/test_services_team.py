@@ -181,7 +181,7 @@ def test_get_team_hierarchy(peoplefinder_team):
     }
 
 
-def test_get_team(peoplefinder_team):
+def test_get_team_and_parents_data(peoplefinder_team):
     # Create child team
     ex = peoplefinder_team_services.create(
         slug="employee-experience",
