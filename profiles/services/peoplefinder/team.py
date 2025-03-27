@@ -143,7 +143,7 @@ def get_team_and_parents_data(team: PeopleFinderTeam) -> PeopleFinderTeamData:
     """
     Get a team and its parents data
     """
-    parents = (
+    parents_team_tree = (
         PeopleFinderTeamTree.objects.select_related("child", "parent")
         .filter(child=team)
         .exclude(parent=team)
@@ -156,12 +156,12 @@ def get_team_and_parents_data(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "children": None,
         "parents": [
             {
-                "slug": parent.parent.slug,
-                "name": parent.parent.name,
-                "abbreviation": parent.parent.abbreviation,
-                "depth": parent.depth,
+                "slug": branch.parent.slug,
+                "name": branch.parent.name,
+                "abbreviation": branch.parent.abbreviation,
+                "depth": branch.depth,
             }
-            for parent in parents
+            for branch in parents_team_tree
         ],
     }
 
