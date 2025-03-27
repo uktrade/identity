@@ -419,7 +419,7 @@ def get_peoplefinder_profile_by_slug(slug: str) -> PeopleFinderProfile:
     return peoplefinder_profile_services.get_by_slug(slug=slug)
 
 
-def get_team_by_slug(slug: str) -> PeopleFinderTeam:
+def get_peoplefinder_team_by_slug(slug: str) -> PeopleFinderTeam:
     """
     Retrieve a People Finder Team by its slug.
     """
@@ -481,11 +481,13 @@ def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
     return peoplefinder_team_services.get_team_hierarchy()
 
 
-def get_peoplefinder_team(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+def get_peoplefinder_team_and_parents_data(
+    team: PeopleFinderTeam,
+) -> PeopleFinderTeamData:
     """
     Get a team and its parents
     """
-    return peoplefinder_team_services.get_team(team=team)
+    return peoplefinder_team_services.get_team_and_parents_data(team=team)
 
 
 def get_countries() -> list[Country]:

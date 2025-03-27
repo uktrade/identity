@@ -12,8 +12,8 @@ class ParentSchema(PeopleFinderTeamSchema):
 
 
 class PeopleFinderTeamHierarchyResponse(PeopleFinderTeamSchema):
-    children: list["PeopleFinderTeamHierarchyResponse"] = Field(alias="related_teams")
+    children: list["PeopleFinderTeamHierarchyResponse"] = Field(alias="children")
 
 
 class PeopleFinderTeamResponse(PeopleFinderTeamSchema):
-    parents: list[ParentSchema] = Field(alias="related_teams")
+    parents: list[ParentSchema] = Field(alias="parents")

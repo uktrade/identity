@@ -81,18 +81,18 @@ def test_update_team(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "related_teams": [
+        "children": [
             {
                 "slug": dit.slug,
                 "name": dit.name,
                 "abbreviation": dit.abbreviation,
-                "related_teams": [],
+                "children": [],
             },
             {
                 "slug": ex.slug,
                 "name": ex.name,
                 "abbreviation": ex.abbreviation,
-                "related_teams": [],
+                "children": [],
             },
         ],
     }
@@ -116,17 +116,17 @@ def test_update_team(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "related_teams": [
+        "children": [
             {
                 "slug": dit.slug,
                 "name": dit.name,
                 "abbreviation": dit.abbreviation,
-                "related_teams": [
+                "children": [
                     {
                         "slug": ex.slug,
                         "name": ex.name,
                         "abbreviation": ex.abbreviation,
-                        "related_teams": [],
+                        "children": [],
                     }
                 ],
             }
@@ -163,17 +163,17 @@ def test_get_team_hierarchy(peoplefinder_team):
         "slug": peoplefinder_team.slug,
         "name": peoplefinder_team.name,
         "abbreviation": peoplefinder_team.abbreviation,
-        "related_teams": [
+        "children": [
             {
                 "slug": ex.slug,
                 "name": ex.name,
                 "abbreviation": ex.abbreviation,
-                "related_teams": [
+                "children": [
                     {
                         "slug": id.slug,
                         "name": id.name,
                         "abbreviation": id.abbreviation,
-                        "related_teams": [],
+                        "children": [],
                     }
                 ],
             }
@@ -194,13 +194,14 @@ def test_get_team(peoplefinder_team):
         parent=peoplefinder_team,
     )
 
-    team_data = peoplefinder_team_services.get_team(team=ex)
+    team_data = peoplefinder_team_services.get_team_and_parents_data(team=ex)
 
     assert team_data == {
         "slug": ex.slug,
         "name": ex.name,
         "abbreviation": ex.abbreviation,
-        "related_teams": [
+        "children": None,
+        "parents": [
             {
                 "slug": peoplefinder_team.slug,
                 "name": peoplefinder_team.name,

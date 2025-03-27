@@ -131,7 +131,7 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
             "slug": team.slug,
             "name": team.name,
             "abbreviation": team.abbreviation,
-            "related_teams": [
+            "children": [
                 build_team_node(child) for child in children_map.get(team.id, [])
             ],
         }
@@ -139,7 +139,7 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
     return build_team_node(root_team)
 
 
-def get_team(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+def get_team_and_parents_data(team: PeopleFinderTeam) -> PeopleFinderTeamData:
     """
     Get a team and its parents data
     """
@@ -153,7 +153,8 @@ def get_team(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "slug": team.slug,
         "name": team.name,
         "abbreviation": team.abbreviation,
-        "related_teams": [
+        "children": None,
+        "parents": [
             {
                 "slug": parent.parent.slug,
                 "name": parent.parent.name,
