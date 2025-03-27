@@ -5,4 +5,15 @@ class PeopleFinderTeamSchema(Schema):
     slug: str = Field(alias="slug")
     name: str = Field(alias="name")
     abbreviation: str = Field(alias="abbreviation")
-    children: list["PeopleFinderTeamSchema"]
+
+
+class ParentSchema(PeopleFinderTeamSchema):
+    depth: int
+
+
+class PeopleFinderTeamHierarchyResponse(PeopleFinderTeamSchema):
+    children: list["PeopleFinderTeamHierarchyResponse"] = Field(alias="children")
+
+
+class PeopleFinderTeamResponse(PeopleFinderTeamSchema):
+    parents: list[ParentSchema] = Field(alias="parents")

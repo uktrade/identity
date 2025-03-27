@@ -181,6 +181,37 @@ def test_get_team_hierarchy(peoplefinder_team):
     }
 
 
+def test_get_team_and_parents(peoplefinder_team):
+    # Create child team
+    ex = peoplefinder_team_services.create(
+        slug="employee-experience",
+        name="Employee Experience",
+        abbreviation="EX",
+        description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        leaders_ordering="custom",
+        cost_code="EX_cost_code",
+        team_type="portfolio",
+        parent=peoplefinder_team,
+    )
+
+    team_data = peoplefinder_team_services.get_team_and_parents(team=ex)
+
+    assert team_data == {
+        "slug": ex.slug,
+        "name": ex.name,
+        "abbreviation": ex.abbreviation,
+        "children": None,
+        "parents": [
+            {
+                "slug": peoplefinder_team.slug,
+                "name": peoplefinder_team.name,
+                "abbreviation": peoplefinder_team.abbreviation,
+                "depth": 1,
+            }
+        ],
+    }
+
+
 # TODO: Write separate tests for each function.
 # Test TeamService
 def test_team_service(db):
