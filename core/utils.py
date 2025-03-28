@@ -12,7 +12,7 @@ from core.services import (
     update_identity,
 )
 from data_flow_s3_import import ingest
-from identity.data_flow_s3_import.types import PrimaryKey
+from data_flow_s3_import.types import PrimaryKey
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 
