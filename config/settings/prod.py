@@ -4,7 +4,7 @@ from .base import *  # noqa
 DEBUG = False
 
 AWS_S3_URL_PROTOCOL = "https:"
-AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN")  # noqa F405
+AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default=None)  # noqa F405
 AWS_QUERYSTRING_AUTH = False
 
 SESSION_COOKIE_AGE: int = 60 * 60
