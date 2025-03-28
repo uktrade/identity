@@ -14,6 +14,8 @@ The ID service exposes an API that provides read and edit functionality designed
 `/people` : creates a new people finder profile and returns a full people finder profile as response
 #### Get Teams:
 `/teams` : returns all teams in the team hierarchy
+#### Get Team:
+`/teams/<slug>` : returns a team with its parents, including child-parent relationship depth
 #### Create a Team:
 `/teams` : creates a new people finder team and returns a minimal team record
 

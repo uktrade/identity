@@ -6,9 +6,9 @@ from django.db.models import QuerySet, Subquery
 from profiles.exceptions import TeamExists, TeamParentError
 from profiles.models.peoplefinder import (
     PeopleFinderTeam,
+    PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
     PeopleFinderTeamTree,
-    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
 )
 from profiles.types import UNSET, Unset
@@ -111,7 +111,7 @@ def update(
         update_team_parent(team=peoplefinder_team, parent=parent)
 
 
-def get_team_hierarchy() -> PeopleFinderTeamTreeData:
+def get_team_hierarchy() -> PeopleFinderTeamData:
     """
     Get all teams data in the team tree
     """
@@ -137,6 +137,33 @@ def get_team_hierarchy() -> PeopleFinderTeamTreeData:
         }
 
     return build_team_node(root_team)
+
+
+def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+    """
+    Get a team and its parents data
+    """
+    parents_team_tree = (
+        PeopleFinderTeamTree.objects.select_related("child", "parent")
+        .filter(child=team)
+        .exclude(parent=team)
+        .order_by("depth")
+    )
+    return {
+        "slug": team.slug,
+        "name": team.name,
+        "abbreviation": team.abbreviation,
+        "children": None,
+        "parents": [
+            {
+                "slug": branch.parent.slug,
+                "name": branch.parent.name,
+                "abbreviation": branch.parent.abbreviation,
+                "depth": branch.depth,
+            }
+            for branch in parents_team_tree
+        ],
+    }
 
 
 def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
