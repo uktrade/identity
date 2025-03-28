@@ -1,3 +1,4 @@
+import json
 import logging
 
 import boto3
@@ -11,6 +12,7 @@ from core.services import (
     update_identity,
 )
 from data_flow_s3_import import ingest
+from identity.data_flow_s3_import.types import PrimaryKey
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 
@@ -133,6 +135,13 @@ class CountriesS3Ingest(DataFlowS3IngestToModel):
         "overseas_region": "overseas_region",
     }
 
+    def process_row(self, line: str) -> PrimaryKey:
+        """
+        Takes a row of the file, retrieves a dict of the instance it refers to and hands that off for processing
+        """
+        obj: dict = json.loads(s=line)  # Countries does not wrap content in 'object'
+        return self._process_object_workflow(obj=obj)
+
 
 class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
@@ -146,3 +155,12 @@ class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
         "organisation": "organisation",
         "building_name": "building_name",
     }
+
+    def process_row(self, line: str) -> PrimaryKey:
+        """
+        Takes a row of the file, retrieves a dict of the instance it refers to and hands that off for processing
+        """
+        obj: dict = json.loads(
+            s=line
+        )  # UkStaffLocation does not wrap content in 'object'
+        return self._process_object_workflow(obj=obj)
