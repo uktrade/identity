@@ -4,7 +4,12 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from profiles.exceptions import TeamExists, TeamParentError
-from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
+from profiles.models.peoplefinder import (
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamTree,
+    PeopleFinderTeamType,
+)
 from profiles.services.peoplefinder import team as peoplefinder_team_services
 from profiles.types import UNSET
 
@@ -19,9 +24,9 @@ def test_create_team(peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
 
@@ -32,24 +37,24 @@ def test_create_team(peoplefinder_team):
             name="Employees' Experiences",
             abbreviation="EXs",
             description="We support employees' experiences",
-            leaders_ordering="alphabetical",
+            leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
             cost_code="EXs_cost_code",
-            team_type="portfolio",
+            team_type=PeopleFinderTeamType("portfolio"),
             parent=peoplefinder_team,
         )
 
     assert ex.value.args[0] == "Team has been previously created"
 
     # Try to create a team with a wrong team type
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         peoplefinder_team_services.create(
             slug="software-development",
             name="Software Development",
             abbreviation="SD",
             description="We build, maintain, and support a growing number of services in DBT",
-            leaders_ordering="alphabetical",
+            leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
             cost_code="SD_cost_code",
-            team_type="Folio",
+            team_type=PeopleFinderTeamType("Folio"),
             parent=peoplefinder_team,
         )
 
@@ -60,9 +65,9 @@ def test_update_team(peoplefinder_team):
         name="DIT",
         abbreviation="DIT",
         description="DIT team",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="cost_code",
-        team_type="standard",
+        team_type=PeopleFinderTeamType("standard"),
         parent=peoplefinder_team,
     )
     ex = peoplefinder_team_services.create(
@@ -70,9 +75,9 @@ def test_update_team(peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
     # Check team hierarchy before updating the parent
@@ -141,9 +146,9 @@ def test_get_team_hierarchy(peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
     # Add a child node with depth 2 to the root team
@@ -152,9 +157,9 @@ def test_get_team_hierarchy(peoplefinder_team):
         name="Identity Team",
         abbreviation="ID",
         description="We are building the ID service",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="standard",
+        team_type=PeopleFinderTeamType("standard"),
         parent=ex,
     )
 
@@ -188,9 +193,9 @@ def test_get_team_and_parents(peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
 

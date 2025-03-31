@@ -308,9 +308,9 @@ def create_peoplefinder_team(
     name: str,
     abbreviation: str,
     description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
+    leaders_ordering: PeopleFinderTeamLeadersOrdering,
     cost_code: str,
-    team_type: str | PeopleFinderTeamType,
+    team_type: PeopleFinderTeamType,
     parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """

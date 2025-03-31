@@ -17,7 +17,12 @@ from profiles.exceptions import TeamExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email
-from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
+from profiles.models.peoplefinder import (
+    PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamTree,
+    PeopleFinderTeamType,
+)
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services import staff_sso as sso_profile_services
 from profiles.services.peoplefinder import profile as peoplefinder_services
@@ -231,9 +236,9 @@ def test_create_peoplefinder_team_core_services(peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
 
@@ -249,9 +254,9 @@ def test_create_peoplefinder_team_core_services(peoplefinder_team):
             name="Employees' Experiences",
             abbreviation="EXs",
             description="We support employees' experiences",
-            leaders_ordering="alphabetical",
+            leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
             cost_code="EXs_cost_code",
-            team_type="portfolio",
+            team_type=PeopleFinderTeamType("portfolio"),
             parent=peoplefinder_team,
         )
 

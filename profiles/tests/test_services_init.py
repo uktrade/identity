@@ -6,6 +6,10 @@ from profiles import services
 from profiles.exceptions import NonCombinedProfileExists
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
+from profiles.models.peoplefinder import (
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamType,
+)
 from profiles.models.staff_sso import StaffSSOProfile
 from profiles.services.peoplefinder import profile as peoplefinder_profile_services
 
@@ -238,9 +242,9 @@ def test_create_peoplefinder_team(mocker, peoplefinder_team):
         name="Employee Experience",
         abbreviation="EX",
         description="We support the platforms, products, tools and services that help our colleagues to do their jobs.",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="EX_cost_code",
-        team_type="portfolio",
+        team_type=PeopleFinderTeamType("portfolio"),
         parent=peoplefinder_team,
     )
 
