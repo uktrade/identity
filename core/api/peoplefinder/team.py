@@ -8,6 +8,7 @@ from core.schemas.peoplefinder.team import (
     PeopleFinderTeamResponse,
     PeopleFinderTeamSchema,
 )
+from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
 from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
 
 
@@ -56,22 +57,22 @@ def get_team(request, slug: str):
 )
 def create_team(request, team_request: CreateTeamRequest):
     try:
-        parent = core_services.get_team_by_slug(team_request.parent_slug)
+        parent = core_services.get_peoplefinder_team_by_slug(team_request.parent_slug)
     except PeopleFinderTeam.DoesNotExist:
         return 404, {
             "message": "Cannot create the people finder team, parent team does not exist"
         }
+    try:
 
-    if not PeopleFinderTeamTree.objects.filter(parent=parent).exists():
-        return 404, {"message": "Parent team is not in the team hierarchy"}
-
-    return 200, core_services.create_peoplefinder_team(
-        slug=team_request.slug,
-        name=team_request.name,
-        abbreviation=team_request.abbreviation,
-        description=team_request.description,
-        leaders_ordering=team_request.leaders_ordering,
-        cost_code=team_request.cost_code,
-        team_type=team_request.team_type,
-        parent=core_services.get_team_by_slug(team_request.parent_slug),
-    )
+        return 200, core_services.create_peoplefinder_team(
+            slug=team_request.slug,
+            name=team_request.name,
+            abbreviation=team_request.abbreviation,
+            description=team_request.description,
+            leaders_ordering=team_request.leaders_ordering,
+            cost_code=team_request.cost_code,
+            team_type=team_request.team_type,
+            parent=parent,
+        )
+    except (ParentTeamDoesNotExist, TeamExists, TeamParentError) as e:
+        return 404, {"message": str(e)}

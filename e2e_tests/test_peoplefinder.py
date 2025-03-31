@@ -10,7 +10,12 @@ from django.urls import reverse
 from core.schemas.peoplefinder.profile import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
 from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
-from profiles.models.peoplefinder import AdditionalRole, KeySkill, RemoteWorking
+from profiles.models.peoplefinder import (
+    AdditionalRole,
+    KeySkill,
+    PeopleFinderTeam,
+    RemoteWorking,
+)
 
 
 pytestmark = [
@@ -278,6 +283,104 @@ def test_get_team(peoplefinder_team):
     assert response.status_code == 404
     assert json.loads(response.content) == {
         "message": "People finder team does not exist"
+    }
+
+
+def test_create_team(peoplefinder_team):
+    url = reverse("people-finder:create_team")
+    client = Client()
+
+    # Test case 1) peoplefinder team is successfully created
+    create_team_request = {
+        "slug": "riverjack-squad",
+        "name": "Riverjack",
+        "abbreviation": "RJ",
+        "description": "Riverjack squad works on Identity service.",
+        "leaders_ordering": "alphabetical",
+        "cost_code": "code1",
+        "team_type": "standard",
+        "parent_slug": peoplefinder_team.slug,
+    }
+    response = client.post(
+        url,
+        data=create_team_request,
+        content_type="application/json",
+    )
+    expected = {
+        "slug": "riverjack-squad",
+        "name": "Riverjack",
+        "abbreviation": "RJ",
+    }
+    assert response.status_code == 200
+    assert json.loads(response.content) == expected
+
+    # Test case 2) peoplefinder team already exists
+    existing_team_request = {
+        "slug": "riverjack-squad",
+        "name": "Riverjack",
+        "abbreviation": "RJ",
+        "description": "Riverjack squad works on Identity service.",
+        "leaders_ordering": "alphabetical",
+        "cost_code": "code1",
+        "team_type": "standard",
+        "parent_slug": peoplefinder_team.slug,
+    }
+
+    response = client.post(
+        url,
+        data=existing_team_request,
+        content_type="application/json",
+    )
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "Team has been previously created"
+    }
+
+    # Test case 3) peoplefinder parent team does not exist
+    non_existing_parent_team_request = {
+        "slug": "new-team",
+        "name": "New Team",
+        "abbreviation": "New team",
+        "description": "New team description",
+        "leaders_ordering": "alphabetical",
+        "cost_code": "code1",
+        "team_type": "standard",
+        "parent_slug": "not-in-db",
+    }
+    response = client.post(
+        url,
+        data=non_existing_parent_team_request,
+        content_type="application/json",
+    )
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "Cannot create the people finder team, parent team does not exist"
+    }
+
+    # Test parent team is not in the team hierarchy
+
+    # We shouldn't have a peoplefinder team created through this method (except the root team)
+    # If we use this method, team is not added to the team tree hierarchy
+    PeopleFinderTeam.objects.create(slug="not-in-team-tree", name="Not in Team Tree")
+
+    parent_not_in_hierarchy_request = {
+        "slug": "identity-squad",
+        "name": "Identity",
+        "abbreviation": "ID",
+        "description": "Identity squad works on Identity service.",
+        "leaders_ordering": "alphabetical",
+        "cost_code": "code1",
+        "team_type": "standard",
+        "parent_slug": "not-in-team-tree",
+    }
+    response = client.post(
+        url,
+        data=parent_not_in_hierarchy_request,
+        content_type="application/json",
+    )
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "Parent team is not in the team hierarchy"
     }
 
 
