@@ -222,11 +222,7 @@ def test_update(combined_profile, peoplefinder_profile):
     assert response_json == {"message": "People finder profile does not exist"}
 
 
-@pytest.fixture
-def test_get_all_teams_hierarcy(mocker, peoplefinder_team, django_db_blocker):
-    #  Delete migrated team (root-team)
-    with django_db_blocker.unblock():
-        PeopleFinderTeam.objects.filter(slug="root-team").delete()
+def test_get_all_teams_hierarcy(mocker, peoplefinder_team):
     url = reverse("people-finder:get_hierarcy_of_all_teams")
     client = Client()
     response = client.get(
@@ -258,8 +254,6 @@ def test_get_all_teams_hierarcy(mocker, peoplefinder_team, django_db_blocker):
     assert json.loads(response.content) == {
         "message": "Could not get the team hierarchy, reason: mocked-test-exception"
     }
-    # Restore db
-    django_db_blocker.restore()
 
 
 def test_get_team(peoplefinder_team):
