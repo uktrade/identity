@@ -140,7 +140,6 @@ def test_update_team(peoplefinder_team):
     }
 
 
-
 def test_get_team_hierarchy(peoplefinder_team):
     # Add a child node with depth 1 to the root team
     ex = peoplefinder_team_services.create(
