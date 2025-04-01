@@ -18,11 +18,17 @@ class NonCombinedProfileExists(Exception):
         self.message = message
 
 
+# Team exceptions
 class TeamExists(Exception):
     def __init__(self, message):
         self.message = message
 
 
 class TeamParentError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class ParentTeamDoesNotExist(Exception):
     def __init__(self, message):
         self.message = message

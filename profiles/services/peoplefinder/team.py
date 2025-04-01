@@ -3,7 +3,7 @@ from typing import Optional
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
 
-from profiles.exceptions import TeamExists, TeamParentError
+from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
 from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -24,11 +24,11 @@ def get_by_slug(slug: str) -> PeopleFinderTeam:
 def create(
     slug: str,
     name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
+    abbreviation: Optional[str],
+    description: Optional[str],
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    cost_code: Optional[str],
+    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
@@ -47,10 +47,23 @@ def create(
             cost_code=cost_code,
             team_type=team_type,
         )
-        team.full_clean()
-        team.save()
-        add_team_to_teamtree(team=team, parent=parent)
-        return team
+    # Validate team parent
+    if parent not in PeopleFinderTeam.objects.all():
+        raise ParentTeamDoesNotExist(
+            "Cannot create the people finder team, parent team does not exist"
+        )
+
+    if not PeopleFinderTeamTree.objects.filter(parent__id=parent.id).exists():
+        raise TeamParentError("Parent team is not in the team hierarchy")
+
+    # Validate and save the new team to db
+    team.full_clean()
+    team.save()
+
+    # Add team to the team tree
+    add_team_to_teamtree(team=team, parent=parent)
+
+    return team
 
 
 def update(

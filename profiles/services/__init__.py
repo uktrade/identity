@@ -429,11 +429,11 @@ def get_peoplefinder_team_by_slug(slug: str) -> PeopleFinderTeam:
 def create_peoplefinder_team(
     slug: str,
     name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
+    abbreviation: Optional[str],
+    description: Optional[str],
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    cost_code: Optional[str],
+    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
