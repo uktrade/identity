@@ -24,11 +24,11 @@ def get_by_slug(slug: str) -> PeopleFinderTeam:
 def create(
     slug: str,
     name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: PeopleFinderTeamType,
+    abbreviation: Optional[str],
+    description: Optional[str],
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    cost_code: Optional[str],
+    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """

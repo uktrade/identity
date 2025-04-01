@@ -5,11 +5,11 @@ from core.schemas import Error
 from core.schemas.peoplefinder.team import (
     CreateTeamRequest,
     PeopleFinderTeamHierarchyResponse,
+    PeopleFinderTeamMinimalResponse,
     PeopleFinderTeamResponse,
-    PeopleFinderTeamSchema,
 )
 from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
-from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamTree
+from profiles.models.peoplefinder import PeopleFinderTeam
 
 
 router = Router()
@@ -51,7 +51,7 @@ def get_team(request, slug: str):
 @team_router.post(
     "",
     response={
-        200: PeopleFinderTeamSchema,
+        200: PeopleFinderTeamMinimalResponse,
         404: Error,
     },
 )

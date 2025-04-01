@@ -59,7 +59,11 @@ def test_create_team(peoplefinder_team):
         )
 
 
-def test_update_team(peoplefinder_team):
+@pytest.fixture
+def test_update_team(peoplefinder_team, django_db_blocker):
+    #  Delete migrated team (root-team)
+    with django_db_blocker.unblock():
+        PeopleFinderTeam.objects.filter(slug="root-team").delete()
     dit = peoplefinder_team_services.create(
         slug="dit",
         name="DIT",
@@ -137,9 +141,15 @@ def test_update_team(peoplefinder_team):
             }
         ],
     }
+    # Restore db
+    django_db_blocker.restore()
 
 
-def test_get_team_hierarchy(peoplefinder_team):
+@pytest.fixture
+def test_get_team_hierarchy(peoplefinder_team, django_db_blocker):
+    #  Delete migrated team (root-team)
+    with django_db_blocker.unblock():
+        PeopleFinderTeam.objects.filter(slug="root-team").delete()
     # Add a child node with depth 1 to the root team
     ex = peoplefinder_team_services.create(
         slug="employee-experience",
@@ -184,6 +194,8 @@ def test_get_team_hierarchy(peoplefinder_team):
             }
         ],
     }
+    # Restore db
+    django_db_blocker.restore()
 
 
 def test_get_team_and_parents(peoplefinder_team):
