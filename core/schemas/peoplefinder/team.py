@@ -11,7 +11,7 @@ from profiles.models.peoplefinder import (
 class PeopleFinderTeamMinimalResponse(Schema):
     slug: str = Field(alias="slug")
     name: str = Field(alias="name")
-    abbreviation: str = Field(alias="abbreviation")
+    abbreviation: Optional[str] = Field(alias="abbreviation")
 
 
 class CreateTeamRequest(Schema):
