@@ -125,6 +125,8 @@ class CountriesS3Ingest(DataFlowS3IngestToModel):
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory: str = settings.DATA_FLOW_COUNTRIES_DIRECTORY
     model = Country
+    identifier_field_name = "reference_id"
+    identifier_field_object_mapping = "reference_id"
     mapping = {
         "reference_id": "reference_id",
         "name": "name",
@@ -148,6 +150,8 @@ class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory: str = settings.DATA_FLOW_UK_STAFF_LOCATIONS_DIRECTORY
     model = UkStaffLocation
+    identifier_field_name = "code"
+    identifier_field_object_mapping = "location_code"
     mapping = {
         "code": "location_code",
         "name": "location_name",
