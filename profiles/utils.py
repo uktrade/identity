@@ -1,38 +1,29 @@
-from enum import Enum, StrEnum
+import os
+from django.core.files.storage import storages
 from typing import Literal
 
-from PIL import Image
+from PIL import Image, ImageOps
+
+from profiles.types import (
+    Dimension,
+    FocusPointOption,
+    ImageDimensions,
+    ImageStandardSizes,
+    Point,
+    RatioApproach,
+)
 
 
-type Width = int
-type Height = int
-type ImageDimensions = tuple[Width, Height]
-type Point = tuple[int, int]
+def get_or_create_sized_image(original_filename: str, size: ImageDimensions, prefix: str):
+    filename = get_filename_for_image_size(original_filename, prefix)
+
+    # if not profile.photo.storage.exists(filename):
+    #     resize_image(profile.photo.name, filename, size,)
+        # @TODO need to edit this all to use storages or boto to talk to S3
 
 
-class Dimension(Enum):
-    WIDTH = "w"
-    HEIGHT = "h"
 
-
-class RatioApproach(Enum):
-    CROP = "c"
-    FILL = "f"
-    SQUASH = "s"
-
-
-class FocusPointOption(Enum):
-    BOTTOM_LEFT = 0
-    BOTTOM_MIDDLE = 1
-    BOTTOM_RIGHT = 2
-    MIDDLE_LEFT = 3
-    CENTER = 4
-    MIDDLE_RIGHT = 5
-    TOP_LEFT = 6
-    TOP_MIDDLE = 7
-    TOP_RIGHT = 8
-
-
+# @TODO maybe dont do actual file operations in here so we can more easily use storages - see https://stackoverflow.com/questions/3723220/how-do-you-convert-a-pil-image-to-a-django-file
 def resize_image(
     original_filename: str,
     target_filename: str,
@@ -40,19 +31,26 @@ def resize_image(
     focus_point: FocusPointOption | Point = FocusPointOption.CENTER,
     approach: RatioApproach = RatioApproach.CROP,
 ):
-    if approach != RatioApproach.CROP:
-        # theoretically FILL and SQUASH are options but not ones worth implementing for profile photos
-        raise NotImplementedError()
-
+    # @TODO maybe get_file_from_storages?
     image: Image.Image = Image.open(original_filename)
     original_dimensions = image.size
     orig_width, orig_height = original_dimensions
     tgt_width, tgt_height = target_dimensions
 
     if tgt_width > orig_width or tgt_height > orig_height:
-        # upscaling isn't going to look great
+        # upscaling isn't going to look great, better to have a minimum ORIGINAL size
         raise NotImplementedError()
 
+    if approach != RatioApproach.CROP:
+        # only CROP seems worth implementing for profile photos
+        raise NotImplementedError()
+
+    # ensure image right way up and right colour space
+    image = ImageOps.exif_transpose(image)
+    if image.mode not in ("L", "RGB"):
+        image = image.convert("RGB")
+
+    # crop if needed
     dimension, amount = get_crop_dimensions(
         original_dimensions=original_dimensions,
         target_dimensions=target_dimensions,
@@ -67,11 +65,8 @@ def resize_image(
             )
         )
 
-    if image.mode not in ("L", "RGB"):
-        image = image.convert("RGB")
-
     image = image.resize(target_dimensions, Image.Resampling.BICUBIC)
-
+    # @TODO maybe write_file_to_storages ?
     image.save(target_filename)
 
 
@@ -164,3 +159,25 @@ def get_crop_values(
             top = min(int(y - (amount_to_keep / 2)), 0)
             bottom = orig_height - (amount_to_remove - bottom)
     return (left, top, right, bottom)
+
+
+def get_filename_for_image_size(original_filename: str, prefix: str):
+    head, tail = os.path.split(original_filename)
+    return f"{head}{prefix}{tail}"
+
+
+def get_dimensions_and_prefix_from_standard_size(standard_size: ImageStandardSizes) -> tuple[ImageDimensions, str]:
+    return (standard_size.dimensions, standard_size.prefix)
+
+
+def get_storage_instance():
+    return storages.create_storage(storages.backends['default'])
+
+
+def get_file_from_storages(filename):
+    # @TODO get file if exists, compatible with django-storages but avoiding FileField
+    raise NotImplementedError()
+
+def write_file_to_storages(filename):
+    # @TODO write file, compatible with django-storages but avoiding FileField
+    raise NotImplementedError()
