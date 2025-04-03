@@ -36,6 +36,7 @@ manage = python manage.py
 # Run on existing container if available otherwise a new one
 web := ${if $(shell docker ps -q -f name=web),$(exec) web,$(run) web}
 db := ${if $(shell docker ps -q -f name=postgres),$(exec) postgres,$(run) postgres}
+localstack := ${if $(shell docker ps -q -f name=localstack),$(exec) localstack,$(run) localstack}
 
 setup: # Set up the project from scratch
 	make build
@@ -50,6 +51,9 @@ vite: # Run vite
 
 bash: # Open up a bash in the web container
 	$(web) /bin/bash
+
+lsbash: # Open a bash shell in the localstack container
+	$(localstack) /bin/bash
 
 shell: # Open up a python shell in the web container
 	$(web) $(manage) shell_plus
