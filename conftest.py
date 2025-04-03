@@ -11,6 +11,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderTeamTree,
 )
 from profiles.models.staff_sso import StaffSSOProfile, StaffSSOProfileEmail
+from profiles.services.peoplefinder.team import get_root_team
 
 
 pytestmark = pytest.mark.django_db
@@ -89,24 +90,7 @@ def peoplefinder_profile(basic_user):
 
 @pytest.fixture(scope="function")
 def peoplefinder_team():
-    return PeopleFinderTeam.objects.create(
-        slug="team-number-one",
-        name="Team Number One",
-        abbreviation="TNO",
-        description="Team description",
-        leaders_ordering="alphabetical",
-        cost_code="CC1",
-        team_type="standard",
-    )
-
-
-@pytest.fixture(autouse=True, scope="function")
-def peoplefinder_parent_in_teamtree(peoplefinder_team):
-    return PeopleFinderTeamTree.objects.create(
-        parent=peoplefinder_team,
-        child=peoplefinder_team,
-        depth=0,
-    )
+    return get_root_team()
 
 
 @pytest.fixture(autouse=True, scope="function")

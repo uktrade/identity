@@ -3,12 +3,12 @@ from typing import Optional
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
 
-from profiles.exceptions import TeamExists, TeamParentError
+from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
 from profiles.models.peoplefinder import (
     PeopleFinderTeam,
+    PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
     PeopleFinderTeamTree,
-    PeopleFinderTeamTreeData,
     PeopleFinderTeamType,
 )
 from profiles.types import UNSET, Unset
@@ -24,11 +24,11 @@ def get_by_slug(slug: str) -> PeopleFinderTeam:
 def create(
     slug: str,
     name: str,
-    abbreviation: str,
-    description: str,
-    leaders_ordering: str | PeopleFinderTeamLeadersOrdering,
-    cost_code: str,
-    team_type: str | PeopleFinderTeamType,
+    abbreviation: Optional[str],
+    description: Optional[str],
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    cost_code: Optional[str],
+    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
 ) -> PeopleFinderTeam:
     """
@@ -47,10 +47,23 @@ def create(
             cost_code=cost_code,
             team_type=team_type,
         )
-        team.full_clean()
-        team.save()
-        add_team_to_teamtree(team=team, parent=parent)
-        return team
+    # Validate team parent
+    if parent not in PeopleFinderTeam.objects.all():
+        raise ParentTeamDoesNotExist(
+            "Cannot create the people finder team, parent team does not exist"
+        )
+
+    if not PeopleFinderTeamTree.objects.filter(parent__id=parent.id).exists():
+        raise TeamParentError("Parent team is not in the team hierarchy")
+
+    # Validate and save the new team to db
+    team.full_clean()
+    team.save()
+
+    # Add team to the team tree
+    add_team_to_teamtree(team=team, parent=parent)
+
+    return team
 
 
 def update(
@@ -111,7 +124,7 @@ def update(
         update_team_parent(team=peoplefinder_team, parent=parent)
 
 
-def get_team_hierarchy() -> PeopleFinderTeamTreeData:
+def get_team_hierarchy() -> PeopleFinderTeamData:
     """
     Get all teams data in the team tree
     """
@@ -137,6 +150,33 @@ def get_team_hierarchy() -> PeopleFinderTeamTreeData:
         }
 
     return build_team_node(root_team)
+
+
+def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
+    """
+    Get a team and its parents data
+    """
+    parents_team_tree = (
+        PeopleFinderTeamTree.objects.select_related("child", "parent")
+        .filter(child=team)
+        .exclude(parent=team)
+        .order_by("depth")
+    )
+    return {
+        "slug": team.slug,
+        "name": team.name,
+        "abbreviation": team.abbreviation,
+        "children": None,
+        "parents": [
+            {
+                "slug": branch.parent.slug,
+                "name": branch.parent.name,
+                "abbreviation": branch.parent.abbreviation,
+                "depth": branch.depth,
+            }
+            for branch in parents_team_tree
+        ],
+    }
 
 
 def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None:
