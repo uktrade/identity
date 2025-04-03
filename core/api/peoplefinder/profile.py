@@ -1,3 +1,4 @@
+from django.core.files.base import File
 from ninja import File, Router
 from ninja.files import UploadedFile
 from PIL import Image
@@ -329,7 +330,7 @@ def update_profile(
 @profile_router.post(
     path="{slug}/photo",
     response={
-        200: ProfileResponse,  # @TODO custom minimal response
+        200: ProfileResponse,  # @TODO custom minimal response ?
         404: Error,
         422: Error,
     },
@@ -353,7 +354,7 @@ def upload_profile_photo(request, slug: str, image: UploadedFile):
             "message": "Not a valid image file",
         }
 
-    photo: UploadedFile = image.open()
+    photo: File = image.open()
     profile.photo.delete()
     profile.photo.save(image.name, content=photo)
     return profile
