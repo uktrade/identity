@@ -22,7 +22,7 @@ LOGGING["loggers"]["mohawk"]["handlers"] = ["simple"]  #  type:ignore
 FILE_UPLOAD_HANDLERS = (
     # no ClamAV
     "django_chunk_upload_handlers.s3.S3FileUploadHandler",
-)
+)  #  type:ignore
 
 AWS_S3_URL_PROTOCOL = "http:"
 AWS_S3_CUSTOM_DOMAIN = "localhost:8000"
