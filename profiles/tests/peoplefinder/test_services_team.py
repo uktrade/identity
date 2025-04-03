@@ -323,3 +323,12 @@ def test_team_service(db):
         peoplefinder_team_services.update_team_parent(
             dit, PeopleFinderTeam(name="Test")
         )
+
+    # test `generate_team_slug`
+    assert peoplefinder_team_services.generate_team_slug(coo_analysis) == "analysis"
+
+    coo_analysis.name = "investment"
+
+    assert (
+        peoplefinder_team_services.generate_team_slug(coo_analysis) == "coo-investment"
+    )

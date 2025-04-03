@@ -402,6 +402,10 @@ class PeopleFinderTeamData(TypedDict):
     slug: str
     name: str
     abbreviation: str
+    description: Optional[str]
+    leaders_ordering: Optional[str]
+    cost_code: Optional[str]
+    team_type: Optional[str]
     children: Optional[list]
     parents: Optional[list]
 

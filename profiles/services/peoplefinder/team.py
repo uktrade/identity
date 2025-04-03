@@ -2,8 +2,14 @@ from typing import Optional
 
 from django.db import connection, transaction
 from django.db.models import QuerySet, Subquery
+from django.utils.text import slugify
 
-from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
+from profiles.exceptions import (
+    ParentTeamDoesNotExist,
+    TeamExists,
+    TeamParentError,
+    TeamSlugError,
+)
 from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -68,7 +74,7 @@ def create(
 
 def update(
     peoplefinder_team: PeopleFinderTeam,
-    name: Optional[str | Unset] = None,
+    name: Optional[str] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
     leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
@@ -79,12 +85,12 @@ def update(
 
     update_fields: list = []
 
-    if name is not None:
-        if name is UNSET:
-            peoplefinder_team.name = None
-        else:
-            peoplefinder_team.name = name
+    # Update fields that are required on the PeopleFinderTeam
+    if name:
+        peoplefinder_team.name = name
         update_fields.append("name")
+
+    # Update fields that are optional on the PeopleFinderTeam
     if abbreviation is not None:
         if abbreviation is UNSET:
             peoplefinder_team.abbreviation = None
@@ -116,12 +122,17 @@ def update(
             peoplefinder_team.team_type = team_type
         update_fields.append("team_type")
 
+    # Validate fields and update team parent before saving the team updates
     peoplefinder_team.full_clean()
-    peoplefinder_team.save(update_fields=update_fields)
 
-    # Update team parent
     if parent:
         update_team_parent(team=peoplefinder_team, parent=parent)
+
+    # Update team slug after updating the parent in the team tree
+    peoplefinder_team.slug = generate_team_slug(team=peoplefinder_team)
+    update_fields.append("slug")
+
+    peoplefinder_team.save(update_fields=update_fields)
 
 
 def get_team_hierarchy() -> PeopleFinderTeamData:
@@ -139,14 +150,19 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
             children_map[relation.parent_id] = []
         children_map[relation.parent_id].append(relation.child)
 
-    def build_team_node(team):
+    def build_team_node(team) -> PeopleFinderTeamData:
         return {
             "slug": team.slug,
             "name": team.name,
             "abbreviation": team.abbreviation,
+            "description": None,
+            "leaders_ordering": None,
+            "cost_code": None,
+            "team_type": None,
             "children": [
                 build_team_node(child) for child in children_map.get(team.id, [])
             ],
+            "parents": None,
         }
 
     return build_team_node(root_team)
@@ -166,6 +182,10 @@ def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "slug": team.slug,
         "name": team.name,
         "abbreviation": team.abbreviation,
+        "description": None,
+        "leaders_ordering": None,
+        "cost_code": None,
+        "team_type": None,
         "children": None,
         "parents": [
             {
@@ -227,6 +247,38 @@ def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> No
             ),
         ]
     )
+
+
+def generate_team_slug(team: PeopleFinderTeam) -> str:
+    """Return a new slug for the given team.
+
+    Args:
+        team (PeopleFinderTeam): The given team.
+
+    Raises:
+        TeamSlugError: If a unique team slug cannot be generated.
+
+    Returns:
+        str: A new slug for the PeopleFinderTeam.
+    """
+    slug = slugify(team.name)
+
+    duplicate_slugs = (
+        PeopleFinderTeam.objects.filter(slug=slug).exclude(pk=team.pk).exists()
+    )
+
+    # If the new slug isn't unique then append the parent team's name to the front.
+    # Note that if the parent team's name changes it won't be reflected here in the
+    # new slug.
+    if duplicate_slugs:
+        parent_team = get_immediate_parent_team(team)
+
+        if not parent_team:
+            raise TeamSlugError("Cannot generate unique team slug")
+
+        slug = slugify(f"{parent_team.name} {team.name}")
+
+    return slug
 
 
 def validate_team_parent_update(

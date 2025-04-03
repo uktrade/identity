@@ -311,7 +311,7 @@ def test_create_team(peoplefinder_team):
         "name": "Riverjack",
         "abbreviation": "RJ",
     }
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert json.loads(response.content) == expected
 
     # Test case 2) peoplefinder team already exists
