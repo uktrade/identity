@@ -83,7 +83,9 @@ STORAGES: dict[str, Any] = {
 AWS_REGION = env("AWS_REGION", default="eu-west-2")
 AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-2")
 AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
-S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)
+AWS_S3_URL_PROTOCOL = "https:"
+AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default=None)  # noqa F405
+S3_LOCAL_ENDPOINT_URL = env.str("S3_LOCAL_ENDPOINT_URL", default=None)  # @TODO refactor this to use localstack transparently in test env
 
 DATA_FLOW_UPLOADS_BUCKET = env.str("DATA_FLOW_UPLOADS_BUCKET", None)
 DATA_FLOW_UPLOADS_BUCKET_PATH = env.str("DATA_FLOW_UPLOADS_BUCKET_PATH", None)
