@@ -2,16 +2,23 @@ import json
 import mimetypes
 
 from django import forms
-from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseNotAllowed
-from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseNotAllowed,
+    HttpResponseNotFound,
+)
 from django.shortcuts import HttpResponse, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 
-from core.api import do_hawk_auth
 from core import services
+from core.api import do_hawk_auth
 from core.schemas.peoplefinder.profile import ProfileResponse
 from profiles.models.peoplefinder import PeopleFinderProfile
 
@@ -43,10 +50,8 @@ class PhotoForm(forms.Form):
             self.add_error("image", ValidationError("File size is greater than 8MB"))
 
 
-
-
 @csrf_exempt
-def profile_photo_handler(request:HttpRequest, slug:str):
+def profile_photo_handler(request: HttpRequest, slug: str):
     """
     Sends the request to the right function based on the method
     """
@@ -94,9 +99,13 @@ def upload_profile_photo(request, slug: str):
     try:
         profile = services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
-        return HttpResponseNotFound(json.dumps({
-            "message": "Unable to find people finder profile",
-        }))
+        return HttpResponseNotFound(
+            json.dumps(
+                {
+                    "message": "Unable to find people finder profile",
+                }
+            )
+        )
 
     form = PhotoForm(request.POST, request.FILES)
     if not form.is_valid():
@@ -129,13 +138,16 @@ def delete_profile_photo(request, slug: str):
     try:
         profile = services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
-        return HttpResponseNotFound(json.dumps({
-            "message": "Unable to find people finder profile",
-        }))
+        return HttpResponseNotFound(
+            json.dumps(
+                {
+                    "message": "Unable to find people finder profile",
+                }
+            )
+        )
 
     profile.photo.delete()
     return HttpResponse(ProfileResponse.from_orm(profile).json())
-
 
 
 def trigger_error(request):

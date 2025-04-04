@@ -1,11 +1,12 @@
+import json
+
 from django import forms
 from django.core.files.base import File
 from django.views.decorators.csrf import csrf_exempt
-from storages.backends.s3 import S3File
-from ninja import File, Router, Schema, Form
+from ninja import File, Form, Router, Schema
 from ninja.files import UploadedFile
 from PIL import Image
-import json
+from storages.backends.s3 import S3File
 
 from core import services as core_services
 from core.schemas import Error

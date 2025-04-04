@@ -1,7 +1,7 @@
 import os
-from django.core.files.storage import storages
 from typing import Literal
 
+from django.core.files.storage import storages
 from PIL import Image, ImageOps
 
 from profiles.types import (
@@ -14,13 +14,14 @@ from profiles.types import (
 )
 
 
-def get_or_create_sized_image(original_filename: str, size: ImageDimensions, prefix: str):
+def get_or_create_sized_image(
+    original_filename: str, size: ImageDimensions, prefix: str
+):
     filename = get_filename_for_image_size(original_filename, prefix)
 
     # if not profile.photo.storage.exists(filename):
     #     resize_image(profile.photo.name, filename, size,)
-        # @TODO need to edit this all to use storages or boto to talk to S3
-
+    # @TODO need to edit this all to use storages or boto to talk to S3
 
 
 # @TODO maybe dont do actual file operations in here so we can more easily use storages - see https://stackoverflow.com/questions/3723220/how-do-you-convert-a-pil-image-to-a-django-file
@@ -166,17 +167,20 @@ def get_filename_for_image_size(original_filename: str, prefix: str):
     return f"{head}{prefix}{tail}"
 
 
-def get_dimensions_and_prefix_from_standard_size(standard_size: ImageStandardSizes) -> tuple[ImageDimensions, str]:
+def get_dimensions_and_prefix_from_standard_size(
+    standard_size: ImageStandardSizes,
+) -> tuple[ImageDimensions, str]:
     return (standard_size.dimensions, standard_size.prefix)
 
 
 def get_storage_instance():
-    return storages.create_storage(storages.backends['default'])
+    return storages.create_storage(storages.backends["default"])
 
 
 def get_file_from_storages(filename):
     # @TODO get file if exists, compatible with django-storages but avoiding FileField
     raise NotImplementedError()
+
 
 def write_file_to_storages(filename):
     # @TODO write file, compatible with django-storages but avoiding FileField
