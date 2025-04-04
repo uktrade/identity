@@ -300,7 +300,7 @@ def test_delete_peoplefinder_team(peoplefinder_team):
         "test-1",
         PeopleFinderTeamLeadersOrdering("alphabetical"),
         "test-1",
-        "standard",
+        PeopleFinderTeamType("standard"),
         peoplefinder_team,
     )
 
@@ -346,7 +346,7 @@ def test_delete_peoplefinder_team_active_members(
         "test-1",
         PeopleFinderTeamLeadersOrdering("alphabetical"),
         "test-1",
-        "standard",
+        PeopleFinderTeamType("standard"),
         peoplefinder_team,
     )
 
@@ -376,7 +376,7 @@ def test_delete_peoplefinder_team_has_sub_teams(peoplefinder_team):
         "test-1",
         PeopleFinderTeamLeadersOrdering("alphabetical"),
         "test-1",
-        "standard",
+        PeopleFinderTeamType("standard"),
         peoplefinder_team,
     )
 
@@ -388,7 +388,7 @@ def test_delete_peoplefinder_team_has_sub_teams(peoplefinder_team):
         "test-2",
         PeopleFinderTeamLeadersOrdering("alphabetical"),
         "test-2",
-        "standard",
+        PeopleFinderTeamType("standard"),
         team_to_delete,
     )
 
