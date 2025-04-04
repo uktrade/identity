@@ -13,11 +13,17 @@ from core.services import (
     SSO_USER_STATUS,
 )
 from profiles import services as profile_services
-from profiles.exceptions import TeamExists
+from profiles.exceptions import (
+    TeamChildError,
+    TeamExists,
+    TeamMemberError,
+    TeamRootError,
+)
 from profiles.models import PeopleFinderProfile
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Email
 from profiles.models.peoplefinder import (
+    PeopleFinderProfileTeam,
     PeopleFinderTeam,
     PeopleFinderTeamLeadersOrdering,
     PeopleFinderTeamTree,
@@ -281,3 +287,112 @@ def test_update_peoplefinder_team(peoplefinder_team):
     assert peoplefinder_team.cost_code == "CC123"
     assert peoplefinder_team.leaders_ordering == "custom"
     assert peoplefinder_team.team_type == "directorate"
+
+
+def test_delete_peoplefinder_team(peoplefinder_team):
+    """
+    Test deletion of a peoplefinder team
+    """
+    team_to_delete = services.create_peoplefinder_team(
+        "test-1",
+        "test-1",
+        "tr-1",
+        "test-1",
+        PeopleFinderTeamLeadersOrdering("alphabetical"),
+        "test-1",
+        PeopleFinderTeamType("standard"),
+        peoplefinder_team,
+    )
+
+    services.delete_peoplefinder_team(slug=team_to_delete.slug)
+
+    with pytest.raises(PeopleFinderTeam.DoesNotExist) as pex:
+        team_to_delete.refresh_from_db()
+
+    assert str(pex.value.args[0]) == "PeopleFinderTeam matching query does not exist."
+
+    assert peoplefinder_team.name == "Root team"
+    assert peoplefinder_team.abbreviation == "RT"
+    assert peoplefinder_team.description == None
+    assert peoplefinder_team.cost_code == None
+    assert (
+        peoplefinder_team.leaders_ordering
+        == PeopleFinderTeamLeadersOrdering.ALPHABETICAL
+    )
+    assert peoplefinder_team.team_type == PeopleFinderTeamType.STANDARD
+
+
+def test_delete_peoplefinder_root_team(peoplefinder_team):
+    """
+    Test deletion fails when deleting the root team.
+    """
+
+    with pytest.raises(TeamRootError) as pex:
+        services.delete_peoplefinder_team(slug=peoplefinder_team.slug)
+
+    assert str(pex.value.args[0]) == "Cannot delete the root team"
+
+
+def test_delete_peoplefinder_team_active_members(
+    peoplefinder_profile, peoplefinder_team
+):
+    """
+    Test deletion fails when deleting a team that has active members
+    """
+    team_to_delete = services.create_peoplefinder_team(
+        "test-1",
+        "test-1",
+        "tr-1",
+        "test-1",
+        PeopleFinderTeamLeadersOrdering("alphabetical"),
+        "test-1",
+        PeopleFinderTeamType("standard"),
+        peoplefinder_team,
+    )
+
+    # TODO add missing service methods
+    # Manually adding a profile to a team, the method(s) has not been created yet.
+    PeopleFinderProfileTeam.objects.create(
+        peoplefinder_profile=peoplefinder_profile,
+        team=team_to_delete,
+        job_title="Test Job",
+    )
+
+    with pytest.raises(TeamMemberError) as pex:
+        services.delete_peoplefinder_team(slug=team_to_delete.slug)
+
+    assert str(pex.value.args[0]) == "Cannot delete a team that contains active members"
+
+
+def test_delete_peoplefinder_team_has_sub_teams(peoplefinder_team):
+    """
+    Test deletion fails when deleting a team that has sub teams
+    """
+
+    team_to_delete = services.create_peoplefinder_team(
+        "test-1",
+        "test-1",
+        "tr-1",
+        "test-1",
+        PeopleFinderTeamLeadersOrdering("alphabetical"),
+        "test-1",
+        PeopleFinderTeamType("standard"),
+        peoplefinder_team,
+    )
+
+    # create sub team
+    services.create_peoplefinder_team(
+        "test-2",
+        "test-2",
+        "tr-2",
+        "test-2",
+        PeopleFinderTeamLeadersOrdering("alphabetical"),
+        "test-2",
+        PeopleFinderTeamType("standard"),
+        team_to_delete,
+    )
+
+    with pytest.raises(TeamChildError) as pex:
+        services.delete_peoplefinder_team(slug=team_to_delete.slug)
+
+    assert str(pex.value.args[0]) == "Cannot delete a team that contains children"
