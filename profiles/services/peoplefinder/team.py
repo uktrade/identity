@@ -30,12 +30,12 @@ def get_by_slug(slug: str) -> PeopleFinderTeam:
 def create(
     slug: str,
     name: str,
-    abbreviation: Optional[str],
-    description: Optional[str],
-    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
-    cost_code: Optional[str],
-    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    team_type: Optional[PeopleFinderTeamType],
+    abbreviation: Optional[str] = None,
+    description: Optional[str] = None,
+    cost_code: Optional[str] = None,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -82,7 +82,9 @@ def update(
     team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
     parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
-
+    """
+    Updates a people finder team
+    """
     update_fields: list = []
 
     # Update fields that are required on the PeopleFinderTeam
@@ -182,10 +184,10 @@ def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "slug": team.slug,
         "name": team.name,
         "abbreviation": team.abbreviation,
-        "description": None,
-        "leaders_ordering": None,
-        "cost_code": None,
-        "team_type": None,
+        "description": team.description,
+        "leaders_ordering": team.leaders_ordering,
+        "cost_code": team.cost_code,
+        "team_type": team.team_type,
         "children": None,
         "parents": [
             {

@@ -114,6 +114,9 @@ def update_team(
                 if team_request.abbreviation is None
                 else team_request.abbreviation
             ),
+            description=(
+                UNSET if team_request.description is None else team_request.description
+            ),
             leaders_ordering=(
                 UNSET
                 if team_request.leaders_ordering is None
