@@ -52,6 +52,12 @@ sso_profile_api = NinjaAPI(
 if settings.INFRA_SERVICE == "SSO_PROFILE" or settings.HOST_ALL_APIS:
     sso_profile_api.add_router("", sso_profile_router)
 
+# class CustomDocsApi(NinjaAPI):
+#     def get_openapi_schema(self, *a, **kw):
+#         schema = super().get_openapi_schema(*a, **kw)
+#         schema["paths"]["/profiles"]["post"] = "ppp"
+#         return schema
+
 people_finder_api = NinjaAPI(
     title="PeopleFinder API",
     version="1.0.0",

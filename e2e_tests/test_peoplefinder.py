@@ -386,7 +386,7 @@ def test_create_team(peoplefinder_team):
 
 def test_upload_delete_photo(peoplefinder_profile):
     url = reverse(
-        "people-finder:upload_profile_photo", args=(str(peoplefinder_profile.slug),)
+        "core:photo", args=(str(peoplefinder_profile.slug),)
     )
     filepath = "docker/.localstack/fixtures/photo.jpg"
     client = Client()
@@ -411,8 +411,8 @@ def test_upload_delete_photo(peoplefinder_profile):
             url,
             data={"image": file},
         )
-        assert response.status_code == 422
-        assert json.loads(response.content) == {"message": "Not a valid image file"}
+        assert response.status_code == 400
+        assert json.loads(response.content) == {'image': ['Upload a valid image. The file you uploaded was either not an image or a corrupted image.','Not a valid image file']}
 
 
 def test_get_countries(mocker):
