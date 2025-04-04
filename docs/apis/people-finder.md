@@ -17,7 +17,9 @@ The ID service exposes an API that provides read and edit functionality designed
 #### Get Team:
 `/teams/<slug>` : returns a team with its parents, including child-parent relationship depth
 #### Create a Team:
-`/teams` : creates a new people finder team and returns a minimal team record
+`/teams` : creates a new people finder team from the request and returns a minimal team record
+#### Update a Team:
+`/teams/<slug>` : updates an existing people finder team using the request data and returns a team response 
 
 
 #### Reference data can be accessed via `/api/peoplefinder/reference/<endpoint>`. Here is the list of reference endpoints:

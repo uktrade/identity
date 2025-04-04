@@ -32,3 +32,8 @@ class TeamParentError(Exception):
 class ParentTeamDoesNotExist(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class TeamSlugError(Exception):
+    def __init__(self, message):
+        self.message = message
