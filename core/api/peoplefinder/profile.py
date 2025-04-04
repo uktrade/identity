@@ -1,7 +1,13 @@
+from django import forms
 from django.core.files.base import File
-from ninja import File, Router
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseNotAllowed
+from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_exempt
+from storages.backends.s3 import S3File
+from ninja import File, Router, Schema, Form
 from ninja.files import UploadedFile
 from PIL import Image
+import json
 
 from core import services as core_services
 from core.schemas import Error
@@ -327,59 +333,94 @@ def update_profile(
         return 404, {"message": "People finder profile does not exist"}
 
 
-@profile_router.post(
-    path="{slug}/photo",
-    response={
-        200: ProfileResponse,  # @TODO custom minimal response ?
-        404: Error,
-        422: Error,
-    },
-)
-def upload_profile_photo(request, slug: str, image: UploadedFile):
+# @profile_router.post(
+#     path="{slug}/photo",
+#     response={
+#         200: ProfileResponse,  # @TODO custom minimal response ?
+#         404: Error,
+#         422: Error,
+#     },
+# )
+
+class PhotoForm(forms.Form):
+    image = forms.ImageField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self.validate_photo(cleaned_data["image"])
+        return cleaned_data
+
+    def validate_photo(self, image):
+        if not hasattr(image, "image"):
+            return
+
+        if image.image.width < 500:
+            self.add_error("image", ValidationError("Width is less than 500px"))
+
+        if image.image.height < 500:
+            self.add_error("image", ValidationError("Height is less than 500px"))
+
+        # 8mb in bytes
+        if image.size > 1024 * 1024 * 8:
+            self.add_error("image", ValidationError("File size is greater than 8MB"))
+
+@csrf_exempt
+def upload_profile_photo(request, slug: str):
     """
     Endpoint to upload a new profile photo for the given profile
     """
+    print("CALLED")
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST", "DELETE"])
+
     try:
         profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
-        return 404, {
+        return HttpResponseNotFound(json.dumps({
             "message": "Unable to find people finder profile",
-        }
+        }))
 
-    try:
-        im = Image.open(image)
-        im.verify()
-    except:
-        return 422, {
-            "message": "Not a valid image file",
-        }
+    form = PhotoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        return HttpResponseBadRequest(json.dumps(form.errors))
 
-    photo: File = image.open()
+    # image = request.FILES["file"]
+
+    # try:
+    #     im = Image.open(image)
+    #     im.verify()
+    # except:
+    #     return 422, {
+    #         "message": "Not a valid image file",
+    #     }
+
+    # photo: File = image.open()
     profile.photo.delete()
-    profile.photo.save(image.name, content=photo)
-    return profile
+    profile.photo = form.cleaned_data["image"]
+    profile.save()
+    return HttpResponse(ProfileResponse.from_orm(profile).json())
 
 
-@profile_router.delete(
-    path="{slug}/photo",
-    response={
-        200: ProfileResponse,
-        404: Error,
-    },
-)
-def delete_profile_photo(request, slug: str):
-    """
-    Endpoint to delete a profile photo for the given profile
-    """
-    try:
-        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
-    except PeopleFinderProfile.DoesNotExist:
-        return 404, {
-            "message": "Unable to find people finder profile",
-        }
+# @profile_router.delete(
+#     path="{slug}/photo",
+#     response={
+#         200: ProfileResponse,
+#         404: Error,
+#     },
+# )
+# def delete_profile_photo(request, slug: str):
+#     """
+#     Endpoint to delete a profile photo for the given profile
+#     """
+#     try:
+#         profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
+#     except PeopleFinderProfile.DoesNotExist:
+#         return 404, {
+#             "message": "Unable to find people finder profile",
+#         }
 
-    profile.photo.delete()
-    return profile
+#     profile.photo.delete()
+#     return profile
 
 
 @reference_router.get(

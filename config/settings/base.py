@@ -63,8 +63,12 @@ STATICFILES_DIRS: list[Path] = [
 # Storage
 # https://docs.djangoproject.com/en/5.1/ref/settings/#storages
 
+# FILE_UPLOAD_MAX_MEMORY_SIZE=3*1024*1024
 FILE_UPLOAD_HANDLERS = (
+    # "django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django_chunk_upload_handlers.clam_av.ClamAVFileUploadHandler",
+    # "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    # "django.core.files.uploadhandler.TemporaryFileUploadHandler",
     "django_chunk_upload_handlers.s3.S3FileUploadHandler",
 )  # Order is important
 
