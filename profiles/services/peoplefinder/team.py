@@ -1,10 +1,18 @@
 from typing import Optional
 
 from django.db import connection, transaction
-from django.db.models import QuerySet, Subquery
+from django.db.models import Q, QuerySet, Subquery
 
-from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
+from profiles.exceptions import (
+    ParentTeamDoesNotExist,
+    TeamChildError,
+    TeamExists,
+    TeamMemberError,
+    TeamParentError,
+    TeamRootError,
+)
 from profiles.models.peoplefinder import (
+    PeopleFinderProfileTeam,
     PeopleFinderTeam,
     PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
@@ -122,6 +130,28 @@ def update(
     # Update team parent
     if parent:
         update_team_parent(team=peoplefinder_team, parent=parent)
+
+
+def delete(team: PeopleFinderTeam) -> None:
+    """
+    Deletes a team and removes it from the team tree.
+    """
+    parent = get_immediate_parent_team(child=team)
+    team_tree = get_all_child_teams(parent=team)
+    members = get_team_members(team=team)
+
+    if team_tree:
+        raise TeamChildError("Cannot delete a team that contains children")
+
+    if members:
+        raise TeamMemberError("Cannot delete a team that contains active members")
+
+    if parent is None and (team == get_root_team()):
+        raise TeamRootError("Cannot delete the root team")
+
+    remove_team_parent(team=team)
+    # Hard delete team object
+    team.delete()
 
 
 def get_team_hierarchy() -> PeopleFinderTeamData:
@@ -292,6 +322,19 @@ def update_team_parent(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None
         )
 
 
+@transaction.atomic
+def remove_team_parent(team: PeopleFinderTeam) -> None:
+    """
+    Similar function to the update_team_parent function, but without excluding the self relationship and
+    only deleting tree nodes without adding any new nodes to the tree.
+    """
+    PeopleFinderTeamTree.objects.filter(
+        child__in=Subquery(
+            PeopleFinderTeamTree.objects.filter(parent=team).values("child")
+        )
+    ).delete()
+
+
 def get_all_parent_teams(child: PeopleFinderTeam) -> QuerySet[PeopleFinderTeam]:
     """Return all parent teams for the given child team.
 
@@ -366,34 +409,12 @@ def get_root_team() -> PeopleFinderTeam:
     ).get()
 
 
-def can_team_be_deleted(team: PeopleFinderTeam) -> tuple[bool, list[str]]:
-    """Check and return whether a team can be deleted.
-
-    Args:
-        team (PeopleFinderTeam): The team to be deleted.
-
-    Returns:
-        tuple[bool, list[str]]: Whether the team can be deleted and the reasons why.
+def get_team_members(team: PeopleFinderTeam) -> QuerySet[PeopleFinderProfileTeam]:
     """
-    reasons = []
-
+    Get all team members that are either active members of the current team or its children
+    """
     sub_teams = get_all_child_teams(team)
-    if sub_teams:
-        reasons.append("sub-teams")
-
-    has_members = get_team_members(team).exists()
-    if has_members:
-        reasons.append("members")
-
-    if reasons:
-        return False, reasons
-
-    return True, []
-
-
-def get_team_members(team: PeopleFinderTeam):
-    # TODO: We don't have active field in PeopleFinderProfileTeam model
-    # In current people finder we use active to check if there are members
-    # in a team.
-    # return team.peoplefinder_members.exclude(peoplefinder_profile__is_active=False)
-    return NotImplementedError
+    # Not sure about performance here as it's doing a inner query to check active status.
+    return PeopleFinderProfileTeam.objects.filter(
+        Q(team=team) | Q(team__in=sub_teams) & Q(peoplefinder_profile__is_active=True)
+    )
