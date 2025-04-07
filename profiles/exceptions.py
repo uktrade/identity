@@ -24,7 +24,22 @@ class TeamExists(Exception):
         self.message = message
 
 
+class TeamRootError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class TeamChildError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class TeamParentError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class TeamMemberError(Exception):
     def __init__(self, message):
         self.message = message
 

@@ -354,6 +354,13 @@ def update_peoplefinder_team(
     )
 
 
+def delete_peoplefinder_team(slug: str) -> None:
+    """
+    Function to delete a people finder team
+    """
+    profile_services.delete_peoplefinder_team(slug=slug)
+
+
 def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Function for getting a dictionary of all teams in the team tree

@@ -1,17 +1,22 @@
 from typing import Optional
 
 from django.db import connection, transaction
-from django.db.models import QuerySet, Subquery
+from django.db.models import Q, QuerySet, Subquery
 from django.utils.text import slugify
 
 from profiles.exceptions import (
     ParentTeamDoesNotExist,
+    TeamChildError,
     TeamExists,
+    TeamMemberError,
     TeamParentError,
+    TeamRootError,
     TeamSlugError,
 )
+
 from profiles.models.peoplefinder import (
     PeopleFinderHierarchyData,
+    PeopleFinderProfileTeam,
     PeopleFinderTeam,
     PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
@@ -136,6 +141,27 @@ def update(
     update_fields.append("slug")
 
     peoplefinder_team.save(update_fields=update_fields)
+
+def delete(team: PeopleFinderTeam) -> None:
+    """
+    Deletes a team and removes it from the team tree.
+    """
+    parent = get_immediate_parent_team(child=team)
+    team_tree = get_all_child_teams(parent=team)
+    members = get_team_members(team=team)
+
+    if team_tree:
+        raise TeamChildError("Cannot delete a team that contains children")
+
+    if members:
+        raise TeamMemberError("Cannot delete a team that contains active members")
+
+    if parent is None and (team == get_root_team()):
+        raise TeamRootError("Cannot delete the root team")
+
+    remove_team_parent(team=team)
+    # Hard delete team object
+    team.delete()
 
 
 def get_team_hierarchy() -> PeopleFinderHierarchyData:
@@ -271,7 +297,7 @@ def generate_team_slug(team: PeopleFinderTeam) -> str:
         parent_team = get_immediate_parent_team(team)
 
         if not parent_team:
-            raise TeamSlugError("Cannot generate unique team slug")
+            raise TeamSlugError("Cannot generate unique slug as the team is the root team")
 
         slug = slugify(f"{parent_team.name} {team.name}")
 
@@ -339,6 +365,19 @@ def update_team_parent(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> None
             """,
             [team.id, parent.id],
         )
+
+
+@transaction.atomic
+def remove_team_parent(team: PeopleFinderTeam) -> None:
+    """
+    Similar function to the update_team_parent function, but without excluding the self relationship and
+    only deleting tree nodes without adding any new nodes to the tree.
+    """
+    PeopleFinderTeamTree.objects.filter(
+        child__in=Subquery(
+            PeopleFinderTeamTree.objects.filter(parent=team).values("child")
+        )
+    ).delete()
 
 
 def get_all_parent_teams(child: PeopleFinderTeam) -> QuerySet[PeopleFinderTeam]:
@@ -415,34 +454,12 @@ def get_root_team() -> PeopleFinderTeam:
     ).get()
 
 
-def can_team_be_deleted(team: PeopleFinderTeam) -> tuple[bool, list[str]]:
-    """Check and return whether a team can be deleted.
-
-    Args:
-        team (PeopleFinderTeam): The team to be deleted.
-
-    Returns:
-        tuple[bool, list[str]]: Whether the team can be deleted and the reasons why.
+def get_team_members(team: PeopleFinderTeam) -> QuerySet[PeopleFinderProfileTeam]:
     """
-    reasons = []
-
+    Get all team members that are either active members of the current team or its children
+    """
     sub_teams = get_all_child_teams(team)
-    if sub_teams:
-        reasons.append("sub-teams")
-
-    has_members = get_team_members(team).exists()
-    if has_members:
-        reasons.append("members")
-
-    if reasons:
-        return False, reasons
-
-    return True, []
-
-
-def get_team_members(team: PeopleFinderTeam):
-    # TODO: We don't have active field in PeopleFinderProfileTeam model
-    # In current people finder we use active to check if there are members
-    # in a team.
-    # return team.peoplefinder_members.exclude(peoplefinder_profile__is_active=False)
-    return NotImplementedError
+    # Not sure about performance here as it's doing a inner query to check active status.
+    return PeopleFinderProfileTeam.objects.filter(
+        Q(team=team) | Q(team__in=sub_teams) & Q(peoplefinder_profile__is_active=True)
+    )

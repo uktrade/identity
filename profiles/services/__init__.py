@@ -6,7 +6,11 @@ from typing import Optional
 
 from django.db import models
 
-from profiles.exceptions import NonCombinedProfileExists
+from profiles.exceptions import (
+    NonCombinedProfileExists,
+    TeamChildError,
+    TeamParentError,
+)
 from profiles.models import Workday
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
@@ -476,6 +480,11 @@ def update_peoplefinder_team(
         team_type=team_type,
         parent=parent,
     )
+
+
+def delete_peoplefinder_team(slug: str) -> None:
+    team = peoplefinder_team_services.get_by_slug(slug=slug)
+    peoplefinder_team_services.delete(team=team)
 
 
 def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:

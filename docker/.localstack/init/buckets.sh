@@ -1,6 +1,12 @@
 #!/bin/bash
 set -x
 
+# Profile photos setup
+#
+# Create the S3 bucket
+awslocal s3 mb s3://profileimages.identity.local
+echo "profileimages.identity.local S3 bucket created"
+
 # Data Flow setup
 #
 # Create the S3 bucket
@@ -21,9 +27,3 @@ echo "Staff SSO file added to bucket"
 
 set +x
 echo "S3 Configured"
-
-# Profile photos setup
-#
-# Create the S3 bucket
-awslocal s3 mb s3://profileimages.identity.local
-echo "profileimages.identity.local S3 bucket created"
