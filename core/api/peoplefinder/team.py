@@ -111,7 +111,8 @@ def update_team(
     try:
         team = core_services.get_peoplefinder_team_by_slug(slug=slug)
         core_services.update_peoplefinder_team(
-            slug=slug,
+            team=team,
+            slug=team_request.slug,
             name=team_request.name,
             abbreviation=(
                 UNSET

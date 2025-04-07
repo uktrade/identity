@@ -176,6 +176,7 @@ def test_update_from_peoplefinder(mocker, combined_profile, peoplefinder_profile
 def test_update_peoplefinder_team(mocker, peoplefinder_team):
     mock_pft_update_team = mocker.patch("profiles.services.peoplefinder.team.update")
     services.update_peoplefinder_team(
+        team=peoplefinder_team,
         slug=peoplefinder_team.slug,
         name=peoplefinder_team.name,
         abbreviation=peoplefinder_team.abbreviation,
@@ -186,7 +187,8 @@ def test_update_peoplefinder_team(mocker, peoplefinder_team):
     )
 
     mock_pft_update_team.assert_called_once_with(
-        peoplefinder_team=peoplefinder_team,
+        team=peoplefinder_team,
+        slug=peoplefinder_team.slug,
         name=peoplefinder_team.name,
         abbreviation=peoplefinder_team.abbreviation,
         description="New description",

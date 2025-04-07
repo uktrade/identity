@@ -457,21 +457,22 @@ def create_peoplefinder_team(
 
 
 def update_peoplefinder_team(
-    slug: str,
-    name: Optional[str | Unset] = None,
+    team: PeopleFinderTeam,
+    slug: Optional[str] = None,
+    name: Optional[str] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | Unset] = None,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | Unset] = None,
+    team_type: Optional[PeopleFinderTeamType | Unset] = None,
     parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
     """
     Updates a people finder team
     """
-    peoplefinder_team = peoplefinder_team_services.get_by_slug(slug=slug)
     peoplefinder_team_services.update(
-        peoplefinder_team=peoplefinder_team,
+        team=team,
+        slug=slug,
         name=name,
         abbreviation=abbreviation,
         description=description,

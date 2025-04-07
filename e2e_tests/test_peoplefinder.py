@@ -412,7 +412,7 @@ def test_update_team(peoplefinder_team):
         "leaders_ordering": "alphabetical",
         "cost_code": None,
         "team_type": "standard",
-        "parent_slug": "analysis",
+        "parent_slug": analysis.slug,
     }
     url = reverse("people-finder:update_team", args=(str(ex.slug),))
     response = client.put(
@@ -445,6 +445,8 @@ def test_update_team(peoplefinder_team):
             },
         ],
     }
+    # Refresh to get up to date data for ex
+    ex.refresh_from_db()
 
     # Test case 2) peoplefinder team does not exist
     url = reverse("people-finder:update_team", args=["not-a-team"])
@@ -479,6 +481,50 @@ def test_update_team(peoplefinder_team):
     assert response.status_code == 404
     assert json.loads(response.content) == {
         "message": "Cannot update the people finder team, parent team does not exist"
+    }
+
+    # Test case 4) update slug via api request
+    update_team_slug_request = {
+        "slug": "new-slug",
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parent_slug": analysis.slug,
+    }
+
+    url = reverse("people-finder:update_team", args=(str(ex.slug),))
+    response = client.put(
+        url,
+        data=update_team_slug_request,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == {
+        "slug": "new-slug",
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parents": [
+            {
+                "slug": "analysis",
+                "name": "Analysis",
+                "abbreviation": None,
+                "depth": 1,
+            },
+            {
+                "slug": "root-team",
+                "name": "Root team",
+                "abbreviation": "RT",
+                "depth": 2,
+            },
+        ],
     }
 
 

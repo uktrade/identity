@@ -103,7 +103,7 @@ def test_update_team(peoplefinder_team):
     }
 
     peoplefinder_team_services.update(
-        peoplefinder_team=ex,
+        team=ex,
         name="New team name",
         description="New Team Description",
         cost_code=UNSET,
@@ -329,10 +329,24 @@ def test_team_service(db):
         )
 
     # test `generate_team_slug`
-    assert peoplefinder_team_services.generate_team_slug(coo_analysis) == "analysis"
-
-    coo_analysis.name = "investment"
-
     assert (
-        peoplefinder_team_services.generate_team_slug(coo_analysis) == "coo-investment"
+        peoplefinder_team_services.generate_team_slug(team=coo_analysis) == "analysis"
+    )
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, slug="new-slug", name="corporate-services"
+        )
+        == "new-slug"
+    )
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, name="investment"
+        )
+        == "coo-investment"
+    )
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, name="corporate-services"
+        )
+        == "corporate-services"
     )

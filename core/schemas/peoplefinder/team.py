@@ -14,7 +14,8 @@ class PeopleFinderTeamMinimalResponse(Schema):
     abbreviation: Optional[str] = Field(alias="abbreviation")
 
 
-class TeamReuqest(Schema):
+class TeamRequest(Schema):
+    slug: Optional[str] = None
     name: Optional[str] = None
     abbreviation: Optional[str] = None
     description: Optional[str] = None
@@ -24,13 +25,13 @@ class TeamReuqest(Schema):
     parent_slug: Optional[str] = None
 
 
-class CreateTeamRequest(TeamReuqest):
+class CreateTeamRequest(TeamRequest):
     slug: str
     name: str
     parent_slug: str
 
 
-class UpdateTeamRequest(TeamReuqest): ...
+class UpdateTeamRequest(TeamRequest): ...
 
 
 class ParentSchema(PeopleFinderTeamMinimalResponse):
