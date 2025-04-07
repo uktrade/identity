@@ -14,6 +14,7 @@ from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
     LearningInterest,
+    PeopleFinderHierarchyData,
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -477,7 +478,7 @@ def update_peoplefinder_team(
     )
 
 
-def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Get all teams data in the team tree
     """

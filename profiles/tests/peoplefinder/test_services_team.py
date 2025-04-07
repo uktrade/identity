@@ -92,29 +92,14 @@ def test_update_team(peoplefinder_team):
                 "name": dit.name,
                 "abbreviation": dit.abbreviation,
                 "children": [],
-                "description": None,
-                "leaders_ordering": None,
-                "cost_code": None,
-                "team_type": None,
-                "parents": None,
             },
             {
                 "slug": ex.slug,
                 "name": ex.name,
                 "abbreviation": ex.abbreviation,
                 "children": [],
-                "description": None,
-                "leaders_ordering": None,
-                "cost_code": None,
-                "team_type": None,
-                "parents": None,
             },
         ],
-        "description": None,
-        "leaders_ordering": None,
-        "cost_code": None,
-        "team_type": None,
-        "parents": None,
     }
 
     peoplefinder_team_services.update(
@@ -149,25 +134,10 @@ def test_update_team(peoplefinder_team):
                         "name": ex.name,
                         "abbreviation": ex.abbreviation,
                         "children": [],
-                        "description": None,
-                        "leaders_ordering": None,
-                        "cost_code": None,
-                        "team_type": None,
-                        "parents": None,
                     }
                 ],
-                "description": None,
-                "leaders_ordering": None,
-                "cost_code": None,
-                "team_type": None,
-                "parents": None,
             }
         ],
-        "description": None,
-        "leaders_ordering": None,
-        "cost_code": None,
-        "team_type": None,
-        "parents": None,
     }
 
 
@@ -211,25 +181,10 @@ def test_get_team_hierarchy(peoplefinder_team):
                         "name": id.name,
                         "abbreviation": id.abbreviation,
                         "children": [],
-                        "description": None,
-                        "leaders_ordering": None,
-                        "cost_code": None,
-                        "team_type": None,
-                        "parents": None,
                     }
                 ],
-                "description": None,
-                "leaders_ordering": None,
-                "cost_code": None,
-                "team_type": None,
-                "parents": None,
             }
         ],
-        "description": None,
-        "leaders_ordering": None,
-        "cost_code": None,
-        "team_type": None,
-        "parents": None,
     }
 
 
@@ -252,7 +207,6 @@ def test_get_team_and_parents(peoplefinder_team):
         "slug": ex.slug,
         "name": ex.name,
         "abbreviation": ex.abbreviation,
-        "children": None,
         "description": "We support the platforms, products, tools and services that help our colleagues to do their jobs.",
         "leaders_ordering": PeopleFinderTeamLeadersOrdering.CUSTOM,
         "cost_code": "EX_cost_code",

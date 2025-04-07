@@ -11,6 +11,7 @@ from profiles.exceptions import (
     TeamSlugError,
 )
 from profiles.models.peoplefinder import (
+    PeopleFinderHierarchyData,
     PeopleFinderTeam,
     PeopleFinderTeamData,
     PeopleFinderTeamLeadersOrdering,
@@ -137,7 +138,7 @@ def update(
     peoplefinder_team.save(update_fields=update_fields)
 
 
-def get_team_hierarchy() -> PeopleFinderTeamData:
+def get_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Get all teams data in the team tree
     """
@@ -152,19 +153,14 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
             children_map[relation.parent_id] = []
         children_map[relation.parent_id].append(relation.child)
 
-    def build_team_node(team) -> PeopleFinderTeamData:
+    def build_team_node(team) -> PeopleFinderHierarchyData:
         return {
             "slug": team.slug,
             "name": team.name,
             "abbreviation": team.abbreviation,
-            "description": None,
-            "leaders_ordering": None,
-            "cost_code": None,
-            "team_type": None,
             "children": [
                 build_team_node(child) for child in children_map.get(team.id, [])
             ],
-            "parents": None,
         }
 
     return build_team_node(root_team)
@@ -188,7 +184,6 @@ def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "leaders_ordering": team.leaders_ordering,
         "cost_code": team.cost_code,
         "team_type": team.team_type,
-        "children": None,
         "parents": [
             {
                 "slug": branch.parent.slug,

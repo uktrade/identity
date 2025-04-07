@@ -11,7 +11,11 @@ from core.schemas.peoplefinder.team import (
     UpdateTeamRequest,
 )
 from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
-from profiles.models.peoplefinder import PeopleFinderTeam, PeopleFinderTeamData
+from profiles.models.peoplefinder import (
+    PeopleFinderHierarchyData,
+    PeopleFinderTeam,
+    PeopleFinderTeamData,
+)
 from profiles.types import UNSET
 
 
@@ -27,7 +31,7 @@ router.add_router("teams", team_router)
         500: Error,
     },
 )
-def get_hierarcy_of_all_teams(request) -> tuple[int, PeopleFinderTeamData | dict]:
+def get_hierarcy_of_all_teams(request) -> tuple[int, PeopleFinderHierarchyData | dict]:
     """Endpoint to return the full peoplefinder team hierarcy"""
     try:
         return 200, core_services.get_peoplefinder_team_hierarchy()

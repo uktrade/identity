@@ -406,8 +406,14 @@ class PeopleFinderTeamData(TypedDict):
     leaders_ordering: Optional[str]
     cost_code: Optional[str]
     team_type: Optional[str]
-    children: Optional[list]
     parents: Optional[list]
+
+
+class PeopleFinderHierarchyData(TypedDict):
+    slug: str
+    name: str
+    abbreviation: str
+    children: Optional[list]
 
 
 class PeopleFinderTeam(AbstractHistoricalModel):

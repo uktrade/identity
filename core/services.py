@@ -9,6 +9,7 @@ from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
+    PeopleFinderHierarchyData,
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -353,7 +354,7 @@ def update_peoplefinder_team(
     )
 
 
-def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Function for getting a dictionary of all teams in the team tree
     """
