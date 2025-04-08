@@ -169,8 +169,8 @@ def get_dimensions_and_prefix_from_standard_size(
     return (standard_size.dimensions, standard_size.prefix)
 
 
-def get_storage_instance():
-    return storages.create_storage(storages.backends["default"])
+def get_storage_instance(backend:str="default"):
+    return storages.create_storage(storages.backends[backend])
 
 
 def get_file_from_storages(filename):
