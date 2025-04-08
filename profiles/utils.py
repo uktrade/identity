@@ -33,7 +33,7 @@ def resize_image(
     approach: RatioApproach = RatioApproach.CROP,
 ):
     # @TODO maybe get_file_from_storages?
-    image: Image.Image = Image.open(original_filename)
+    image: Image.Image| None = Image.open(original_filename)
     original_dimensions = image.size
     orig_width, orig_height = original_dimensions
     tgt_width, tgt_height = target_dimensions
@@ -47,9 +47,10 @@ def resize_image(
         raise NotImplementedError()
 
     # ensure image right way up and right colour space
-    image = ImageOps.exif_transpose(image)
-    if image.mode not in ("L", "RGB"):
-        image = image.convert("RGB")
+    if image is not None:
+        image = ImageOps.exif_transpose(image)
+        if image.mode not in ("L", "RGB"): # type: ignore
+            image = image.convert("RGB") # type: ignore
 
     # crop if needed
     dimension, amount = get_crop_dimensions(

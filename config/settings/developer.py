@@ -19,12 +19,8 @@ LOGGING["loggers"]["django.db.backends"]["handlers"] = ["simple"]  #  type:ignor
 LOGGING["loggers"]["mohawk"]["handlers"] = ["simple"]  #  type:ignore
 
 
-# FILE_UPLOAD_MAX_MEMORY_SIZE=3*1024*1024
 FILE_UPLOAD_HANDLERS = (
     # no ClamAV
-    # "django_chunk_upload_handlers.clam_av.ClamAVFileUploadHandler",
-    # "django.core.files.uploadhandler.MemoryFileUploadHandler",
-    # "django.core.files.uploadhandler.TemporaryFileUploadHandler",
     "django_chunk_upload_handlers.s3.S3FileUploadHandler",
 )  #  type:ignore
 

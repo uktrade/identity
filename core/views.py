@@ -71,7 +71,7 @@ def get_profile_photo(request, slug: str):
     Proxy endpoint to retrieve profile photo. Ensures requesting user is authenticated.
     """
     if not request.user.is_authenticated:
-        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+        return redirect(f"{settings.LOGIN_URL}")
 
     try:
         profile = services.get_peoplefinder_profile_by_slug(slug=slug)
@@ -111,17 +111,6 @@ def upload_profile_photo(request, slug: str):
     if not form.is_valid():
         return HttpResponseBadRequest(json.dumps(form.errors))
 
-    # image = request.FILES["file"]
-
-    # try:
-    #     im = Image.open(image)
-    #     im.verify()
-    # except:
-    #     return 422, {
-    #         "message": "Not a valid image file",
-    #     }
-
-    # photo: File = image.open()
     profile.photo.delete()
     profile.photo = form.cleaned_data["image"]
     profile.save()
