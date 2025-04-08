@@ -130,6 +130,9 @@ def update(
             team.team_type = team_type
         update_fields.append("team_type")
 
+    # Validate team fields
+    team.full_clean()
+
     # Validate fields and update team parent before saving the team updates
     if parent:
         update_team_parent(team=team, parent=parent)
@@ -142,7 +145,7 @@ def update(
         team.slug = generate_team_slug(value=name, team=team)
         update_fields.append("slug")
 
-    team.full_clean()
+    # Save updated team fields
     team.save(update_fields=update_fields)
 
 
