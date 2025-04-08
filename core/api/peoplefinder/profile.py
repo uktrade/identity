@@ -1,6 +1,5 @@
-from ninja import File, Router
-from ninja.files import UploadedFile
-from PIL import Image
+from django.views.decorators.csrf import csrf_exempt
+from ninja import Form, Router
 
 from core import services as core_services
 from core.schemas import Error
@@ -324,61 +323,6 @@ def update_profile(
         return 404, {"message": "Profile does not exist"}
     except PeopleFinderProfile.DoesNotExist:
         return 404, {"message": "People finder profile does not exist"}
-
-
-@profile_router.post(
-    path="{slug}/photo",
-    response={
-        200: ProfileResponse,  # @TODO custom minimal response
-        404: Error,
-        422: Error,
-    },
-)
-def upload_profile_photo(request, slug: str, image: UploadedFile):
-    """
-    Endpoint to upload a new profile photo for the given profile
-    """
-    try:
-        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
-    except PeopleFinderProfile.DoesNotExist:
-        return 404, {
-            "message": "Unable to find people finder profile",
-        }
-
-    try:
-        im = Image.open(image)
-        im.verify()
-    except:
-        return 422, {
-            "message": "Not a valid image file",
-        }
-
-    photo: UploadedFile = image.open()
-    profile.photo.delete()
-    profile.photo.save(image.name, content=photo)
-    return profile
-
-
-@profile_router.delete(
-    path="{slug}/photo",
-    response={
-        200: ProfileResponse,
-        404: Error,
-    },
-)
-def delete_profile_photo(request, slug: str):
-    """
-    Endpoint to delete a profile photo for the given profile
-    """
-    try:
-        profile = core_services.get_peoplefinder_profile_by_slug(slug=slug)
-    except PeopleFinderProfile.DoesNotExist:
-        return 404, {
-            "message": "Unable to find people finder profile",
-        }
-
-    profile.photo.delete()
-    return profile
 
 
 @reference_router.get(
