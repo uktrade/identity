@@ -131,16 +131,18 @@ def update(
         update_fields.append("team_type")
 
     # Validate fields and update team parent before saving the team updates
-    team.full_clean()
-
     if parent:
         update_team_parent(team=team, parent=parent)
 
     # Update team slug after updating the parent in the team tree
-    if slug or name:
-        team.slug = generate_team_slug(name=name, slug=slug, team=team)
+    if slug:
+        team.slug = generate_team_slug(value=slug, team=team)
+        update_fields.append("slug")
+    elif name:
+        team.slug = generate_team_slug(value=name, team=team)
         update_fields.append("slug")
 
+    team.full_clean()
     team.save(update_fields=update_fields)
 
 
@@ -274,13 +276,12 @@ def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> No
     )
 
 
-def generate_team_slug(
-    team: PeopleFinderTeam, name: Optional[str] = None, slug: Optional[str] = None
-) -> str:
+def generate_team_slug(team: PeopleFinderTeam, value: str) -> str:
     """Return a new slug for the given team.
 
     Args:
         team (PeopleFinderTeam): The given team.
+        value: slug or name field value
 
     Raises:
         TeamSlugError: If a unique team slug cannot be generated.
@@ -288,30 +289,26 @@ def generate_team_slug(
     Returns:
         str: A new slug for the PeopleFinderTeam.
     """
-    if slug:
-        return slug
-    elif name:
-        new_slug = slugify(name)
+    new_slug = slugify(value)
 
-        duplicate_slugs = (
-            PeopleFinderTeam.objects.filter(slug=new_slug).exclude(pk=team.pk).exists()
-        )
+    duplicate_slugs = (
+        PeopleFinderTeam.objects.filter(slug=new_slug).exclude(pk=team.pk).exists()
+    )
 
-        # If the new slug isn't unique then append the parent team's name to the front.
-        # Note that if the parent team's name changes it won't be reflected here in the
-        # new slug.
-        if duplicate_slugs:
-            parent_team = get_immediate_parent_team(team)
+    # If the new slug isn't unique then append the parent team's name to the front.
+    # Note that if the parent team's name changes it won't be reflected here in the
+    # new slug.
+    if duplicate_slugs:
+        parent_team = get_immediate_parent_team(team)
 
-            if not parent_team:
-                raise TeamSlugError(
-                    "Cannot generate unique slug as the team is the root team"
-                )
+        if not parent_team:
+            raise TeamSlugError(
+                "Cannot generate unique slug as the team is the root team"
+            )
 
-            new_slug = slugify(f"{parent_team.name} {new_slug}")
+        new_slug = slugify(f"{parent_team.name} {new_slug}")
 
-        return new_slug
-    return team.slug
+    return new_slug
 
 
 def validate_team_parent_update(

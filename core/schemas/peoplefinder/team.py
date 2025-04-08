@@ -31,9 +31,6 @@ class CreateTeamRequest(TeamRequest):
     parent_slug: str
 
 
-class UpdateTeamRequest(TeamRequest): ...
-
-
 class ParentSchema(PeopleFinderTeamMinimalResponse):
     depth: int
 

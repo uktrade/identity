@@ -8,7 +8,7 @@ from core.schemas.peoplefinder.team import (
     PeopleFinderTeamMinimalResponse,
     PeopleFinderTeamResponse,
     PeopleFinderTeamUpdateResponse,
-    UpdateTeamRequest,
+    TeamRequest,
 )
 from profiles.exceptions import ParentTeamDoesNotExist, TeamExists, TeamParentError
 from profiles.models.peoplefinder import (
@@ -95,7 +95,7 @@ def create_team(request, team_request: CreateTeamRequest) -> tuple[int, dict]:
     },
 )
 def update_team(
-    request, slug: str, team_request: UpdateTeamRequest
+    request, slug: str, team_request: TeamRequest
 ) -> tuple[int, PeopleFinderTeamData | dict]:
     """Endpoint to update an existing people finder team"""
     parent = None

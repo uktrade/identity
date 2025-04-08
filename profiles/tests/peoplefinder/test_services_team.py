@@ -330,23 +330,22 @@ def test_team_service(db):
 
     # test `generate_team_slug`
     assert (
-        peoplefinder_team_services.generate_team_slug(team=coo_analysis) == "analysis"
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, value=coo_analysis.slug
+        )
+        == "analysis"
     )
     assert (
         peoplefinder_team_services.generate_team_slug(
-            team=coo_analysis, slug="new-slug", name="corporate-services"
+            team=coo_analysis, value="new-slug"
         )
         == "new-slug"
     )
+
+    coo_analysis.name = "investment"
     assert (
         peoplefinder_team_services.generate_team_slug(
-            team=coo_analysis, name="investment"
+            team=coo_analysis, value=coo_analysis.name
         )
         == "coo-investment"
-    )
-    assert (
-        peoplefinder_team_services.generate_team_slug(
-            team=coo_analysis, name="corporate-services"
-        )
-        == "corporate-services"
     )
