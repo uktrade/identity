@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.db import connection, transaction
 from django.db.models import Q, QuerySet, Subquery
+from django.utils.text import slugify
 
 from profiles.exceptions import (
     ParentTeamDoesNotExist,
@@ -10,8 +11,10 @@ from profiles.exceptions import (
     TeamMemberError,
     TeamParentError,
     TeamRootError,
+    TeamSlugError,
 )
 from profiles.models.peoplefinder import (
+    PeopleFinderHierarchyData,
     PeopleFinderProfileTeam,
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -32,12 +35,12 @@ def get_by_slug(slug: str) -> PeopleFinderTeam:
 def create(
     slug: str,
     name: str,
-    abbreviation: Optional[str],
-    description: Optional[str],
-    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
-    cost_code: Optional[str],
-    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    team_type: Optional[PeopleFinderTeamType],
+    abbreviation: Optional[str] = None,
+    description: Optional[str] = None,
+    cost_code: Optional[str] = None,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -75,61 +78,75 @@ def create(
 
 
 def update(
-    peoplefinder_team: PeopleFinderTeam,
-    name: Optional[str | Unset] = None,
+    team: PeopleFinderTeam,
+    slug: Optional[str] = None,
+    name: Optional[str] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
+    team_type: Optional[PeopleFinderTeamType | Unset] = None,
     parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
-
+    """
+    Updates a people finder team
+    """
     update_fields: list = []
 
-    if name is not None:
-        if name is UNSET:
-            peoplefinder_team.name = None
-        else:
-            peoplefinder_team.name = name
+    # Update fields that are required on the PeopleFinderTeam
+    if name:
+        team.name = name
         update_fields.append("name")
+
+    # Update fields that are optional on the PeopleFinderTeam
     if abbreviation is not None:
         if abbreviation is UNSET:
-            peoplefinder_team.abbreviation = None
+            team.abbreviation = None
         else:
-            peoplefinder_team.abbreviation = abbreviation
+            team.abbreviation = abbreviation
         update_fields.append("abbreviation")
     if description is not None:
         if description is UNSET:
-            peoplefinder_team.description = None
+            team.description = None
         else:
-            peoplefinder_team.description = description
+            team.description = description
         update_fields.append("description")
     if leaders_ordering is not None:
         if leaders_ordering is UNSET:
-            peoplefinder_team.leaders_ordering = None
+            team.leaders_ordering = None
         else:
-            peoplefinder_team.leaders_ordering = leaders_ordering
+            team.leaders_ordering = leaders_ordering
         update_fields.append("leaders_ordering")
     if cost_code is not None:
         if cost_code is UNSET:
-            peoplefinder_team.cost_code = None
+            team.cost_code = None
         else:
-            peoplefinder_team.cost_code = cost_code
+            team.cost_code = cost_code
         update_fields.append("cost_code")
     if team_type is not None:
         if team_type is UNSET:
-            peoplefinder_team.team_type = None
+            team.team_type = None
         else:
-            peoplefinder_team.team_type = team_type
+            team.team_type = team_type
         update_fields.append("team_type")
 
-    peoplefinder_team.full_clean()
-    peoplefinder_team.save(update_fields=update_fields)
+    # Validate team fields
+    team.full_clean()
 
-    # Update team parent
+    # Validate fields and update team parent before saving the team updates
     if parent:
-        update_team_parent(team=peoplefinder_team, parent=parent)
+        update_team_parent(team=team, parent=parent)
+
+    # Update team slug after updating the parent in the team tree
+    if slug:
+        team.slug = generate_team_slug(value=slug, team=team)
+        update_fields.append("slug")
+    elif name:
+        team.slug = generate_team_slug(value=name, team=team)
+        update_fields.append("slug")
+
+    # Save updated team fields
+    team.save(update_fields=update_fields)
 
 
 def delete(team: PeopleFinderTeam) -> None:
@@ -154,7 +171,7 @@ def delete(team: PeopleFinderTeam) -> None:
     team.delete()
 
 
-def get_team_hierarchy() -> PeopleFinderTeamData:
+def get_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Get all teams data in the team tree
     """
@@ -169,7 +186,7 @@ def get_team_hierarchy() -> PeopleFinderTeamData:
             children_map[relation.parent_id] = []
         children_map[relation.parent_id].append(relation.child)
 
-    def build_team_node(team):
+    def build_team_node(team) -> PeopleFinderHierarchyData:
         return {
             "slug": team.slug,
             "name": team.name,
@@ -196,7 +213,10 @@ def get_team_and_parents(team: PeopleFinderTeam) -> PeopleFinderTeamData:
         "slug": team.slug,
         "name": team.name,
         "abbreviation": team.abbreviation,
-        "children": None,
+        "description": team.description,
+        "leaders_ordering": team.leaders_ordering,
+        "cost_code": team.cost_code,
+        "team_type": team.team_type,
         "parents": [
             {
                 "slug": branch.parent.slug,
@@ -257,6 +277,41 @@ def add_team_to_teamtree(team: PeopleFinderTeam, parent: PeopleFinderTeam) -> No
             ),
         ]
     )
+
+
+def generate_team_slug(team: PeopleFinderTeam, value: str) -> str:
+    """Return a new slug for the given team.
+
+    Args:
+        team (PeopleFinderTeam): The given team.
+        value: slug or name field value
+
+    Raises:
+        TeamSlugError: If a unique team slug cannot be generated.
+
+    Returns:
+        str: A new slug for the PeopleFinderTeam.
+    """
+    new_slug = slugify(value)
+
+    duplicate_slugs = (
+        PeopleFinderTeam.objects.filter(slug=new_slug).exclude(pk=team.pk).exists()
+    )
+
+    # If the new slug isn't unique then append the parent team's name to the front.
+    # Note that if the parent team's name changes it won't be reflected here in the
+    # new slug.
+    if duplicate_slugs:
+        parent_team = get_immediate_parent_team(team)
+
+        if not parent_team:
+            raise TeamSlugError(
+                "Cannot generate unique slug as the team is the root team"
+            )
+
+        new_slug = slugify(f"{parent_team.name} {new_slug}")
+
+    return new_slug
 
 
 def validate_team_parent_update(

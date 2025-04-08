@@ -271,17 +271,19 @@ def test_create_peoplefinder_team_core_services(peoplefinder_team):
 
 def test_update_peoplefinder_team(peoplefinder_team):
     services.update_peoplefinder_team(
-        slug=peoplefinder_team.slug,
+        team=peoplefinder_team,
+        slug=None,
         name="New Name",
         abbreviation="NABV",
         description="New Desc",
-        leaders_ordering="custom",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("custom"),
         cost_code="CC123",
-        team_type="directorate",
+        team_type=PeopleFinderTeamType("directorate"),
     )
 
     peoplefinder_team.refresh_from_db()
     assert peoplefinder_team.name == "New Name"
+    assert peoplefinder_team.slug == "new-name"
     assert peoplefinder_team.abbreviation == "NABV"
     assert peoplefinder_team.description == "New Desc"
     assert peoplefinder_team.cost_code == "CC123"
@@ -294,14 +296,14 @@ def test_delete_peoplefinder_team(peoplefinder_team):
     Test deletion of a peoplefinder team
     """
     team_to_delete = services.create_peoplefinder_team(
-        "test-1",
-        "test-1",
-        "tr-1",
-        "test-1",
-        PeopleFinderTeamLeadersOrdering("alphabetical"),
-        "test-1",
-        PeopleFinderTeamType("standard"),
-        peoplefinder_team,
+        slug="test-1",
+        name="test-1",
+        abbreviation="tr-1",
+        description="test-1",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        cost_code="test-1",
+        team_type=PeopleFinderTeamType("standard"),
+        parent=peoplefinder_team,
     )
 
     services.delete_peoplefinder_team(slug=team_to_delete.slug)
@@ -340,14 +342,14 @@ def test_delete_peoplefinder_team_active_members(
     Test deletion fails when deleting a team that has active members
     """
     team_to_delete = services.create_peoplefinder_team(
-        "test-1",
-        "test-1",
-        "tr-1",
-        "test-1",
-        PeopleFinderTeamLeadersOrdering("alphabetical"),
-        "test-1",
-        PeopleFinderTeamType("standard"),
-        peoplefinder_team,
+        slug="test-1",
+        name="test-1",
+        abbreviation="tr-1",
+        description="test-1",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        cost_code="test-1",
+        team_type=PeopleFinderTeamType("standard"),
+        parent=peoplefinder_team,
     )
 
     # TODO add missing service methods
@@ -370,26 +372,26 @@ def test_delete_peoplefinder_team_has_sub_teams(peoplefinder_team):
     """
 
     team_to_delete = services.create_peoplefinder_team(
-        "test-1",
-        "test-1",
-        "tr-1",
-        "test-1",
-        PeopleFinderTeamLeadersOrdering("alphabetical"),
-        "test-1",
-        PeopleFinderTeamType("standard"),
-        peoplefinder_team,
+        slug="test-1",
+        name="test-1",
+        abbreviation="tr-1",
+        description="test-1",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        cost_code="test-1",
+        team_type=PeopleFinderTeamType("standard"),
+        parent=peoplefinder_team,
     )
 
     # create sub team
     services.create_peoplefinder_team(
-        "test-2",
-        "test-2",
-        "tr-2",
-        "test-2",
-        PeopleFinderTeamLeadersOrdering("alphabetical"),
-        "test-2",
-        PeopleFinderTeamType("standard"),
-        team_to_delete,
+        slug="test-2",
+        name="test-2",
+        abbreviation="tr-2",
+        description="test-2",
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        cost_code="test-2",
+        team_type=PeopleFinderTeamType("standard"),
+        parent=team_to_delete,
     )
 
     with pytest.raises(TeamChildError) as pex:

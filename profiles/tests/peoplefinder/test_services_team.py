@@ -103,7 +103,7 @@ def test_update_team(peoplefinder_team):
     }
 
     peoplefinder_team_services.update(
-        peoplefinder_team=ex,
+        team=ex,
         name="New team name",
         description="New Team Description",
         cost_code=UNSET,
@@ -113,6 +113,7 @@ def test_update_team(peoplefinder_team):
 
     # Check the team name, cost code and description after update
     assert ex.name == "New team name"
+    assert ex.slug == "new-team-name"
     assert ex.description == "New Team Description"
     assert ex.cost_code is None
 
@@ -206,7 +207,10 @@ def test_get_team_and_parents(peoplefinder_team):
         "slug": ex.slug,
         "name": ex.name,
         "abbreviation": ex.abbreviation,
-        "children": None,
+        "description": "We support the platforms, products, tools and services that help our colleagues to do their jobs.",
+        "leaders_ordering": PeopleFinderTeamLeadersOrdering.CUSTOM,
+        "cost_code": "EX_cost_code",
+        "team_type": PeopleFinderTeamType.PORTFOLIO,
         "parents": [
             {
                 "slug": peoplefinder_team.slug,
@@ -323,3 +327,25 @@ def test_team_service(db):
         peoplefinder_team_services.update_team_parent(
             dit, PeopleFinderTeam(name="Test")
         )
+
+    # test `generate_team_slug`
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, value=coo_analysis.slug
+        )
+        == "analysis"
+    )
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, value="new-slug"
+        )
+        == "new-slug"
+    )
+
+    coo_analysis.name = "investment"
+    assert (
+        peoplefinder_team_services.generate_team_slug(
+            team=coo_analysis, value=coo_analysis.name
+        )
+        == "coo-investment"
+    )

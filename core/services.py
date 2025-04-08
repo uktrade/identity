@@ -9,6 +9,7 @@ from profiles.models.generic import Country, Grade, Profession, UkStaffLocation
 from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
+    PeopleFinderHierarchyData,
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -306,12 +307,12 @@ def get_peoplefinder_team_by_slug(slug: str) -> PeopleFinderTeam:
 def create_peoplefinder_team(
     slug: str,
     name: str,
-    abbreviation: Optional[str],
-    description: Optional[str],
-    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
-    cost_code: Optional[str],
-    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    team_type: Optional[PeopleFinderTeamType],
+    abbreviation: Optional[str] = None,
+    description: Optional[str] = None,
+    cost_code: Optional[str] = None,
 ) -> PeopleFinderTeam:
     """
     Function to create a people finder team
@@ -329,16 +330,21 @@ def create_peoplefinder_team(
 
 
 def update_peoplefinder_team(
-    slug: str,
-    name: Optional[str | Unset] = None,
+    team: PeopleFinderTeam,
+    slug: Optional[str] = None,
+    name: Optional[str] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | PeopleFinderTeamLeadersOrdering | Unset] = None,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | PeopleFinderTeamType | Unset] = None,
+    team_type: Optional[PeopleFinderTeamType | Unset] = None,
     parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
+    """
+    Function to update a people finder team
+    """
     profile_services.update_peoplefinder_team(
+        team=team,
         slug=slug,
         name=name,
         abbreviation=abbreviation,
@@ -357,7 +363,7 @@ def delete_peoplefinder_team(slug: str) -> None:
     profile_services.delete_peoplefinder_team(slug=slug)
 
 
-def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Function for getting a dictionary of all teams in the team tree
     """
