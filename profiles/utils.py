@@ -33,7 +33,7 @@ def resize_image(
     approach: RatioApproach = RatioApproach.CROP,
 ):
     # @TODO maybe get_file_from_storages?
-    image: Image.Image| None = Image.open(original_filename)
+    image: Image.Image = Image.open(original_filename)
     original_dimensions = image.size
     orig_width, orig_height = original_dimensions
     tgt_width, tgt_height = target_dimensions
@@ -47,22 +47,21 @@ def resize_image(
         raise NotImplementedError()
 
     # ensure image right way up and right colour space
-    if image is not None:
-        image = ImageOps.exif_transpose(image)
-        if image.mode not in ("L", "RGB"): # type: ignore
-            image = image.convert("RGB") # type: ignore
+    image = ImageOps.exif_transpose(image)  # type: ignore
+    if image.mode not in ("L", "RGB"):
+        image = image.convert("RGB")
 
     # crop if needed
     dimension, amount = get_crop_dimensions(
         original_dimensions=original_dimensions,
         target_dimensions=target_dimensions,
     )
-    if dimension is not None:
+    if dimension is not None and amount is not None:
         image = image.crop(
             get_crop_values(
                 original_dimensions=original_dimensions,
                 dimension=dimension,
-                amount_to_remove=amount,  # type: ignore
+                amount_to_remove=amount,
                 focus_point=focus_point,
             )
         )
@@ -75,11 +74,7 @@ def resize_image(
 def get_crop_dimensions(
     original_dimensions: ImageDimensions,
     target_dimensions: ImageDimensions,
-) -> (
-    tuple[Literal[Dimension.WIDTH], int]
-    | tuple[Literal[Dimension.HEIGHT], int]
-    | tuple[None, None]
-):
+) -> tuple[Dimension, int] | tuple[None, None]:
     orig_width, orig_height = original_dimensions
     tgt_width, tgt_height = target_dimensions
     original_ratio = orig_width / orig_height
