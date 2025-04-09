@@ -160,7 +160,7 @@ def get_crop_values(
 
 def get_filename_for_image_size(original_filename: str, prefix: str):
     head, tail = os.path.split(original_filename)
-    return f"{head}{prefix}{tail}"
+    return f"{head}/{prefix}/{tail}"
 
 
 def get_dimensions_and_prefix_from_standard_size(
