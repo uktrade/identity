@@ -11,7 +11,7 @@ from core.api.sso_profile import router as sso_profile_router
 
 
 def do_hawk_auth(request) -> bool:
-    if settings.APP_ENV in ("local", "test"):
+    if settings.APP_ENV in ("local", "test", "staging"):
         return True
     try:
         return authenticate_request(request)
