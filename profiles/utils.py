@@ -125,11 +125,22 @@ def get_crop_values(
             FocusPointOption.TOP_RIGHT,
         ):
             left = amount_to_remove
-        elif type(focus_point) == Point:
+        else:
+            if type(focus_point) not in (Point, tuple, ):
+                raise TypeError("focus_point is not FocusPointOption or Point")
+
             x, _ = focus_point  # type: ignore
+            if x > orig_width:
+                raise ValueError("Focus point value must be within image dimensions")
+
             amount_to_keep = orig_width - amount_to_remove
-            left = min(int(x - (amount_to_keep / 2)), 0)
-            right = orig_width - (amount_to_remove - left)
+            midpoint = int(amount_to_keep / 2)
+            left = x - midpoint
+            if left <= 0:
+                left = 0
+            elif (left + amount_to_keep) > orig_height:
+                left = amount_to_remove
+            right = orig_height - (amount_to_remove - left)
     elif dimension == Dimension.HEIGHT:
         if focus_point in (
             FocusPointOption.BOTTOM_LEFT,
@@ -150,11 +161,22 @@ def get_crop_values(
             FocusPointOption.TOP_RIGHT,
         ):
             bottom = orig_height - amount_to_remove
-        elif type(focus_point) == Point:
+        else:
+            if type(focus_point) not in (Point, tuple, ):
+                raise TypeError("focus_point is not FocusPointOption or Point")
+
             _, y = focus_point  # type: ignore
+            if y > orig_height:
+                raise ValueError("Focus point value must be within image dimensions")
+
             amount_to_keep = orig_height - amount_to_remove
-            top = min(int(y - (amount_to_keep / 2)), 0)
-            bottom = orig_height - (amount_to_remove - bottom)
+            midpoint = int(amount_to_keep / 2)
+            top = y - midpoint
+            if top <= 0:
+                top = 0
+            elif (top + amount_to_keep) > orig_height:
+                top = amount_to_remove
+            bottom = orig_height - (amount_to_remove - top)
     return (left, top, right, bottom)
 
 

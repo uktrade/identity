@@ -1,3 +1,4 @@
+from ctypes import util
 import pytest
 
 from profiles import types, utils
@@ -103,14 +104,71 @@ def test_get_crop_values():
     #
     # Custom focus
     #
-    focus = (500, 500)
+    dimension = types.Dimension.HEIGHT
+    focus = (500, 500)  # type:ignore
     assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (0, 50, 1000, 950)
 
-    focus = (450, 450)
-    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (0, 0, 950, 950)
+    focus = (450, 450)  # type:ignore
+    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (0, 0, 1000, 900)
+
+    focus = (750, 750)  # type:ignore
+    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (0, 100, 1000, 1000)
+
+    dimension = types.Dimension.WIDTH
+    focus = (500, 500)  # type:ignore
+    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (50, 0, 950, 1000)
+
+    focus = (450, 450)  # type:ignore
+    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (0, 0, 900, 1000)
+
+    focus = (750, 750)  # type:ignore
+    assert utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,) == (100, 0, 1000, 1000)
+
+    focus = (1200, 1200)  # type: ignore
+    with pytest.raises(ValueError):
+        utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,)
+
+    dimension = types.Dimension.HEIGHT
+    with pytest.raises(ValueError):
+        utils.get_crop_values(original_dimensions=orig_dimensions, dimension=dimension, amount_to_remove=amt, focus_point=focus,)
 
 def test_get_crop_dimensions():
-    assert False
+    orig_dimensions = (100, 300)
+    tgt_dimensions = (100, 300)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (None, None)
+
+    tgt_dimensions = (50, 150)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (None, None)
+
+    tgt_dimensions = (200, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (None, None)
+
+    tgt_dimensions = (100, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.WIDTH, 50)
+
+    tgt_dimensions = (300, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.HEIGHT, 100)
+
+    orig_dimensions = (300, 100)
+
+    tgt_dimensions = (100, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.WIDTH, 283)
+
+    tgt_dimensions = (300, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.WIDTH, 250)
+
+    tgt_dimensions = (600, 600)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.WIDTH, 200)
+
+    tgt_dimensions = (600, 300)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.WIDTH, 100)
+
+    tgt_dimensions = (1200, 300)
+    assert utils.get_crop_dimensions(original_dimensions=orig_dimensions, target_dimensions=tgt_dimensions,) == (types.Dimension.HEIGHT, 25)
+
 
 def test_resize_image():
+    assert False
+
+def test_get_or_create_sized_image():
     assert False
