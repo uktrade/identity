@@ -10,15 +10,15 @@ def test_get_standard_profile_photo():
     assert False
 
 
-def test_get_main_profile_photo():
+def test_get_main_profile_photo(mocker):
     mock_std_profile = mocker.patch("profiles.services.image.get_standard_profile_photo")
-    image.get_thumbnail_profile_photo(slug="a-slug")
+    image.get_main_profile_photo(slug="a-slug")
     mock_std_profile.assert_called_once_with(slug="a-slug", standard_size=types.ImageStandardSizes.MAIN)
 
 
-def test_get_small_profile_photo():
+def test_get_small_profile_photo(mocker):
     mock_std_profile = mocker.patch("profiles.services.image.get_standard_profile_photo")
-    image.get_thumbnail_profile_photo(slug="a-slug")
+    image.get_small_profile_photo(slug="a-slug")
     mock_std_profile.assert_called_once_with(slug="a-slug", standard_size=types.ImageStandardSizes.SMALL)
 
 

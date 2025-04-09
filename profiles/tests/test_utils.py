@@ -1,4 +1,3 @@
-from ctypes import util
 import pytest
 
 from profiles import types, utils

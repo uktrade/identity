@@ -17,12 +17,12 @@ def get_standard_profile_photo(slug: str, standard_size: ImageStandardSizes):
 
 
 def get_main_profile_photo(slug: str):
-    return get_standard_profile_photo(slug, ImageStandardSizes.MAIN)
+    return get_standard_profile_photo(slug=slug, standard_size=ImageStandardSizes.MAIN)
 
 
 def get_small_profile_photo(slug: str):
-    return get_standard_profile_photo(slug, ImageStandardSizes.SMALL)
+    return get_standard_profile_photo(slug=slug, standard_size=ImageStandardSizes.SMALL)
 
 
 def get_thumbnail_profile_photo(slug: str):
-    return get_standard_profile_photo(slug, ImageStandardSizes.THUMBNAIL)
+    return get_standard_profile_photo(slug=slug, standard_size=ImageStandardSizes.THUMBNAIL)
