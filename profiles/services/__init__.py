@@ -18,6 +18,7 @@ from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
     LearningInterest,
+    PeopleFinderHierarchyData,
     PeopleFinderProfile,
     PeopleFinderTeam,
     PeopleFinderTeamData,
@@ -433,12 +434,12 @@ def get_peoplefinder_team_by_slug(slug: str) -> PeopleFinderTeam:
 def create_peoplefinder_team(
     slug: str,
     name: str,
-    abbreviation: Optional[str],
-    description: Optional[str],
-    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
-    cost_code: Optional[str],
-    team_type: Optional[PeopleFinderTeamType],
     parent: PeopleFinderTeam,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering],
+    team_type: Optional[PeopleFinderTeamType],
+    abbreviation: Optional[str] = None,
+    description: Optional[str] = None,
+    cost_code: Optional[str] = None,
 ) -> PeopleFinderTeam:
     """
     Creates a people finder team
@@ -456,18 +457,22 @@ def create_peoplefinder_team(
 
 
 def update_peoplefinder_team(
-    slug: str,
-    name: Optional[str | Unset] = None,
+    team: PeopleFinderTeam,
+    slug: Optional[str] = None,
+    name: Optional[str] = None,
     abbreviation: Optional[str | Unset] = None,
     description: Optional[str | Unset] = None,
-    leaders_ordering: Optional[str | Unset] = None,
+    leaders_ordering: Optional[PeopleFinderTeamLeadersOrdering | Unset] = None,
     cost_code: Optional[str | Unset] = None,
-    team_type: Optional[str | Unset] = None,
+    team_type: Optional[PeopleFinderTeamType | Unset] = None,
     parent: Optional[PeopleFinderTeam] = None,
 ) -> None:
-    peoplefinder_team = peoplefinder_team_services.get_by_slug(slug=slug)
+    """
+    Updates a people finder team
+    """
     peoplefinder_team_services.update(
-        peoplefinder_team=peoplefinder_team,
+        team=team,
+        slug=slug,
         name=name,
         abbreviation=abbreviation,
         description=description,
@@ -483,7 +488,7 @@ def delete_peoplefinder_team(slug: str) -> None:
     peoplefinder_team_services.delete(team=team)
 
 
-def get_peoplefinder_team_hierarchy() -> PeopleFinderTeamData:
+def get_peoplefinder_team_hierarchy() -> PeopleFinderHierarchyData:
     """
     Get all teams data in the team tree
     """

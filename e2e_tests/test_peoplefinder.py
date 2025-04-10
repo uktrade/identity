@@ -14,8 +14,11 @@ from profiles.models.peoplefinder import (
     AdditionalRole,
     KeySkill,
     PeopleFinderTeam,
+    PeopleFinderTeamLeadersOrdering,
+    PeopleFinderTeamType,
     RemoteWorking,
 )
+from profiles.services import create_peoplefinder_team
 from profiles.services.image import get_main_profile_photo
 
 
@@ -312,7 +315,7 @@ def test_create_team(peoplefinder_team):
         "name": "Riverjack",
         "abbreviation": "RJ",
     }
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert json.loads(response.content) == expected
 
     # Test case 2) peoplefinder team already exists
@@ -382,6 +385,147 @@ def test_create_team(peoplefinder_team):
     assert response.status_code == 404
     assert json.loads(response.content) == {
         "message": "Parent team is not in the team hierarchy"
+    }
+
+
+def test_update_team(peoplefinder_team):
+    client = Client()
+    analysis = create_peoplefinder_team(
+        name="Analysis",
+        slug="analysis",
+        parent=peoplefinder_team,
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        team_type=PeopleFinderTeamType("standard"),
+    )
+    ex = create_peoplefinder_team(
+        name="Employee Experience",
+        slug="employee-experience",
+        parent=peoplefinder_team,
+        leaders_ordering=PeopleFinderTeamLeadersOrdering("alphabetical"),
+        team_type=PeopleFinderTeamType("standard"),
+    )
+
+    # Test case 1) peoplefinder team is successfully updated
+    update_team_request = {
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parent_slug": analysis.slug,
+    }
+    url = reverse("people-finder:update_team", args=(str(ex.slug),))
+    response = client.put(
+        url,
+        data=update_team_request,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == {
+        "slug": "employee-experience-team",
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parents": [
+            {
+                "slug": "analysis",
+                "name": "Analysis",
+                "abbreviation": None,
+                "depth": 1,
+            },
+            {
+                "slug": "root-team",
+                "name": "Root team",
+                "abbreviation": "RT",
+                "depth": 2,
+            },
+        ],
+    }
+    # Refresh to get up to date data for ex
+    ex.refresh_from_db()
+
+    # Test case 2) peoplefinder team does not exist
+    url = reverse("people-finder:update_team", args=["not-a-team"])
+    response = client.put(
+        url,
+        data=update_team_request,
+        content_type="application/json",
+    )
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "People finder team does not exist"
+    }
+
+    # Test case 3) peoplefinder parent team does not exist
+    update_team_invalid_parent_request = {
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parent_slug": "non-existing",
+    }
+
+    url = reverse("people-finder:update_team", args=(str(ex.slug),))
+    response = client.put(
+        url,
+        data=update_team_invalid_parent_request,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 404
+    assert json.loads(response.content) == {
+        "message": "Cannot update the people finder team, parent team does not exist"
+    }
+
+    # Test case 4) update slug via api request
+    update_team_slug_request = {
+        "slug": "new-slug",
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parent_slug": analysis.slug,
+    }
+
+    url = reverse("people-finder:update_team", args=(str(ex.slug),))
+    response = client.put(
+        url,
+        data=update_team_slug_request,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == {
+        "slug": "new-slug",
+        "name": "Employee Experience Team",
+        "abbreviation": "EX",
+        "description": None,
+        "leaders_ordering": "alphabetical",
+        "cost_code": None,
+        "team_type": "standard",
+        "parents": [
+            {
+                "slug": "analysis",
+                "name": "Analysis",
+                "abbreviation": None,
+                "depth": 1,
+            },
+            {
+                "slug": "root-team",
+                "name": "Root team",
+                "abbreviation": "RT",
+                "depth": 2,
+            },
+        ],
     }
 
 
