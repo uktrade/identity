@@ -522,9 +522,10 @@ def test_get_or_create_sized_image(mocker):
     save_file.assert_not_called()
 
     open_file.side_effect = [
-        FileNotFoundError,
-        file,
-    ]  # raises on the first call but not the second
+        FileNotFoundError,  # uncreated sizxed file
+        file,  # oringinal file
+        sized_file,  # newly created sized file
+    ]
     open_file.reset_mock()
     assert (
         utils.get_or_create_sized_image(

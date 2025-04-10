@@ -1,14 +1,11 @@
 import datetime as dt
-from io import BytesIO
 import json
 import os
 import uuid
 
 import pytest
-from django.http import StreamingHttpResponse
 from django.test.client import Client
 from django.urls import reverse
-from regex import B
 
 from core.schemas.peoplefinder.profile import CreateProfileRequest, UpdateProfileRequest
 from profiles.models import LearningInterest, Workday
@@ -19,6 +16,7 @@ from profiles.models.peoplefinder import (
     PeopleFinderTeam,
     RemoteWorking,
 )
+from profiles.services.image import get_main_profile_photo
 
 
 pytestmark = [
@@ -392,7 +390,6 @@ def test_upload_delete_photo(peoplefinder_profile):
     filepath = "docker/.localstack/fixtures/photo.jpg"
     client = Client()
     client.force_login(peoplefinder_profile.user)
-    local_file_size = os.path.getsize(filepath)
 
     response = client.get(url)
     assert response.status_code == 200
@@ -405,24 +402,17 @@ def test_upload_delete_photo(peoplefinder_profile):
         )
         assert response.status_code == 200
         peoplefinder_profile.refresh_from_db()
-        assert peoplefinder_profile.photo.size == local_file_size
+        assert peoplefinder_profile.photo.size == os.path.getsize(filepath)
 
     response = client.get(url)
     assert response.status_code == 200
-    if isinstance(response, StreamingHttpResponse):
-        content = response.getvalue().decode('utf-8')
-    else:
-        content = response.content
-    assert len(content) == local_file_size
+    main_image = get_main_profile_photo(peoplefinder_profile.slug)
+    assert int(response.headers["Content-Length"]) == main_image.size  # type: ignore
 
     url = reverse("core:photo", args=(str(peoplefinder_profile.slug), 80, 80))
     response = client.get(url)
     assert response.status_code == 200
-    if isinstance(response, StreamingHttpResponse):
-        content = response.getvalue()
-    else:
-        content = response.content
-    assert 0 < len(content) < local_file_size
+    assert 0 < int(response.headers["Content-Length"]) < main_image.size  # type: ignore
 
     url = reverse("core:photo", args=(str(peoplefinder_profile.slug),))
     response = client.delete(url)
@@ -432,7 +422,7 @@ def test_upload_delete_photo(peoplefinder_profile):
 
     response = client.get(url)
     assert response.status_code == 200
-    assert len(content) == 0
+    assert response.headers["Content-Length"] == "0"
 
     filepath = "docker/.localstack/fixtures/staff_sso.jsonl"
     with open(filepath, "rb") as file:

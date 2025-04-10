@@ -1,6 +1,6 @@
-from io import BytesIO
 import json
 import mimetypes
+from io import BytesIO
 
 from django import forms
 from django.conf import settings
@@ -24,9 +24,9 @@ from django.views.decorators.csrf import csrf_exempt
 from core import services
 from core.api import do_hawk_auth
 from core.schemas.peoplefinder.profile import ProfileResponse
+from profiles import utils
 from profiles.models.peoplefinder import PeopleFinderProfile
 from profiles.services import image as img_service
-from profiles import utils
 
 
 class PhotoForm(forms.Form):
@@ -72,7 +72,7 @@ def profile_photo_handler(request: HttpRequest, slug: str):
     return HttpResponseNotAllowed(["GET", "POST", "DELETE"])
 
 
-def get_profile_photo(request, slug: str, x:int|None = None, y:int|None = None):
+def get_profile_photo(request, slug: str, x: int | None = None, y: int | None = None):
     """
     Proxy endpoint to retrieve profile photo. Ensures requesting user is authenticated.
     """
@@ -98,7 +98,9 @@ def get_profile_photo(request, slug: str, x:int|None = None, y:int|None = None):
     else:
         size = (x, y)
         prefix = f"{x}x{y}"
-        image = utils.get_or_create_sized_image(original_filename=profile.photo.name, size=size, prefix=prefix)
+        image = utils.get_or_create_sized_image(
+            original_filename=profile.photo.name, size=size, prefix=prefix
+        )
 
     return FileResponse(image, True)
 
