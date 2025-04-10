@@ -1,3 +1,4 @@
+from io import BytesIO
 import json
 import mimetypes
 
@@ -5,7 +6,9 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.files.base import File
 from django.http import (
+    FileResponse,
     Http404,
     HttpRequest,
     HttpResponse,
@@ -13,6 +16,7 @@ from django.http import (
     HttpResponseForbidden,
     HttpResponseNotAllowed,
     HttpResponseNotFound,
+    StreamingHttpResponse,
 )
 from django.shortcuts import HttpResponse, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -21,6 +25,8 @@ from core import services
 from core.api import do_hawk_auth
 from core.schemas.peoplefinder.profile import ProfileResponse
 from profiles.models.peoplefinder import PeopleFinderProfile
+from profiles.services import image as img_service
+from profiles import utils
 
 
 class PhotoForm(forms.Form):
@@ -66,12 +72,16 @@ def profile_photo_handler(request: HttpRequest, slug: str):
     return HttpResponseNotAllowed(["GET", "POST", "DELETE"])
 
 
-def get_profile_photo(request, slug: str):
+def get_profile_photo(request, slug: str, x:int|None = None, y:int|None = None):
     """
     Proxy endpoint to retrieve profile photo. Ensures requesting user is authenticated.
     """
     if not request.user.is_authenticated:
         return redirect(f"{settings.LOGIN_URL}")
+
+    if request.method != "GET":
+        # generally means someone has tried to access the resize param URL
+        return HttpResponseNotAllowed(["GET"])
 
     try:
         profile = services.get_peoplefinder_profile_by_slug(slug=slug)
@@ -81,11 +91,16 @@ def get_profile_photo(request, slug: str):
     if not bool(profile.photo):
         return HttpResponse("")
 
-    image = profile.photo.open()
-    response = HttpResponse(content=image)
-    response["Content-Type"] = str(mimetypes.guess_type(image.url)[0])
-    response["Content-Length"] = image.size
-    return response
+    if x is None:
+        image = img_service.get_main_profile_photo(slug)
+    elif y is None:
+        raise ValueError("If X is set Y must also be set for a custom image dimension")
+    else:
+        size = (x, y)
+        prefix = f"{x}x{y}"
+        image = utils.get_or_create_sized_image(original_filename=profile.photo.name, size=size, prefix=prefix)
+
+    return FileResponse(image, True)
 
 
 @csrf_exempt

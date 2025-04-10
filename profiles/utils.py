@@ -17,7 +17,7 @@ from profiles.types import (
 
 def get_or_create_sized_image(
     original_filename: str, size: ImageDimensions, prefix: str
-):
+) -> File:
     filename = get_filename_for_image_size(original_filename, prefix)
 
     try:
@@ -28,7 +28,9 @@ def get_or_create_sized_image(
         image = resize_image(file=original_file, target_dimensions=size)
         file = BytesIO()
         image.save(file, format="JPEG")
+        file.seek(0)
         save_file_to_storages(filename, file)
+        file = open_file_from_storages(filename)
     return file
 
 
