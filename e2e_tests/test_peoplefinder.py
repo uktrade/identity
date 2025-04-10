@@ -19,6 +19,7 @@ from profiles.models.peoplefinder import (
     RemoteWorking,
 )
 from profiles.services import create_peoplefinder_team
+from profiles.services.image import get_main_profile_photo
 
 
 pytestmark = [
@@ -532,6 +533,11 @@ def test_upload_delete_photo(peoplefinder_profile):
     url = reverse("core:photo", args=(str(peoplefinder_profile.slug),))
     filepath = "docker/.localstack/fixtures/photo.jpg"
     client = Client()
+    client.force_login(peoplefinder_profile.user)
+
+    response = client.get(url)
+    assert response.status_code == 200
+    assert len(response.content) == 0
 
     with open(filepath, "rb") as file:
         response = client.post(
@@ -542,10 +548,25 @@ def test_upload_delete_photo(peoplefinder_profile):
         peoplefinder_profile.refresh_from_db()
         assert peoplefinder_profile.photo.size == os.path.getsize(filepath)
 
+    response = client.get(url)
+    assert response.status_code == 200
+    main_image = get_main_profile_photo(peoplefinder_profile.slug)
+    assert int(response.headers["Content-Length"]) == main_image.size  # type: ignore
+
+    url = reverse("core:photo", args=(str(peoplefinder_profile.slug), 80, 80))
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 0 < int(response.headers["Content-Length"]) < main_image.size  # type: ignore
+
+    url = reverse("core:photo", args=(str(peoplefinder_profile.slug),))
     response = client.delete(url)
     assert response.status_code == 200
     peoplefinder_profile.refresh_from_db()
     assert bool(peoplefinder_profile.photo) is False
+
+    response = client.get(url)
+    assert response.status_code == 200
+    assert response.headers["Content-Length"] == "0"
 
     filepath = "docker/.localstack/fixtures/staff_sso.jsonl"
     with open(filepath, "rb") as file:
