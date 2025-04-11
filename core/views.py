@@ -3,7 +3,7 @@ import mimetypes
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_not_required, login_required
 from django.core.exceptions import ValidationError
 from django.http import (
     Http404,
@@ -51,6 +51,7 @@ class PhotoForm(forms.Form):
 
 
 @csrf_exempt
+@login_not_required
 def profile_photo_handler(request: HttpRequest, slug: str):
     """
     Sends the request to the right function based on the method
