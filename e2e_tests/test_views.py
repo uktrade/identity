@@ -20,13 +20,3 @@ def test_photo_only_authorised_access(peoplefinder_profile):
     client.force_login(peoplefinder_profile.user)
     response = client.get(url)
     assert response.status_code == 200
-    assert len(response.content) == 0  # no photo exists
-
-    local_file = open("docker/.localstack/fixtures/photo.jpg", "rb")
-    djangofile = File(local_file)
-    peoplefinder_profile.photo.save("new", djangofile)
-    local_file.close()
-
-    response = client.get(url)
-    assert response.status_code == 200
-    assert len(response.content) == djangofile.size

@@ -1,6 +1,7 @@
 import os
-from typing import Literal
+from io import BytesIO
 
+from django.core.files.base import File
 from django.core.files.storage import storages
 from PIL import Image, ImageOps
 
@@ -16,24 +17,30 @@ from profiles.types import (
 
 def get_or_create_sized_image(
     original_filename: str, size: ImageDimensions, prefix: str
-):
+) -> File:
     filename = get_filename_for_image_size(original_filename, prefix)
 
-    # if not profile.photo.storage.exists(filename):
-    #     resize_image(profile.photo.name, filename, size,)
-    # @TODO need to edit this all to use storages or boto to talk to S3
+    try:
+        file = open_file_from_storages(filename)
+    except FileNotFoundError:
+        # if this raises FileNotFoundError we want that to bubble up
+        original_file = open_file_from_storages(original_filename)
+        image = resize_image(file=original_file, target_dimensions=size)
+        file = BytesIO()
+        image.save(file, format="JPEG")
+        file.seek(0)
+        save_file_to_storages(filename, file)
+        file = open_file_from_storages(filename)
+    return file
 
 
-# @TODO maybe dont do actual file operations in here so we can more easily use storages - see https://stackoverflow.com/questions/3723220/how-do-you-convert-a-pil-image-to-a-django-file
 def resize_image(
-    original_filename: str,
-    target_filename: str,
+    file: File,
     target_dimensions: ImageDimensions,
     focus_point: FocusPointOption | Point = FocusPointOption.CENTER,
     approach: RatioApproach = RatioApproach.CROP,
 ):
-    # @TODO maybe get_file_from_storages?
-    image: Image.Image = Image.open(original_filename)
+    image: Image.Image = Image.open(file)
     original_dimensions = image.size
     orig_width, orig_height = original_dimensions
     tgt_width, tgt_height = target_dimensions
@@ -66,9 +73,7 @@ def resize_image(
             )
         )
 
-    image = image.resize(target_dimensions, Image.Resampling.BICUBIC)
-    # @TODO maybe write_file_to_storages ?
-    image.save(target_filename)
+    return image.resize(target_dimensions, Image.Resampling.BICUBIC)
 
 
 def get_crop_dimensions(
@@ -125,11 +130,25 @@ def get_crop_values(
             FocusPointOption.TOP_RIGHT,
         ):
             left = amount_to_remove
-        elif type(focus_point) == Point:
+        else:
+            if type(focus_point) not in (
+                Point,
+                tuple,
+            ):
+                raise TypeError("focus_point is not FocusPointOption or Point")
+
             x, _ = focus_point  # type: ignore
+            if x > orig_width:
+                raise ValueError("Focus point value must be within image dimensions")
+
             amount_to_keep = orig_width - amount_to_remove
-            left = min(int(x - (amount_to_keep / 2)), 0)
-            right = orig_width - (amount_to_remove - left)
+            midpoint = int(amount_to_keep / 2)
+            left = x - midpoint
+            if left <= 0:
+                left = 0
+            elif (left + amount_to_keep) > orig_height:
+                left = amount_to_remove
+            right = orig_height - (amount_to_remove - left)
     elif dimension == Dimension.HEIGHT:
         if focus_point in (
             FocusPointOption.BOTTOM_LEFT,
@@ -150,17 +169,31 @@ def get_crop_values(
             FocusPointOption.TOP_RIGHT,
         ):
             bottom = orig_height - amount_to_remove
-        elif type(focus_point) == Point:
+        else:
+            if type(focus_point) not in (
+                Point,
+                tuple,
+            ):
+                raise TypeError("focus_point is not FocusPointOption or Point")
+
             _, y = focus_point  # type: ignore
+            if y > orig_height:
+                raise ValueError("Focus point value must be within image dimensions")
+
             amount_to_keep = orig_height - amount_to_remove
-            top = min(int(y - (amount_to_keep / 2)), 0)
-            bottom = orig_height - (amount_to_remove - bottom)
+            midpoint = int(amount_to_keep / 2)
+            top = y - midpoint
+            if top <= 0:
+                top = 0
+            elif (top + amount_to_keep) > orig_height:
+                top = amount_to_remove
+            bottom = orig_height - (amount_to_remove - top)
     return (left, top, right, bottom)
 
 
 def get_filename_for_image_size(original_filename: str, prefix: str):
     head, tail = os.path.split(original_filename)
-    return f"{head}{prefix}{tail}"
+    return f"{head}/{prefix}/{tail}"
 
 
 def get_dimensions_and_prefix_from_standard_size(
@@ -169,15 +202,16 @@ def get_dimensions_and_prefix_from_standard_size(
     return (standard_size.dimensions, standard_size.prefix)
 
 
-def get_storage_instance():
-    return storages.create_storage(storages.backends["default"])
+def get_storage_instance(backend: str = "default"):
+    return storages.create_storage(storages.backends[backend])
 
 
-def get_file_from_storages(filename):
-    # @TODO get file if exists, compatible with django-storages but avoiding FileField
-    raise NotImplementedError()
+def open_file_from_storages(filename: str, mode: str = "rb") -> File:
+    storage = get_storage_instance()
+    return storage.open(filename, mode=mode)
 
 
-def write_file_to_storages(filename):
-    # @TODO write file, compatible with django-storages but avoiding FileField
-    raise NotImplementedError()
+def save_file_to_storages(filename: str, content) -> str:
+    storage = get_storage_instance()
+
+    return storage.save(filename, content)
