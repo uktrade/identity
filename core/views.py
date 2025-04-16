@@ -20,6 +20,7 @@ from django.http import (
 )
 from django.shortcuts import HttpResponse, redirect, render
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from core import services
 from core.api import do_hawk_auth
@@ -72,17 +73,12 @@ def profile_photo_handler(request: HttpRequest, slug: str):
     return HttpResponseNotAllowed(["GET", "POST", "DELETE"])
 
 
+@require_http_methods(["GET"])
+@login_required
 def get_profile_photo(request, slug: str, x: int | None = None, y: int | None = None):
     """
     Proxy endpoint to retrieve profile photo. Ensures requesting user is authenticated.
     """
-    if not request.user.is_authenticated:
-        return redirect(f"{settings.LOGIN_URL}")
-
-    if request.method != "GET":
-        # generally means someone has tried to access the resize param URL
-        return HttpResponseNotAllowed(["GET"])
-
     try:
         profile = services.get_peoplefinder_profile_by_slug(slug=slug)
     except PeopleFinderProfile.DoesNotExist:
@@ -106,6 +102,7 @@ def get_profile_photo(request, slug: str, x: int | None = None, y: int | None = 
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def upload_profile_photo(request, slug: str):
     """
     Endpoint to upload a new profile photo for the given profile
@@ -134,6 +131,7 @@ def upload_profile_photo(request, slug: str):
     return HttpResponse(ProfileResponse.from_orm(profile).json())
 
 
+@require_http_methods(["DELETE"])
 def delete_profile_photo(request, slug: str):
     """
     Endpoint to delete a profile photo for the given profile
