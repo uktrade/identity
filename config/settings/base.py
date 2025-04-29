@@ -132,6 +132,7 @@ LOCAL_APPS = [
 INSTALLED_APPS: list[str] = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
 MIDDLEWARE: list[str] = [
+    "core.middleware.no_cache",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
