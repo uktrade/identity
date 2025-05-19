@@ -2,6 +2,8 @@ import json
 import logging
 
 import boto3
+from data_flow_s3_import import ingest
+from data_flow_s3_import.types import PrimaryKey
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -11,8 +13,6 @@ from core.services import (
     get_identity_by_id,
     update_identity,
 )
-from data_flow_s3_import import ingest
-from data_flow_s3_import.types import PrimaryKey
 from profiles.models.combined import Profile
 from profiles.models.generic import Country, UkStaffLocation
 
