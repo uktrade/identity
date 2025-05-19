@@ -1,5 +1,3 @@
-from re import T
-
 import pytest
 
 from profiles import types
