@@ -102,7 +102,7 @@ class Email(AbstractHistoricalModel):
 
 class Country(IngestedModel):
     """
-    Country model populated by the Data Workspace country datasetfound here:
+    Country model is populated by the Data Workspace country dataset found here:
     https://data.trade.gov.uk/datasets/240d5034-6a83-451b-8307-5755672f881b#countries-territories-and-regions.
     """
 
@@ -129,7 +129,7 @@ class Country(IngestedModel):
 
 class UkStaffLocation(IngestedModel):
     """
-    UkStaffLocation model populated by the Data Workspace DBT Staff Locations datasetfound here:
+    UkStaffLocation model is populated by the Data Workspace DBT Staff Locations dataset found here:
     https://data.trade.gov.uk/datasets/e89b0647-9b83-48ae-9234-0fccd6b90fa4#dit-staff-locations.
     """
 
@@ -150,3 +150,34 @@ class UkStaffLocation(IngestedModel):
 
     def __str__(self) -> str:
         return self.name
+
+
+class SectorList(IngestedModel):
+    """
+    SectorList model is populated by the Data Workspace DBT Sector List dataset found here:
+    https://data.trade.gov.uk/datasets/5c67e06c-5456-40db-b93c-26043f972996
+    """
+
+    sector_id = models.CharField(max_length=255, unique=True)
+    full_sector_name = models.CharField(max_length=255)
+    sector_cluster_name_april_2023_onwards = models.CharField(max_length=255)
+    sector_cluster_name_before_april_2023 = models.CharField(max_length=255)
+    sector_name = models.CharField(max_length=255)
+    sub_sector_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    sub_sub_sector_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    start_date = models.DateField(
+        null=True,
+        blank=True,
+    )
+    end_date = models.DateField(
+        null=True,
+        blank=True,
+    )
