@@ -4,13 +4,13 @@ from unittest.mock import call
 
 import boto3
 import pytest
+from data_flow_s3_import.tests.utils import S3BotoResource
 from django.conf import settings
 from django.test import override_settings
 
 from core.services import create_identity, get_identity_by_id
 from core.utils import StaffSSOUserS3Ingest
 from core.utils import get_s3_resource as util_s3_resource
-from data_flow_s3_import.tests.utils import S3BotoResource
 from profiles.models.combined import Profile
 
 

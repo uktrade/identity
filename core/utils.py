@@ -2,6 +2,8 @@ import json
 import logging
 
 import boto3
+from data_flow_s3_import import ingest
+from data_flow_s3_import.types import PrimaryKey
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -11,10 +13,8 @@ from core.services import (
     get_identity_by_id,
     update_identity,
 )
-from data_flow_s3_import import ingest
-from data_flow_s3_import.types import PrimaryKey
 from profiles.models.combined import Profile
-from profiles.models.generic import Country, UkStaffLocation
+from profiles.models.generic import Country, SectorList, UkStaffLocation
 
 
 logger = logging.getLogger(__name__)
@@ -167,4 +167,31 @@ class UkStaffLocationsS3Ingest(DataFlowS3IngestToModel):
         obj: dict = json.loads(
             s=line
         )  # UkStaffLocation does not wrap content in 'object'
+        return self._process_object_workflow(obj=obj)
+
+
+class SectorListS3Ingest(DataFlowS3IngestToModel):
+    export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
+    export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
+    export_directory: str = settings.DATA_FLOW_SECTOR_LIST_DIRECTORY
+    model = SectorList
+    identifier_field_name = "sector_id"
+    identifier_field_object_mapping = "field_01"
+    mapping = {
+        "sector_id": "field_01",
+        "full_sector_name": "full_sector_name",
+        "sector_cluster_name_april_2023_onwards": "sector_cluster__april_2023",
+        "sector_cluster_name_before_april_2023": "field_03",
+        "sector_name": "field_04",
+        "sub_sector_name": "field_05",
+        "sub_sub_sector_name": "field_02",
+        "start_date": "field_06",
+        "end_date": "field_07",
+    }
+
+    def process_row(self, line: str) -> PrimaryKey:
+        """
+        Takes a row of the file, retrieves a dict of the instance it refers to and hands that off for processing
+        """
+        obj: dict = json.loads(s=line)  # SectorList does not wrap content in 'object'
         return self._process_object_workflow(obj=obj)
