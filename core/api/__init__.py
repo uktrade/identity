@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django_hawk.utils import DjangoHawkAuthenticationFailed, authenticate_request
 from ninja import NinjaAPI
+from ninja.throttling import AnonRateThrottle
 
 from core.api.main import router as main_router
 from core.api.peoplefinder.profile import router as peoplefinder_profile_router
@@ -26,6 +27,7 @@ main_api = NinjaAPI(
     urls_namespace="api",
     auth=[do_hawk_auth],
     docs_decorator=staff_member_required,
+    throttle=AnonRateThrottle(rate='1/s'),
 )
 if settings.INFRA_SERVICE == "MAIN" or settings.HOST_ALL_APIS:
     main_api.add_router("", main_router)
@@ -37,6 +39,7 @@ scim_api = NinjaAPI(
     urls_namespace="scim",
     auth=[do_hawk_auth],
     docs_decorator=staff_member_required,
+    throttle=AnonRateThrottle(rate='1/s'),
 )
 if settings.INFRA_SERVICE == "SSO_SCIM" or settings.HOST_ALL_APIS:
     scim_api.add_router("/v2/Users", scim_router)
@@ -48,6 +51,7 @@ sso_profile_api = NinjaAPI(
     urls_namespace="sso-profile",
     auth=[do_hawk_auth],
     docs_decorator=staff_member_required,
+    throttle=AnonRateThrottle(rate='1/s'),
 )
 if settings.INFRA_SERVICE == "SSO_PROFILE" or settings.HOST_ALL_APIS:
     sso_profile_api.add_router("", sso_profile_router)
@@ -59,6 +63,7 @@ people_finder_api = NinjaAPI(
     urls_namespace="people-finder",
     auth=[do_hawk_auth],
     docs_decorator=staff_member_required,
+    throttle=AnonRateThrottle(rate='1/s'),
 )
 if settings.INFRA_SERVICE == "PEOPLEFINDER" or settings.HOST_ALL_APIS:
     people_finder_api.add_router("", peoplefinder_profile_router)
